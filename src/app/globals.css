@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020617; /* slate-950 */
+  --foreground: #f9fafb; /* zinc-50 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-bitcoin-orange: #f97316;
+  --color-bitcoin-cyan: #22d3ee;
+  --color-bitcoin-purple: #a855f7;
+}
+
+body {
+  background: radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
+  color: var(--foreground);
+}
+
+a {
+  text-decoration: none;
+}
+
+.bg-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.16) 1px, transparent 0);
+  background-size: 32px 32px;
+}
+

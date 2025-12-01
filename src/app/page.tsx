@@ -1,0 +1,94 @@
+import Link from "next/link";
+import { PageContainer } from "@/components/PageContainer";
+
+const chapters = [
+  { slug: "what-is-bitcoin", title: "Chapter 1 · What is Bitcoin?", level: "Beginner" },
+  { slug: "keys-addresses-utxos", title: "Chapter 2 · Keys, Addresses, UTXOs", level: "Beginner" },
+  { slug: "transactions-and-mempool", title: "Chapter 3 · Transactions & Mempool", level: "Intermediate" },
+  { slug: "blocks-and-mining", title: "Chapter 4 · Blocks & Mining", level: "Intermediate" },
+  { slug: "wallet-recovery", title: "Chapter 5 · Wallet Recovery", level: "Practical" },
+  {
+    slug: "bitcoin-trading-and-risk",
+    title: "Chapter 6 · Bitcoin Trading & Risk",
+    level: "Caution",
+  },
+];
+
+export default function Home() {
+  return (
+    <PageContainer
+      title="Understand Bitcoin with a builder’s mindset."
+      subtitle="From keys and UTXOs to mining and wallet recovery — a visual, hands-on guide to how Bitcoin really works, before you ever think about touching real coins."
+    >
+      <section className="grid gap-10 lg:grid-cols-[minmax(0,3fr),minmax(0,2fr)]">
+        <div className="space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-medium text-orange-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-orange-400" />
+            Beginner-friendly · Self-paced · Testnet-safe
+          </div>
+          <p className="text-sm text-zinc-300 sm:text-base">
+            No hype, no noise. Just the mechanics: keys, addresses, UTXOs, transactions,
+            blocks, mining, recovery, and the real risks of trading — with diagrams and
+            terminal examples to make each idea click.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Link
+              href="/chapters"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 via-orange-400 to-purple-500 px-6 py-2.5 text-sm font-semibold text-black shadow-[0_0_40px_rgba(34,211,238,0.8)] transition hover:brightness-110"
+            >
+              Start learning Bitcoin
+            </Link>
+            <span className="text-xs text-zinc-400 sm:text-sm">
+              Start at Chapter 1 • 10–15 min per chapter • Practice on regtest/testnet
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 text-xs text-zinc-300 sm:grid-cols-3 sm:text-sm">
+            <div className="rounded-xl border border-cyan-400/30 bg-black/70 p-3 shadow-[0_0_30px_rgba(34,211,238,0.35)]">
+              <p className="font-semibold text-cyan-200">Visual diagrams</p>
+              <p className="mt-1 text-[11px] text-zinc-400 sm:text-xs">
+                Flows for UTXOs, transaction lifecycles, mempool, and blocks.
+              </p>
+            </div>
+            <div className="rounded-xl border border-orange-500/30 bg-black/70 p-3 shadow-[0_0_30px_rgba(249,115,22,0.35)]">
+              <p className="font-semibold text-orange-200">Commands & code</p>
+              <p className="mt-1 text-[11px] text-zinc-400 sm:text-xs">
+                `bitcoin-cli` examples, regtest setups, and wallet walkthroughs.
+              </p>
+            </div>
+            <div className="rounded-xl border border-purple-500/30 bg-black/70 p-3 shadow-[0_0_30px_rgba(168,85,247,0.35)]">
+              <p className="font-semibold text-purple-200">Risk & safety</p>
+              <p className="mt-1 text-[11px] text-zinc-400 sm:text-xs">
+                Learn recovery and trading risks in a safe, testnet-first way.
+              </p>
+            </div>
+          </div>
+        </div>
+        <aside className="space-y-4 rounded-2xl border border-cyan-400/25 bg-black/80 p-4 shadow-[0_0_50px_rgba(34,211,238,0.45)] sm:p-5">
+          <h2 className="text-sm font-semibold text-orange-100 sm:text-base">
+            Learning path · Chapters
+          </h2>
+          <ul className="space-y-2 text-sm">
+            {chapters.map((chapter) => (
+              <li key={chapter.slug}>
+                <Link
+                  href={`/chapters/${chapter.slug}`}
+                  className="flex items-center justify-between rounded-lg border border-cyan-400/20 bg-cyan-400/5 px-3 py-2 text-zinc-100 transition hover:border-cyan-300/70 hover:bg-cyan-400/10"
+                >
+                  <span>{chapter.title}</span>
+                  <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[10px] font-medium text-cyan-200">
+                    {chapter.level}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="pt-1 text-[11px] text-zinc-500">
+            Coming soon: quizzes, glossary, and a “try it on regtest” playground to
+            solidify each chapter.
+          </p>
+        </aside>
+      </section>
+    </PageContainer>
+  );
+}
+
