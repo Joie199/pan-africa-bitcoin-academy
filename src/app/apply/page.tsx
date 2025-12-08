@@ -139,22 +139,59 @@ export default function ApplyPage() {
   // Auto-fill preferred cohort when a cohort is selected
   useEffect(() => {
     if (selectedCohort !== null) {
-      setFormData((prev) => ({ ...prev, preferredCohort: selectedCohort.toString() }));
+      const cohort = cohorts.find((c) => c.id === selectedCohort);
+      if (cohort) {
+        setFormData((prev) => ({ ...prev, preferredCohort: cohort.name }));
+      }
     }
   }, [selectedCohort]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     // The phone number is already combined in formData.phone via handlePhoneChange
     const finalFormData = {
       ...formData,
       name: `${formData.firstName} ${formData.lastName}`.trim(), // Combine first and last name
       country: selectedCountry,
     };
-    
-    // In production, this would submit to Google Forms or your backend
-    const formUrl = "https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform";
-    window.open(formUrl, "_blank");
+
+    try {
+      // Submit to Notion API
+      const response = await fetch('/api/notion/submit-application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalFormData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Application submitted successfully! We will review and get back to you soon.');
+        // Reset form
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          country: "",
+          city: "",
+          experienceLevel: "",
+          preferredCohort: "",
+        });
+        setSelectedCountry("");
+        setSelectedCountryCode("");
+        setPhoneNumber("");
+        setSelectedCohort(null);
+      } else {
+        throw new Error(result.error || 'Failed to submit application');
+      }
+    } catch (error: any) {
+      console.error('Error submitting application:', error);
+      alert(`Error: ${error.message}. Please try again or contact support.`);
+    }
   };
 
   return (

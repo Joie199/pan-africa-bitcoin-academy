@@ -45,6 +45,7 @@ A modern, visual guide to understanding Bitcoin — from keys and UTXOs to minin
 - **TypeScript** - Type-safe development
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **React 19** - Latest React features
+- **Notion API** - Database integration for applications and cohorts
 
 ## Getting Started
 
@@ -54,7 +55,19 @@ First, install dependencies:
 npm install
 ```
 
-Then, run the development server:
+### Environment Setup
+
+Create a `.env.local` file in the root directory (see `env.template` for reference):
+
+```env
+NOTION_API_KEY=secret_your_notion_api_key_here
+NOTION_APPLICATIONS_DB_ID=your_applications_database_id_here
+NOTION_COHORTS_DB_ID=your_cohorts_database_id_here
+```
+
+See [NOTION_SETUP.md](./NOTION_SETUP.md) for detailed setup instructions.
+
+### Run the Development Server
 
 ```bash
 npm run dev
@@ -67,6 +80,10 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Test Notion Connection
+
+Visit [http://localhost:3000/api/notion/test](http://localhost:3000/api/notion/test) to verify your Notion integration is working.
 
 ## Project Structure
 
@@ -91,6 +108,14 @@ src/
 │   ├── Calendar.tsx        # Interactive calendar with events
 │   ├── PageContainer.tsx  # Page layout wrapper (full-width)
 │   └── BitcoinIcons.tsx   # Custom Bitcoin B iconography
+├── lib/                   # Utility libraries
+│   └── notion.ts          # Notion API client and helpers
+├── app/
+│   └── api/               # API routes
+│       └── notion/        # Notion integration endpoints
+│           ├── test/      # Connection test endpoint
+│           ├── submit-application/ # Form submission endpoint
+│           └── cohorts/   # Cohorts data endpoint
 ├── app/layout.tsx         # Root layout with Bitcoin backgrounds
 └── tailwind.config.ts     # Tailwind theme (Bitcoin palette)
 ```
