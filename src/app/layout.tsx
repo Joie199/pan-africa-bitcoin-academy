@@ -31,9 +31,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-50 antialiased`}
         suppressHydrationWarning
       >
+        {/* Bitcoin Background Elements */}
+        <div className="bitcoin-keys-bg" />
         <div className="flex min-h-screen flex-col">
           <Navbar />
-          <div className="flex-1">{children}</div>
+          <div className="flex-1 relative z-10">{children}</div>
           <Footer />
         </div>
       </body>

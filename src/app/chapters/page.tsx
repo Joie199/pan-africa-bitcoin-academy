@@ -1,58 +1,742 @@
+'use client';
+
+import { useState } from "react";
 import Link from "next/link";
-import { PageContainer } from "@/components/PageContainer";
+import { BitcoinIcon, WalletIcon, LightningIcon, BookIcon, ToolIcon, BlockchainIcon, KeysIcon, UTXOIcon, TransactionIcon, MiningIcon } from "@/components/BitcoinIcons";
+
+const levels = [
+  { id: 1, name: "Level I (Genesis)", description: "Foundations, the fiat problem, and first steps into Bitcoin", color: "cyan" },
+  { id: 2, name: "Level II (Difficulty-Adjustment 1)", description: "Intermediate concepts and practical skills", color: "orange" },
+  { id: 3, name: "Level III (Advanced Sovereignty)", description: "Full control: your rules, your verification, collaborative custody", color: "purple" },
+];
 
 const chapters = [
-  { slug: "what-is-bitcoin", title: "What is Bitcoin?", level: "Beginner" },
-  { slug: "keys-addresses-utxos", title: "Keys, Addresses, UTXOs", level: "Beginner" },
-  { slug: "transactions-and-mempool", title: "Transactions & Mempool", level: "Intermediate" },
-  { slug: "blocks-and-mining", title: "Blocks & Mining", level: "Intermediate" },
-  { slug: "wallet-recovery", title: "Wallet Recovery", level: "Practical" },
+  // Level I
   {
-    slug: "bitcoin-trading-and-risk",
-    title: "Bitcoin Trading & Risk",
-    level: "Caution",
+    id: 1,
+    level: 1,
+    number: 1,
+    title: "The Nature of Money",
+    difficulty: "Beginner",
+    time: "45 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Class Questions on 'What is Money?'"],
+    learnPoints: [
+      "Why humans created money",
+      "Functions of money — Medium of Exchange, Store of Value, Unit of Account",
+      "Properties of sound money — Scarce, Durable, Portable, Divisible, Recognizable",
+    ],
+    theory: ["Introduction to money", "Why humans created money", "Functions and properties of money"],
+    practice: ["Class discussion on money", "Activity: What is Money?"],
+    video: "5-minute explanation of money evolution",
+    quiz: "5 questions on money fundamentals",
+  },
+  {
+    id: 2,
+    level: 1,
+    number: 2,
+    title: "The Journey of Money",
+    difficulty: "Beginner",
+    time: "50 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Timeline of Money"],
+    learnPoints: [
+      "From barter to commodity exchange",
+      "Coinage and precious metals",
+      "Paper money and banknotes",
+      "The rise of fiat currencies",
+      "Precursors to Bitcoin — Haber & Stornetta Time-Stamping",
+    ],
+    theory: ["History of money evolution", "Barter to fiat transition", "Pre-Bitcoin innovations"],
+    practice: ["Create timeline of money", "Activity: Timeline of Money"],
+    video: "Visual journey through money history",
+    quiz: "5 questions on money evolution",
+  },
+  {
+    id: 3,
+    level: 1,
+    number: 3,
+    title: "Problems with Traditional (Fiat) Money",
+    difficulty: "Beginner",
+    time: "55 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Class Discussion: 'Do We Trust Our Money?'"],
+    learnPoints: [
+      "Inflation and loss of purchasing power",
+      "Centralized control — Governments and Banks",
+      "Financial exclusion and inequality",
+      "Fragility of the current system",
+    ],
+    theory: ["Fiat money problems", "Inflation mechanisms", "Centralization risks"],
+    practice: ["Class discussion", "Activity: Trust in money"],
+    video: "Problems with fiat explained",
+    quiz: "5 questions on fiat issues",
+  },
+  {
+    id: 4,
+    level: 1,
+    number: 4,
+    title: "From Crisis to Innovation",
+    difficulty: "Beginner",
+    time: "60 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["The Effects of Inflation — An Auction Simulation"],
+    learnPoints: [
+      "Why the old system was failing",
+      "Decreasing purchasing power",
+      "Monetary inflation and its effects",
+      "Global debt burden and social inequality",
+      "The Cypherpunks & Early Digital Currencies",
+    ],
+    theory: ["System failures", "Inflation effects", "Cypherpunk movement"],
+    practice: ["Auction simulation", "Activity: Inflation effects"],
+    video: "Crisis to innovation story",
+    quiz: "5 questions on crisis and innovation",
+  },
+  {
+    id: 5,
+    level: 1,
+    number: 5,
+    title: "The Birth of Bitcoin",
+    difficulty: "Beginner",
+    time: "50 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Reading a Simplified Whitepaper Excerpt"],
+    learnPoints: [
+      "2008 Financial Crisis context",
+      "Satoshi Nakamoto and the Whitepaper",
+      "Bitcoin as Peer-to-Peer Electronic Cash",
+      "Ledger/platform money concept",
+    ],
+    theory: ["2008 crisis", "Satoshi's vision", "Bitcoin whitepaper basics"],
+    practice: ["Read whitepaper excerpt", "Activity: Whitepaper analysis"],
+    video: "Birth of Bitcoin story",
+    quiz: "5 questions on Bitcoin origins",
+  },
+  {
+    id: 6,
+    level: 1,
+    number: 6,
+    title: "Keys and Transactions",
+    difficulty: "Beginner",
+    time: "60 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Role-play a Bitcoin Transaction"],
+    learnPoints: [
+      "Digital signatures — How Bitcoin verifies ownership",
+      "Public/Private keys explained simply",
+      "Peer-to-Peer transactions (broadcast, verification, confirmation)",
+    ],
+    theory: ["Digital signatures", "Public/private keys", "Transaction flow"],
+    practice: ["Role-play transaction", "Activity: Transaction simulation"],
+    video: "Keys and transactions explained",
+    quiz: "5 questions on keys and transactions",
+  },
+  {
+    id: 7,
+    level: 1,
+    number: 7,
+    title: "Blockchain Basics",
+    difficulty: "Beginner",
+    time: "55 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Build a Paper Blockchain (hash-link demo)"],
+    learnPoints: [
+      "Blocks, Hashes, and Linking",
+      "The Role of Merkle Trees in Proving Transactions",
+      "Immutability, Tamper-Evidence, and Trust-Minimization",
+      "What Miners Hash — Anatomy of a Block Header",
+    ],
+    theory: ["Block structure", "Merkle trees", "Immutability concepts"],
+    practice: ["Paper blockchain demo", "Activity: Hash-link demo"],
+    video: "Blockchain basics visualized",
+    quiz: "5 questions on blockchain",
+  },
+  {
+    id: 8,
+    level: 1,
+    number: 8,
+    title: "Exchange & Software Wallet",
+    difficulty: "Beginner",
+    time: "70 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Testnet Walkthrough — Buy mock sats → send to class wallets"],
+    learnPoints: [
+      "What Is an Exchange? How to Acquire Bitcoin",
+      "Software Signer (mobile/desktop): create wallet, seed backup",
+      "Complete a First Transaction (send/receive)",
+      "Privacy Basics (VPN, address reuse awareness, local-first tools)",
+    ],
+    theory: ["Exchanges overview", "Wallet basics", "Privacy fundamentals"],
+    practice: ["Create wallet", "Testnet transaction", "Activity: Testnet walkthrough"],
+    video: "Wallet setup tutorial",
+    quiz: "5 questions on wallets",
+  },
+  // Level II
+  {
+    id: 9,
+    level: 2,
+    number: 9,
+    title: "UTXOs, Fees & Coin Control",
+    difficulty: "Intermediate",
+    time: "65 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Plan a Spend from a UTXO Set (paper exercise)"],
+    learnPoints: [
+      "What You Really Own (UTXO model)",
+      "Fees and Input Selection (change outputs; sat/vB basics)",
+      "UTXO Management & When to Consolidate",
+      "Privacy & fee trade-offs",
+    ],
+    theory: ["UTXO model", "Fee mechanisms", "Coin control"],
+    practice: ["UTXO planning", "Activity: UTXO set exercise"],
+    video: "UTXOs explained",
+    quiz: "5 questions on UTXOs",
+  },
+  {
+    id: 10,
+    level: 2,
+    number: 10,
+    title: "Good Bitcoin Hygiene",
+    difficulty: "Intermediate",
+    time: "50 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Hygiene Checklist Audit on a Demo Wallet"],
+    learnPoints: [
+      "New Receive Address Each Time; verify on the device",
+      "Labeling Transactions and UTXOs for future spending",
+      "Basic Privacy Habits (avoid reuse; payment flow awareness)",
+    ],
+    theory: ["Privacy best practices", "Address management", "Transaction labeling"],
+    practice: ["Hygiene audit", "Activity: Checklist audit"],
+    video: "Bitcoin hygiene guide",
+    quiz: "5 questions on hygiene",
+  },
+  {
+    id: 11,
+    level: 2,
+    number: 11,
+    title: "Hardware Signers",
+    difficulty: "Intermediate",
+    time: "75 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Dry-Run Recovery (no funds) + sign a testnet PSBT"],
+    learnPoints: [
+      "Why Hardware (threats it mitigates; hot vs cold)",
+      "Setup, Backup, and Test Recovery (seed vs passphrase basics)",
+      "Spending Safely with a Hardware Signer (PSBT flow)",
+    ],
+    theory: ["Hardware wallet security", "Hot vs cold storage", "PSBT basics"],
+    practice: ["Hardware setup", "Recovery test", "Activity: PSBT signing"],
+    video: "Hardware wallet tutorial",
+    quiz: "5 questions on hardware wallets",
+  },
+  {
+    id: 12,
+    level: 2,
+    number: 12,
+    title: "Layer 2 & Sidechains in Daily Life",
+    difficulty: "Intermediate",
+    time: "70 min",
+    icon: "⚡",
+    type: "practice",
+    activities: ["Live Lightning Payment Demo"],
+    learnPoints: [
+      "Lightning Basics (fast payments; settlement trade-offs)",
+      "Receive and Spend via Lightning (custodial vs non-custodial)",
+      "Sidechains Overview (e.g., Liquid — federated trade-offs)",
+      "Circular Economies — markets that run on sats",
+    ],
+    theory: ["Lightning Network", "Layer 2 solutions", "Sidechains"],
+    practice: ["Lightning payment", "Activity: Live demo"],
+    video: "Lightning explained",
+    quiz: "5 questions on Lightning",
+  },
+  {
+    id: 13,
+    level: 2,
+    number: 13,
+    title: "Verify for Yourself — Block Explorers & Nodes",
+    difficulty: "Intermediate",
+    time: "60 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Explorer Scavenger Hunt"],
+    learnPoints: [
+      "Using a Block Explorer (txids, confirmations, feerates)",
+      "Proving Inclusion (Merkle path, high-level)",
+      "Why Run a Node (don't trust—verify; mempool view; policy/relay)",
+      "First-Time Sync & Costs",
+    ],
+    theory: ["Block explorers", "Node importance", "Verification methods"],
+    practice: ["Explorer usage", "Activity: Scavenger hunt"],
+    video: "Nodes and explorers guide",
+    quiz: "5 questions on verification",
+  },
+  {
+    id: 14,
+    level: 2,
+    number: 14,
+    title: "Proof of Work and Block Rewards",
+    difficulty: "Intermediate",
+    time: "55 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["'Proof-of-Work by Hand' classroom game"],
+    learnPoints: [
+      "Proof of Work (hard to make, easy to verify)",
+      "Miners & Block Rewards — current reward 3.125 BTC",
+      "Halving Schedule and Monetary Inflation",
+      "Subsidy Timeline — 2140 End of New Supply",
+    ],
+    theory: ["Proof of Work", "Mining rewards", "Halving schedule"],
+    practice: ["PoW game", "Activity: Proof-of-Work by hand"],
+    video: "Mining explained",
+    quiz: "5 questions on PoW",
+  },
+  {
+    id: 15,
+    level: 2,
+    number: 15,
+    title: "Mining in Practice",
+    difficulty: "Intermediate",
+    time: "60 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Chart the Impact of Difficulty and Fees on Security"],
+    learnPoints: [
+      "Difficulty Adjustment (every 2,016 blocks; ~10-min target)",
+      "Mining Pools & Centralization Risk",
+      "The 'Security Budget': subsidy decline vs fee market",
+      "ASIC Supply Chains & Geopolitical Risk",
+    ],
+    theory: ["Difficulty adjustment", "Mining pools", "Security budget"],
+    practice: ["Security analysis", "Activity: Chart impact"],
+    video: "Mining in practice",
+    quiz: "5 questions on mining",
+  },
+  // Level III
+  {
+    id: 16,
+    level: 3,
+    number: 16,
+    title: "Full Node & Opening a Lightning Channel",
+    difficulty: "Advanced",
+    time: "80 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Simulated channel open/close (regtest/testnet)"],
+    learnPoints: [
+      "Choosing a Node Stack; privacy tips",
+      "Open/Close a Channel; routing basics",
+      "Backups/watchtowers",
+    ],
+    theory: ["Node stacks", "Lightning channels", "Routing basics"],
+    practice: ["Channel operations", "Activity: Channel simulation"],
+    video: "Node and Lightning setup",
+    quiz: "5 questions on nodes and channels",
+  },
+  {
+    id: 17,
+    level: 3,
+    number: 17,
+    title: "Multi-Sig (Collaborative Custody)",
+    difficulty: "Advanced",
+    time: "70 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Design a 2-of-3 Family Custody Plan"],
+    learnPoints: [
+      "Why Multi-Sig (family/orgs/inheritance)",
+      "M-of-N Designs; coordinator vs coordinator-less flows",
+      "Backup Strategies and Operational Playbooks",
+    ],
+    theory: ["Multi-sig concepts", "M-of-N designs", "Custody strategies"],
+    practice: ["Multi-sig setup", "Activity: Family custody plan"],
+    video: "Multi-sig explained",
+    quiz: "5 questions on multi-sig",
+  },
+  {
+    id: 18,
+    level: 3,
+    number: 18,
+    title: "Intro to Bitcoin Script (Optional Track)",
+    difficulty: "Advanced",
+    time: "65 min",
+    icon: "📘",
+    type: "theory",
+    activities: [],
+    learnPoints: [
+      "Locking & Unlocking Conditions (P2PKH → P2WPKH)",
+      "Timelocks & Simple Policies (high-level)",
+      "Where Script Appears in Real Wallets",
+    ],
+    theory: ["Bitcoin Script", "Locking conditions", "Timelocks"],
+    practice: ["Script examples", "Policy design"],
+    video: "Script basics",
+    quiz: "5 questions on Script",
+  },
+  {
+    id: 19,
+    level: 3,
+    number: 19,
+    title: "UTXO Consolidation & Privacy Risks",
+    difficulty: "Advanced",
+    time: "60 min",
+    icon: "🛠",
+    type: "practice",
+    activities: ["Draft a Consolidation Plan for a Noisy UTXO Set"],
+    learnPoints: [
+      "When to Consolidate (fee windows; mempool conditions)",
+      "Privacy Erosion Risks & Coin-Control Discipline",
+      "Spend Plans for Future Fees and Privacy",
+    ],
+    theory: ["Consolidation strategies", "Privacy risks", "Coin control"],
+    practice: ["Consolidation planning", "Activity: Draft plan"],
+    video: "Privacy and consolidation",
+    quiz: "5 questions on consolidation",
+  },
+  {
+    id: 20,
+    level: 3,
+    number: 20,
+    title: "Why Bitcoin? Philosophy & Adoption",
+    difficulty: "Advanced",
+    time: "55 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Debate: 'Do You Trust Code or State?'"],
+    learnPoints: [
+      "Chartalist vs Metallist vs Platform Money (thinking framework)",
+      "Bitcoin vs bitcoin (protocol/network vs unit)",
+      "Trust-Minimized Finance & Who Benefits",
+    ],
+    theory: ["Money philosophy", "Bitcoin vs bitcoin", "Trust minimization"],
+    practice: ["Philosophical debate", "Activity: Code vs State debate"],
+    video: "Bitcoin philosophy",
+    quiz: "5 questions on philosophy",
+  },
+  {
+    id: 21,
+    level: 3,
+    number: 21,
+    title: "Wrap-Up & Resources",
+    difficulty: "Advanced",
+    time: "40 min",
+    icon: "📘",
+    type: "theory",
+    activities: ["Final Reflection — 'From Failing Fiat to Sovereign Bitcoin'"],
+    learnPoints: [
+      "Glossary of key terms",
+      "Primary Sources & Local-First Tools",
+      "Final Reflection on the journey",
+    ],
+    theory: ["Course summary", "Resources", "Next steps"],
+    practice: ["Final reflection", "Activity: Reflection exercise"],
+    video: "Course wrap-up",
+    quiz: "Final assessment",
   },
 ];
 
+const comingSoon = [
+  "Deep dive into nodes",
+  "Self-custody advanced",
+  "CBDCs vs Bitcoin",
+  "Bitcoin for entrepreneurs",
+  "Satoshi-level coding intro",
+  "Formally verified assignments",
+  "Lightning developer path",
+];
+
 export default function ChaptersPage() {
+  const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+
+  const getLevelChapters = (levelId: number) => {
+    return chapters.filter((ch) => ch.level === levelId);
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Beginner":
+        return "bg-cyan-500/20 text-cyan-300 border-cyan-400/30";
+      case "Intermediate":
+        return "bg-orange-500/20 text-orange-300 border-orange-400/30";
+      case "Advanced":
+        return "bg-purple-500/20 text-purple-300 border-purple-400/30";
+      default:
+        return "bg-zinc-500/20 text-zinc-300 border-zinc-400/30";
+    }
+  };
+
+  const getChapterIcon = (chapter: typeof chapters[0]) => {
+    // Always use Bitcoin "B" icon for all chapters
+    return <BitcoinIcon className="w-6 h-6 text-orange-400" />;
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "theory":
+        return <BookIcon className="w-4 h-4" />;
+      case "practice":
+        return <ToolIcon className="w-4 h-4" />;
+      case "lightning":
+        return <LightningIcon className="w-4 h-4" />;
+      default:
+        return <BookIcon className="w-4 h-4" />;
+    }
+  };
+
   return (
-    <PageContainer
-      title="Chapters"
-      subtitle="Work through the lessons in order, or jump directly to the topic you care about most."
-    >
-      <div className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {chapters.map((chapter, index) => (
-            <Link
-              key={chapter.slug}
-              href={`/chapters/${chapter.slug}`}
-              className="group flex flex-col justify-between rounded-xl border border-cyan-400/25 bg-black/80 p-4 text-sm text-zinc-100 shadow-[0_0_40px_rgba(34,211,238,0.25)] transition hover:border-cyan-300/80 hover:bg-zinc-950"
-            >
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-cyan-300">
-                  Chapter {index + 1} · {chapter.level}
-                </p>
-                <h2 className="text-base font-semibold group-hover:text-cyan-100">
-                  {chapter.title}
-                </h2>
-                <p className="text-xs text-zinc-400">
-                  Short, focused lesson with diagrams, key terms, and a quick recap.
-                </p>
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      <div className="relative z-10 w-full bg-black/95">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
+              Learning Path: Bitcoin Foundations → Lightning → Sovereignty
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-zinc-400 sm:text-xl">
+              Follow the lessons step-by-step or jump to any topic you want to explore.
+            </p>
+            <p className="mx-auto mt-2 max-w-3xl text-base text-zinc-400">
+              Each chapter includes diagrams, real examples, assignments, and a quick quiz.
+            </p>
+          </div>
+
+          {/* Learning Path Progress Bar */}
+          <div className="mb-16 rounded-xl border border-cyan-400/25 bg-black/80 p-6 shadow-[0_0_40px_rgba(34,211,238,0.2)]">
+            <h2 className="mb-6 text-center text-xl font-semibold text-cyan-200">Learning Path Progress</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex flex-1 items-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500/20 text-sm font-bold text-cyan-300">
+                  I
+                </div>
+                <div className="flex-1 border-t-2 border-cyan-400/30 mx-2" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500/20 text-sm font-bold text-orange-300">
+                  II
+                </div>
+                <div className="flex-1 border-t-2 border-orange-400/30 mx-2" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-500/20 text-sm font-bold text-purple-300">
+                  III
+                </div>
               </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
-                <span>~10–15 min</span>
-                <span className="text-cyan-300">View chapter →</span>
+            </div>
+            <div className="mt-4 flex justify-between text-xs text-zinc-400">
+              <span>Genesis</span>
+              <span>Difficulty-Adjustment</span>
+              <span>Advanced Sovereignty</span>
+            </div>
+          </div>
+
+          {/* Recommended Path */}
+          <div className="mb-16">
+            <h2 className="mb-3 text-2xl font-semibold text-orange-300 sm:text-3xl">Recommended Learning Path</h2>
+            <p className="mb-8 text-base text-zinc-300 sm:text-lg">
+              We recommend following these chapters in order for the best learning experience:
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              {chapters.slice(0, 8).map((chapter) => (
+                <Link
+                  key={chapter.id}
+                  href={`/chapters/${chapter.id}`}
+                  className="group rounded-xl border border-orange-400/30 bg-black/60 px-4 py-3 text-center transition hover:border-orange-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)]"
+                >
+                  <div className="text-sm font-medium text-orange-300 transition group-hover:text-orange-200">
+                    {chapter.number}. {chapter.title}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Chapters by Level */}
+          {levels.map((level) => {
+            const levelChapters = getLevelChapters(level.id);
+            return (
+              <div key={level.id} className="mb-16">
+                <div className="mb-8">
+                  <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl">{level.name}</h2>
+                  <p className="mt-2 text-base text-zinc-400">{level.description}</p>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {levelChapters.map((chapter) => (
+                    <div
+                      key={chapter.id}
+                      className="group relative rounded-xl border border-cyan-400/25 bg-black/80 p-6 shadow-[0_0_20px_rgba(34,211,238,0.1)] transition hover:border-cyan-400/50 hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]"
+                    >
+                      {/* Chapter Header */}
+                      <div className="mb-4 flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-shrink-0">
+                            {getChapterIcon(chapter)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-cyan-300">
+                                Chapter {chapter.number}
+                              </span>
+                              <span
+                                className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${getDifficultyColor(
+                                  chapter.difficulty
+                                )}`}
+                              >
+                                {chapter.difficulty}
+                              </span>
+                            </div>
+                            <h3 className="mt-1 text-lg font-semibold text-zinc-50 group-hover:text-cyan-100">
+                              {chapter.title}
+                            </h3>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Time & Type Badge */}
+                      <div className="mb-4 flex items-center gap-2 text-xs text-zinc-400">
+                        <span>⏱ {chapter.time}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <span className="text-cyan-400">{getTypeIcon(chapter.type)}</span> {chapter.type}
+                        </span>
+                      </div>
+
+                      {/* What You Will Learn */}
+                      <div className="mb-4">
+                        <p className="mb-2 text-xs font-medium text-zinc-400">You will learn:</p>
+                        <ul className="space-y-1 text-xs text-zinc-300">
+                          {chapter.learnPoints.slice(0, 3).map((point, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span className="text-orange-400">•</span>
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                          {chapter.learnPoints.length > 3 && (
+                            <li className="text-cyan-400">+ {chapter.learnPoints.length - 3} more</li>
+                          )}
+                        </ul>
+                      </div>
+
+                      {/* Activities Badge */}
+                      {chapter.activities.length > 0 && (
+                        <div className="mb-4">
+                          <span className="inline-flex items-center gap-1 rounded-lg bg-orange-500/10 px-2 py-1 text-[10px] font-medium text-orange-300">
+                            <ToolIcon className="w-3 h-3" /> {chapter.activities.length} {chapter.activities.length === 1 ? "Activity" : "Activities"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* What's Inside Toggle */}
+                      <button
+                        onClick={() =>
+                          setExpandedChapter(expandedChapter === chapter.id ? null : chapter.id)
+                        }
+                        className="mb-4 w-full rounded-lg border border-cyan-400/20 bg-cyan-400/5 px-3 py-2 text-xs font-medium text-cyan-300 transition hover:bg-cyan-400/10"
+                      >
+                        {expandedChapter === chapter.id ? "Hide" : "Show"} What's Inside ↓
+                      </button>
+
+                      {/* What's Inside Content */}
+                      {expandedChapter === chapter.id && (
+                        <div className="mb-4 space-y-3 rounded-lg border border-cyan-400/20 bg-zinc-900/50 p-4 text-xs">
+                          <div>
+                            <p className="mb-1 font-medium text-cyan-200">📘 Theory:</p>
+                            <ul className="ml-4 list-disc space-y-1 text-zinc-400">
+                              {chapter.theory.map((item, idx) => (
+                                <li key={idx}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="mb-1 font-medium text-orange-200">🛠 Practice:</p>
+                            <ul className="ml-4 list-disc space-y-1 text-zinc-400">
+                              {chapter.practice.map((item, idx) => (
+                                <li key={idx}>{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="mb-1 font-medium text-purple-200">🎥 Video:</p>
+                            <p className="ml-4 text-zinc-400">{chapter.video}</p>
+                          </div>
+                          <div>
+                            <p className="mb-1 font-medium text-cyan-200">🧪 Quiz:</p>
+                            <p className="ml-4 text-zinc-400">{chapter.quiz}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* View Chapter Button */}
+                      <Link
+                        href={`/chapters/${chapter.id}`}
+                        className="block w-full rounded-lg bg-gradient-to-r from-cyan-400 to-orange-400 px-4 py-2 text-center text-sm font-semibold text-black transition hover:brightness-110"
+                      >
+                        View Chapter →
+                      </Link>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </Link>
-          ))}
+            );
+          })}
+
+          {/* Coming Soon Section */}
+          <div className="mb-16 rounded-xl border border-purple-500/25 bg-black/80 p-8 shadow-[0_0_40px_rgba(168,85,247,0.2)]">
+            <h2 className="mb-6 text-2xl font-semibold text-purple-200">Coming Soon</h2>
+            <p className="mb-4 text-sm text-zinc-300">
+              We're constantly expanding our curriculum. Here's what's coming next:
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {comingSoon.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 rounded-lg border border-purple-400/20 bg-purple-500/10 px-4 py-2"
+                >
+                  <span className="text-purple-300">✨</span>
+                  <span className="text-sm text-zinc-300">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer CTA */}
+          <div className="rounded-xl border border-orange-500/25 bg-black/80 p-8 text-center shadow-[0_0_40px_rgba(249,115,22,0.2)]">
+            <h2 className="mb-4 text-2xl font-semibold text-orange-200">Ready to start learning?</h2>
+            <div className="mt-6 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link
+                href="/apply"
+                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-orange-400 to-cyan-400 px-6 py-3 text-base font-semibold text-black transition hover:brightness-110"
+              >
+                🔸 Join Cohort 1
+              </Link>
+              <Link
+                href="/about"
+                className="inline-flex items-center justify-center rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-6 py-3 text-base font-semibold text-cyan-300 transition hover:bg-cyan-400/20"
+              >
+                🔸 Download the Syllabus
+              </Link>
+              <a
+                href="https://t.me/bitcoinacademy"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center rounded-lg border border-purple-400/30 bg-purple-400/10 px-6 py-3 text-base font-semibold text-purple-300 transition hover:bg-purple-400/20"
+              >
+                🔸 Join Telegram Community
+              </a>
+            </div>
+          </div>
         </div>
-        <p className="text-xs text-zinc-500">
-          Coming later: topic filters (Beginner / Advanced), progress tracking, and mini
-          quizzes for each chapter.
-        </p>
       </div>
-    </PageContainer>
+    </div>
   );
 }
-
-

@@ -1,12 +1,19 @@
-import { PageContainer } from "@/components/PageContainer";
-
 export default function AboutPage() {
   return (
-    <PageContainer
-      title="About this Bitcoin learning project"
-      subtitle="Why this site exists, who it’s for, and how to get the most out of it."
-    >
-      <div className="space-y-8 text-sm text-zinc-100 sm:text-base">
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      <div className="relative z-10 w-full bg-black/95">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
+              About this Bitcoin learning project
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-zinc-400 sm:text-xl">
+              Why this site exists, who it's for, and how to get the most out of it.
+            </p>
+          </div>
+
+      <div className="space-y-8 text-base text-zinc-100 sm:text-lg">
         <section className="space-y-3">
           <p className="text-zinc-200">
             This project is designed to be a calm, practical space to understand Bitcoin
@@ -73,7 +80,9 @@ export default function AboutPage() {
           </p>
         </section>
       </div>
-    </PageContainer>
+        </div>
+      </div>
+    </div>
   );
 }
 

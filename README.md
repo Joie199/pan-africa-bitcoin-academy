@@ -4,22 +4,26 @@ A modern, visual guide to understanding Bitcoin — from keys and UTXOs to minin
 
 ## Features
 
-- **Interactive Learning Chapters** - Comprehensive Bitcoin education from basics to advanced topics
-- **Cohort Registration** - Join structured learning cohorts with mentorship support
-- **Mentorship Program** - Apply to become a mentor, guest lecturer, or volunteer
-- **Impact Dashboard** - Track our progress in building Bitcoin education across Africa
+- **Interactive Learning Chapters** - Comprehensive Bitcoin education from basics to advanced topics with Bitcoin-themed icons and suggested order
+- **Cohort Registration** - Africa-focused registration with automatic country codes, mandatory phone, and unified dropdown styling
+- **Mentorship Program** - Apply to become a mentor, guest lecturer, volunteer, or ambassador with clear vetting steps
+- **Impact Dashboard** - Track progress with metrics, cohort history, and outcomes
 - **Donation Support** - Lightning Network and on-chain Bitcoin donations
+- **Community & Social** - Telegram, Nostr, Discord, and public WhatsApp links
+- **Blog (“Voices of the Bitcoin Academy”)** - Student and mentor stories, technical deep dives, featured posts, and submissions
 - **FAQ Section** - Answers to common questions about time zones, requirements, and policies
+- **Full-width Layout & Bitcoin Backgrounds** - Futuristic Bitcoin B, blockchain, and keys visuals across all pages
 
 ## Pages
 
-- **Home** - Overview with Bitcoin-themed visuals and funders section
-- **Chapters** - Learning content organized by difficulty level
-- **Apply** - Registration form for joining cohorts
+- **Home** - Overview with Bitcoin-themed visuals, funder logos, and community links (Telegram, Nostr, Discord, WhatsApp)
+- **Chapters** - Learning content with progress, suggested order, and Bitcoin iconography
+- **Apply** - Registration form with Africa-focused country codes and cohort details
 - **FAQ** - Frequently asked questions
 - **Mentorship** - Volunteer and mentor application
 - **Impact** - Impact dashboard with metrics and student outcomes
 - **Donate** - Bitcoin donation page with Lightning and on-chain options
+- **Blog** - Featured stories, categories, submissions, and individual posts
 - **About** - Mission and project information
 
 ## Tech Stack
@@ -55,19 +59,23 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ```
 src/
-├── app/              # Next.js App Router pages
-│   ├── page.tsx      # Home page
-│   ├── apply/        # Cohort registration
-│   ├── donate/       # Donation page
-│   ├── faq/          # FAQ page
-│   ├── impact/       # Impact dashboard
-│   ├── mentorship/   # Mentorship application
-│   └── chapters/     # Learning content
-├── components/       # React components
-│   ├── Navbar.tsx    # Navigation header
-│   ├── Footer.tsx    # Footer component
-│   └── PageContainer.tsx  # Page layout wrapper
-└── globals.css       # Global styles and Bitcoin theme
+├── app/                   # Next.js App Router pages
+│   ├── page.tsx           # Home page
+│   ├── chapters/          # Learning content
+│   ├── apply/             # Cohort registration
+│   ├── donate/            # Donation page
+│   ├── faq/               # FAQ page
+│   ├── impact/            # Impact dashboard
+│   ├── mentorship/        # Mentorship application
+│   ├── blog/              # Blog listing, submit, and post routes
+│   └── globals.css        # Global styles and Bitcoin theme
+├── components/            # React components
+│   ├── Navbar.tsx         # Navigation header with full menu
+│   ├── Footer.tsx         # Footer component with social links
+│   ├── PageContainer.tsx  # Page layout wrapper (full-width)
+│   └── BitcoinIcons.tsx   # Custom Bitcoin B iconography
+├── app/layout.tsx         # Root layout with Bitcoin backgrounds
+└── tailwind.config.ts     # Tailwind theme (Bitcoin palette)
 ```
 
 ## Bitcoin Theme

@@ -1,11 +1,18 @@
-import { PageContainer } from "@/components/PageContainer";
-
 export default function DonatePage() {
   return (
-    <PageContainer
-      title="Support Bitcoin Education"
-      subtitle="Help us build Bitcoin sovereignty and education in Africa. Every sat counts."
-    >
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      <div className="relative z-10 w-full bg-black/95">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
+              Support Bitcoin Education
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-zinc-400 sm:text-xl">
+              Help us build Bitcoin sovereignty and education in Africa. Every sat counts.
+            </p>
+          </div>
+
       <div className="space-y-12">
         {/* Why Donations Matter */}
         <section className="space-y-4 rounded-xl border border-orange-500/25 bg-black/80 p-6 shadow-[0_0_40px_rgba(249,115,22,0.2)]">
@@ -137,7 +144,9 @@ export default function DonatePage() {
           </div>
         </section>
       </div>
-    </PageContainer>
+        </div>
+      </div>
+    </div>
   );
 }
 

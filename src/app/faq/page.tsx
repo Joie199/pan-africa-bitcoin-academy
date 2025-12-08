@@ -1,4 +1,3 @@
-import { PageContainer } from "@/components/PageContainer";
 
 const faqs = [
   {
@@ -98,10 +97,19 @@ const faqs = [
 
 export default function FAQPage() {
   return (
-    <PageContainer
-      title="Frequently Asked Questions"
-      subtitle="Everything you need to know about joining our Bitcoin Academy."
-    >
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      <div className="relative z-10 w-full bg-black/95">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
+              Frequently Asked Questions
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-zinc-400 sm:text-xl">
+              Everything you need to know about joining our Bitcoin Academy.
+            </p>
+          </div>
+
       <div className="space-y-12">
         {faqs.map((category, categoryIndex) => (
           <section key={categoryIndex} className="space-y-4">
@@ -142,7 +150,9 @@ export default function FAQPage() {
           </div>
         </section>
       </div>
-    </PageContainer>
+        </div>
+      </div>
+    </div>
   );
 }
 

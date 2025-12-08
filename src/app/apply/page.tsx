@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from "react";
-import { PageContainer } from "@/components/PageContainer";
 
 const cohorts = [
   {
@@ -36,8 +35,64 @@ const cohorts = [
   },
 ];
 
+const africanCountries = [
+  { name: "Nigeria", code: "+234", flag: "🇳🇬" },
+  { name: "Ghana", code: "+233", flag: "🇬🇭" },
+  { name: "Kenya", code: "+254", flag: "🇰🇪" },
+  { name: "South Africa", code: "+27", flag: "🇿🇦" },
+  { name: "Egypt", code: "+20", flag: "🇪🇬" },
+  { name: "Ethiopia", code: "+251", flag: "🇪🇹" },
+  { name: "Tanzania", code: "+255", flag: "🇹🇿" },
+  { name: "Uganda", code: "+256", flag: "🇺🇬" },
+  { name: "Algeria", code: "+213", flag: "🇩🇿" },
+  { name: "Morocco", code: "+212", flag: "🇲🇦" },
+  { name: "Angola", code: "+244", flag: "🇦🇴" },
+  { name: "Mozambique", code: "+258", flag: "🇲🇿" },
+  { name: "Madagascar", code: "+261", flag: "🇲🇬" },
+  { name: "Cameroon", code: "+237", flag: "🇨🇲" },
+  { name: "Côte d'Ivoire", code: "+225", flag: "🇨🇮" },
+  { name: "Niger", code: "+227", flag: "🇳🇪" },
+  { name: "Burkina Faso", code: "+226", flag: "🇧🇫" },
+  { name: "Mali", code: "+223", flag: "🇲🇱" },
+  { name: "Malawi", code: "+265", flag: "🇲🇼" },
+  { name: "Zambia", code: "+260", flag: "🇿🇲" },
+  { name: "Senegal", code: "+221", flag: "🇸🇳" },
+  { name: "Chad", code: "+235", flag: "🇹🇩" },
+  { name: "Somalia", code: "+252", flag: "🇸🇴" },
+  { name: "Zimbabwe", code: "+263", flag: "🇿🇼" },
+  { name: "Guinea", code: "+224", flag: "🇬🇳" },
+  { name: "Rwanda", code: "+250", flag: "🇷🇼" },
+  { name: "Benin", code: "+229", flag: "🇧🇯" },
+  { name: "Burundi", code: "+257", flag: "🇧🇮" },
+  { name: "Tunisia", code: "+216", flag: "🇹🇳" },
+  { name: "South Sudan", code: "+211", flag: "🇸🇸" },
+  { name: "Togo", code: "+228", flag: "🇹🇬" },
+  { name: "Sierra Leone", code: "+232", flag: "🇸🇱" },
+  { name: "Libya", code: "+218", flag: "🇱🇾" },
+  { name: "Liberia", code: "+231", flag: "🇱🇷" },
+  { name: "Central African Republic", code: "+236", flag: "🇨🇫" },
+  { name: "Mauritania", code: "+222", flag: "🇲🇷" },
+  { name: "Eritrea", code: "+291", flag: "🇪🇷" },
+  { name: "Gambia", code: "+220", flag: "🇬🇲" },
+  { name: "Botswana", code: "+267", flag: "🇧🇼" },
+  { name: "Namibia", code: "+264", flag: "🇳🇦" },
+  { name: "Gabon", code: "+241", flag: "🇬🇦" },
+  { name: "Lesotho", code: "+266", flag: "🇱🇸" },
+  { name: "Guinea-Bissau", code: "+245", flag: "🇬🇼" },
+  { name: "Equatorial Guinea", code: "+240", flag: "🇬🇶" },
+  { name: "Mauritius", code: "+230", flag: "🇲🇺" },
+  { name: "Eswatini", code: "+268", flag: "🇸🇿" },
+  { name: "Djibouti", code: "+253", flag: "🇩🇯" },
+  { name: "Comoros", code: "+269", flag: "🇰🇲" },
+  { name: "Cabo Verde", code: "+238", flag: "🇨🇻" },
+  { name: "São Tomé and Príncipe", code: "+239", flag: "🇸🇹" },
+  { name: "Seychelles", code: "+248", flag: "🇸🇨" },
+];
+
 export default function ApplyPage() {
   const [selectedCohort, setSelectedCohort] = useState<number | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -48,18 +103,53 @@ export default function ApplyPage() {
     preferredCohort: "",
   });
 
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const country = e.target.value;
+    setSelectedCountry(country);
+    const countryData = africanCountries.find((c) => c.name === country);
+    // Update form data with country
+    setFormData({ ...formData, country });
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow digits and spaces
+    const cleanedValue = value.replace(/[^\d\s]/g, "");
+    setPhoneNumber(cleanedValue);
+    
+    // Combine with country code for form data
+    const countryData = africanCountries.find((c) => c.name === selectedCountry);
+    const fullPhone = countryData ? `${countryData.code} ${cleanedValue}`.trim() : cleanedValue;
+    setFormData({ ...formData, phone: fullPhone });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // The phone number is already combined in formData.phone via handlePhoneChange
+    const finalFormData = {
+      ...formData,
+      country: selectedCountry,
+    };
+    
     // In production, this would submit to Google Forms or your backend
     const formUrl = "https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform";
     window.open(formUrl, "_blank");
   };
 
   return (
-    <PageContainer
-      title="Join Our Next Cohort"
-      subtitle="Apply to join our Bitcoin Academy and start your journey toward financial sovereignty."
-    >
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      <div className="relative z-10 w-full bg-black/95">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
+              Join Our Next Cohort
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-zinc-400 sm:text-xl">
+              Apply to join our Bitcoin Academy and start your journey toward financial sovereignty.
+            </p>
+          </div>
+
       <div className="space-y-12">
         {/* Cohort Details */}
         <section className="space-y-6">
@@ -120,7 +210,7 @@ export default function ApplyPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
                   placeholder="John Doe"
                 />
               </div>
@@ -133,36 +223,57 @@ export default function ApplyPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
                   placeholder="john@example.com"
                 />
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-zinc-300">Phone (Optional)</label>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-300">
+                Country <span className="text-red-400">*</span>
+              </label>
+              <select
+                required
+                value={selectedCountry}
+                onChange={handleCountryChange}
+                className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+              >
+                <option value="" className="bg-zinc-950 text-zinc-400">Select your country</option>
+                {africanCountries.map((country) => (
+                  <option key={country.name} value={country.name} className="bg-zinc-950 text-zinc-50">
+                    {country.flag} {country.name} {country.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-300">
+                Phone <span className="text-red-400">*</span>
+              </label>
+              <div className="flex gap-2">
+                <div className="flex-shrink-0">
+                  <div className="flex h-9 items-center rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 text-sm text-zinc-400">
+                    {selectedCountry
+                      ? africanCountries.find((c) => c.name === selectedCountry)?.code || "+"
+                      : "+"}
+                  </div>
+                </div>
                 <input
                   type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-                  placeholder="+1234567890"
-                />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-zinc-300">
-                  Country <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
                   required
-                  value={formData.country}
-                  onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                  className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-                  placeholder="Nigeria"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  className="flex-1 rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  placeholder="1234567890"
                 />
               </div>
+              <p className="mt-1 text-xs text-zinc-500">
+                {selectedCountry
+                  ? `Country code ${africanCountries.find((c) => c.name === selectedCountry)?.code} will be added automatically`
+                  : "Select your country first to auto-fill the country code"}
+              </p>
             </div>
 
             <div>
@@ -171,7 +282,7 @@ export default function ApplyPage() {
                 type="text"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
                 placeholder="Lagos"
               />
             </div>
@@ -184,12 +295,12 @@ export default function ApplyPage() {
                 required
                 value={formData.experienceLevel}
                 onChange={(e) => setFormData({ ...formData, experienceLevel: e.target.value })}
-                className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
               >
-                <option value="">Select your level</option>
-                <option value="beginner">Beginner - New to Bitcoin</option>
-                <option value="intermediate">Intermediate - Some knowledge</option>
-                <option value="advanced">Advanced - Experienced user</option>
+                <option value="" className="bg-zinc-950 text-zinc-400">Select your level</option>
+                <option value="beginner" className="bg-zinc-950 text-zinc-50">Beginner - New to Bitcoin</option>
+                <option value="intermediate" className="bg-zinc-950 text-zinc-50">Intermediate - Some knowledge</option>
+                <option value="advanced" className="bg-zinc-950 text-zinc-50">Advanced - Experienced user</option>
               </select>
             </div>
 
@@ -201,11 +312,11 @@ export default function ApplyPage() {
                 required
                 value={formData.preferredCohort}
                 onChange={(e) => setFormData({ ...formData, preferredCohort: e.target.value })}
-                className="w-full rounded-lg border border-cyan-400/20 bg-zinc-900/50 px-4 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
               >
-                <option value="">Select a cohort</option>
+                <option value="" className="bg-zinc-950 text-zinc-400">Select a cohort</option>
                 {cohorts.map((cohort) => (
-                  <option key={cohort.id} value={cohort.id}>
+                  <option key={cohort.id} value={cohort.id} className="bg-zinc-950 text-zinc-50">
                     {cohort.name} ({cohort.available} seats available)
                   </option>
                 ))}
@@ -218,16 +329,20 @@ export default function ApplyPage() {
               </p>
             </div>
 
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-gradient-to-r from-cyan-400 via-orange-400 to-purple-500 px-6 py-3 text-sm font-semibold text-black shadow-[0_0_40px_rgba(34,211,238,0.4)] transition hover:brightness-110"
-            >
-              Apply Now
-            </button>
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-orange-400 to-cyan-400 px-6 py-3 text-base font-semibold text-black transition hover:brightness-110"
+              >
+                Register
+              </button>
+            </div>
           </form>
         </section>
       </div>
-    </PageContainer>
+        </div>
+      </div>
+    </div>
   );
 }
 

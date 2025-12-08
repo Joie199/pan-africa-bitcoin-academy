@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from "react";
-import { PageContainer } from "@/components/PageContainer";
 
 const roles = [
   {
@@ -78,10 +77,19 @@ export default function MentorshipPage() {
   };
 
   return (
-    <PageContainer
-      title="Mentorship & Volunteer"
-      subtitle="Join us in building Bitcoin education and sovereignty in Africa."
-    >
+    <div className="relative min-h-screen w-full overflow-x-hidden">
+      <div className="relative z-10 w-full bg-black/95">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+          {/* Hero Section */}
+          <div className="mb-16 text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 sm:text-5xl lg:text-6xl">
+              Mentorship & Volunteer
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg text-zinc-400 sm:text-xl">
+              Join us in building Bitcoin education and sovereignty in Africa.
+            </p>
+          </div>
+
       <div className="space-y-12">
         {/* Why Mentors Matter */}
         <section className="space-y-4 rounded-xl border border-orange-500/25 bg-black/80 p-6 shadow-[0_0_40px_rgba(249,115,22,0.2)]">
@@ -367,7 +375,9 @@ export default function MentorshipPage() {
           </a>
         </section>
       </div>
-    </PageContainer>
+        </div>
+      </div>
+    </div>
   );
 }
 
