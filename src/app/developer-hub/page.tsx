@@ -178,9 +178,9 @@ export default function DeveloperHubPage() {
               {/* 2. Learn the Tools */}
               <div>
                 <h3 className="mb-4 text-xl font-semibold text-cyan-300">2. Learn the Tools</h3>
-                <div className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
                   {/* Bitcoin Core */}
-                  <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-5">
+                  <div className="rounded-lg border border-orange-500/30 bg-orange-500/10 p-5 flex flex-col h-full">
                     <div className="mb-3 flex items-center justify-between">
                       <h4 className="text-lg font-semibold text-orange-200">Bitcoin Core</h4>
                       <a
@@ -203,7 +203,7 @@ export default function DeveloperHubPage() {
                   </div>
 
                   {/* Sparrow Wallet */}
-                  <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-5">
+                  <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-5 flex flex-col h-full">
                     <div className="mb-3 flex items-center justify-between">
                       <h4 className="text-lg font-semibold text-cyan-200">Sparrow Wallet</h4>
                       <a
@@ -226,7 +226,7 @@ export default function DeveloperHubPage() {
                   </div>
 
                   {/* Bitcoin CLI / RPC Commands */}
-                  <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-5">
+                  <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-5 flex flex-col h-full">
                     <div className="mb-3 flex items-center justify-between">
                       <h4 className="text-lg font-semibold text-purple-200">Bitcoin CLI / RPC Commands</h4>
                       <a
@@ -300,13 +300,13 @@ export default function DeveloperHubPage() {
                   </div>
 
                   {/* Lightning Tools */}
-                  <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-5">
+                  <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-5 flex flex-col h-full">
                     <div className="mb-3 flex items-center justify-between">
-                      <h4 className="text-lg font-semibold text-blue-200">Lightning Tools (Optional Beginner Layer)</h4>
+                      <h4 className="text-lg font-semibold text-blue-200">Lightning Tools</h4>
                     </div>
                     <p className="mb-3 text-sm text-zinc-300">Let beginners see what Lightning development looks like.</p>
                     <p className="mb-3 text-sm font-medium text-blue-200">Tools:</p>
-                    <div className="grid gap-2 md:grid-cols-2">
+                    <div className="space-y-2">
                       <a
                         href="https://github.com/lightningnetwork/lnd"
                         target="_blank"
@@ -347,9 +347,9 @@ export default function DeveloperHubPage() {
                   </div>
 
                   {/* Additional Resources */}
-                  <div className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-5">
+                  <div className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-5 flex flex-col h-full">
                     <h4 className="mb-3 text-lg font-semibold text-zinc-200">Additional Resources</h4>
-                    <div className="grid gap-2 md:grid-cols-2">
+                    <div className="space-y-2">
                       <a
                         href="https://electrum.org"
                         target="_blank"
