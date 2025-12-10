@@ -4,6 +4,20 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Cohorts table (created first to avoid circular reference)
+CREATE TABLE IF NOT EXISTS cohorts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  start_date DATE,
+  end_date DATE,
+  status TEXT, -- Upcoming, Active, Completed
+  sessions INTEGER DEFAULT 0,
+  level TEXT, -- Beginner, Intermediate, Advanced
+  seats_total INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Profiles table (for authentication and user profiles)
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -16,20 +30,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   photo_url TEXT,
   status TEXT DEFAULT 'New', -- New, Active, Graduated, etc.
   cohort_id UUID REFERENCES cohorts(id),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Cohorts table
-CREATE TABLE IF NOT EXISTS cohorts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name TEXT NOT NULL,
-  start_date DATE,
-  end_date DATE,
-  status TEXT, -- Upcoming, Active, Completed
-  sessions INTEGER DEFAULT 0,
-  level TEXT, -- Beginner, Intermediate, Advanced
-  seats_total INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
