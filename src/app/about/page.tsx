@@ -113,7 +113,7 @@ export default function AboutPage() {
               <p className="text-zinc-300">
                 The academy keeps growing as more students join, mentors participate, developers contribute, and
                 communities share resources. Together, we can build a movement of informed, empowered, and technically
-                skilled African Bitcoiners.
+                skilled African Bitcoin developers and builders.
               </p>
             </section>
           </div>
