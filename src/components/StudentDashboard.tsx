@@ -532,8 +532,8 @@ export function StudentDashboard() {
                   <h3 className="mb-3 text-lg font-medium text-orange-300">Due Soon</h3>
                   <div className="space-y-2">
                     {assignments
-                      .filter((a) => a.status === 'pending')
-                      .map((assignment) => (
+                      .filter((a: any) => a.status === 'pending')
+                      .map((assignment: any) => (
                         <Link
                           key={assignment.id}
                           href={assignment.link}
@@ -551,8 +551,8 @@ export function StudentDashboard() {
                   <h3 className="mb-3 text-lg font-medium text-green-300">Completed</h3>
                   <div className="space-y-2">
                     {assignments
-                      .filter((a) => a.status === 'completed')
-                      .map((assignment) => (
+                      .filter((a: any) => a.status === 'completed')
+                      .map((assignment: any) => (
                         <Link
                           key={assignment.id}
                           href={assignment.link}

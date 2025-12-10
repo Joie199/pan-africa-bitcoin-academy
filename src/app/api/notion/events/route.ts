@@ -146,8 +146,8 @@ export async function GET() {
 
     // Filter out events with invalid dates and sort by date
     const validEvents = events
-      .filter((event) => !isNaN(new Date(event.date).getTime()))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .filter((event: { date: string }) => !isNaN(new Date(event.date).getTime()))
+      .sort((a: { date: string }, b: { date: string }) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return NextResponse.json({ events: validEvents }, { status: 200 });
   } catch (error: any) {

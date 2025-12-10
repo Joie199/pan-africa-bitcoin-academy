@@ -818,12 +818,22 @@ export default function DeveloperHubPage() {
                 },
                 {
                   q: 'Where do I ask questions?',
-                  a: 'Use Bitcoin Stack Exchange, developer mailing lists, Telegram groups, or IRC channels. Be respectful and do your research first.',
+                  a: (
+                    <div className="space-y-2">
+                      <p>Join our developer community:</p>
+                      <ul className="ml-4 space-y-1 text-sm">
+                        <li>• <a href="https://chat.whatsapp.com/KpjlC90BGIj1EChMHsW6Ji" target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 underline">WhatsApp Developer Group</a></li>
+                        <li>• Contact us through our <Link href="/about" className="text-cyan-300 hover:text-cyan-200 underline">About page</Link></li>
+                        <li>• Check our <Link href="/mentorship" className="text-cyan-300 hover:text-cyan-200 underline">Mentorship Program</Link> for direct mentor access</li>
+                      </ul>
+                      <p className="mt-2">Also use: Bitcoin Stack Exchange, developer mailing lists, Telegram groups, and IRC channels. Be respectful and do your research first. Our community is here to help!</p>
+                    </div>
+                  ),
                 },
               ].map((faq, idx) => (
                 <details key={idx} className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-4">
                   <summary className="cursor-pointer font-semibold text-cyan-300">{faq.q}</summary>
-                  <p className="mt-2 text-zinc-400">{faq.a}</p>
+                  <div className="mt-2 text-zinc-400">{faq.a}</div>
                 </details>
               ))}
             </div>

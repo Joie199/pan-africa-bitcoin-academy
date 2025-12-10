@@ -29,20 +29,31 @@ export async function POST(request: NextRequest) {
     // Optional: resolve Preferred Cohort relation if Cohorts DB is configured
     let preferredCohortRelation: { id: string }[] | undefined;
     const cohortsDbId = process.env.NOTION_COHORTS_DB_ID?.trim().replace(/\s/g, '');
-    if (formData.preferredCohort && cohortsDbId) {
+    const apiKey = process.env.NOTION_API_KEY;
+    if (formData.preferredCohort && cohortsDbId && apiKey) {
       try {
-        const match = await notion.databases.query({
-          database_id: cohortsDbId,
-          filter: {
-            property: 'Name',
-            title: {
-              equals: formData.preferredCohort,
-            },
+        const response = await fetch(`https://api.notion.com/v1/databases/${cohortsDbId}/query`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+            'Notion-Version': '2022-06-28',
           },
+          body: JSON.stringify({
+            filter: {
+              property: 'Name',
+              title: {
+                equals: formData.preferredCohort,
+              },
+            },
+          }),
         });
-        const page = match.results?.[0];
-        if (page?.id) {
-          preferredCohortRelation = [{ id: page.id }];
+        if (response.ok) {
+          const match = await response.json();
+          const page = match.results?.[0];
+          if (page?.id) {
+            preferredCohortRelation = [{ id: page.id }];
+          }
         }
       } catch (cohortError) {
         console.error('Error resolving cohort relation:', cohortError);
