@@ -125,41 +125,39 @@ export default function ApplyPage() {
       try {
         setCohortsLoading(true);
         setCohortsError(null);
-        // TODO: Replace with Supabase query
-        // const res = await fetch('/api/notion/cohorts');
-        // if (!res.ok) {
-        //   throw new Error(`Failed to fetch cohorts: ${res.status}`);
-        // }
-        // const data = await res.json();
-        // For now, set empty array until Supabase is implemented
-        const data = { cohorts: [] };
+        const res = await fetch('/api/cohorts');
+        if (!res.ok) {
+          throw new Error(`Failed to fetch cohorts: ${res.status}`);
+        }
+        const data = await res.json();
         
         // Format dates and transform data
-        const formattedCohorts: Cohort[] = (data.cohorts || []).map((cohort: any) => {
-          const formatDate = (dateStr: string) => {
-            if (!dateStr) return 'TBD';
-            try {
-              const date = new Date(dateStr);
-              return date.toLocaleDateString('en-US', { 
-                month: 'long', 
-                day: 'numeric', 
-                year: 'numeric' 
-              });
-            } catch {
-              return dateStr;
-            }
-          };
-          
-          return {
-            id: cohort.id,
-            name: cohort.name || 'Unnamed Cohort',
-            startDate: formatDate(cohort.startDate),
-            endDate: formatDate(cohort.endDate),
-            status: cohort.status || '',
-            sessions: cohort.sessions || 0,
-            level: cohort.level || 'Beginner',
-          };
-        });
+        const formatDate = (dateStr: string) => {
+          if (!dateStr) return 'TBD';
+          try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { 
+              month: 'long', 
+              day: 'numeric', 
+              year: 'numeric' 
+            });
+          } catch {
+            return dateStr;
+          }
+        };
+        
+        const formattedCohorts: Cohort[] = (data.cohorts || []).map((cohort: any) => ({
+          id: cohort.id,
+          name: cohort.name || 'Unnamed Cohort',
+          startDate: formatDate(cohort.startDate),
+          endDate: formatDate(cohort.endDate),
+          status: cohort.status || '',
+          sessions: cohort.sessions || 0,
+          level: cohort.level || 'Beginner',
+          seats: cohort.seats || 0,
+          available: cohort.available || 0,
+          enrolled: cohort.enrolled || 0,
+        }));
         
         setCohorts(formattedCohorts);
       } catch (err: any) {
@@ -201,35 +199,31 @@ export default function ApplyPage() {
     const cohortName = selectedCohortObj ? selectedCohortObj.name : formData.preferredCohort || '';
 
     try {
-      // TODO: Submit to Supabase
-      // const [applicationRes] = await Promise.all([
-      //   // TODO: Replace with Supabase insert
-      //   // fetch('/api/notion/submit-application', {
-      //   //   method: 'POST',
-      //   //   headers: {
-      //   //     'Content-Type': 'application/json',
-      //   //   },
-      //   //   body: JSON.stringify(finalFormData),
-      //   // }),
-      //   // Best-effort profile registration (does not block success)
-      //   // TODO: Replace with Supabase insert
-      //   // fetch('/api/notion/profile/register', {
-      //   //   method: 'POST',
-      //   //   headers: {
-      //   //     'Content-Type': 'application/json',
-      //   //   },
-      //   //   body: JSON.stringify({
-      //   //     firstName: formData.firstName,
-      //   //     lastName: formData.lastName,
-      //   //     email: formData.email,
-      //   //     cohortNumber,
-      //   //     cohortName,
-      //   //   }),
-      //   // }).catch((err) => {
-      //   //   console.warn('Profile registration failed:', err);
-      //   // }),
-      // ]);
-      throw new Error('Application submission not yet implemented with Supabase');
+      const [applicationRes] = await Promise.all([
+        fetch('/api/submit-application', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(finalFormData),
+        }),
+        // Best-effort profile registration (does not block success)
+        fetch('/api/profile/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            cohortNumber,
+            cohortName,
+          }),
+        }).catch((err) => {
+          console.warn('Profile registration failed:', err);
+        }),
+      ]);
 
       const result = await applicationRes.json();
 

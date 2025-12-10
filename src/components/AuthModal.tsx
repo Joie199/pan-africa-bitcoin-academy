@@ -61,26 +61,24 @@ export function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
       if (Object.keys(newErrors).length === 0) {
         try {
           setLoading(true);
-          // TODO: Replace with Supabase auth
-          // const res = await fetch('/api/notion/profile/login', {
-          //   method: 'POST',
-          //   headers: { 'Content-Type': 'application/json' },
-          //   body: JSON.stringify({ email: formData.email }),
-          // });
-          // if (!res.ok) throw new Error(`Login failed (${res.status})`);
-          // const data = await res.json();
-          // if (data.found) {
-          //   try {
-          //     localStorage.setItem('profileEmail', formData.email);
-          //   } catch {
-          //     // ignore
-          //   }
-          //   onClose();
-          //   window.location.href = '/dashboard';
-          // } else {
-          //   setServerError('Invalid credentials. User not found.');
-          // }
-          throw new Error('Authentication not yet implemented with Supabase');
+          const res = await fetch('/api/profile/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: formData.email }),
+          });
+          if (!res.ok) throw new Error(`Login failed (${res.status})`);
+          const data = await res.json();
+          if (data.found) {
+            try {
+              localStorage.setItem('profileEmail', formData.email);
+            } catch {
+              // ignore
+            }
+            onClose();
+            window.location.href = '/dashboard';
+          } else {
+            setServerError('Invalid credentials. User not found.');
+          }
         } catch (err: any) {
           setServerError(err.message || 'Sign in failed.');
         } finally {
@@ -103,25 +101,23 @@ export function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         try {
           setLoading(true);
           const [firstName = '', lastName = ''] = formData.name.split(' ');
-          // TODO: Replace with Supabase auth
-          // const res = await fetch('/api/notion/profile/register', {
-          //   method: 'POST',
-          //   headers: { 'Content-Type': 'application/json' },
-          //   body: JSON.stringify({
-          //     firstName: firstName || formData.name,
-          //     lastName: lastName || '',
-          //     email: formData.email,
-          //   }),
-          // });
-          // if (!res.ok) throw new Error(`Sign up failed (${res.status})`);
-          // await res.json();
-          // try {
-          //   localStorage.setItem('profileEmail', formData.email);
-          // } catch {
-          //   // ignore
-          // }
-          // onClose();
-          throw new Error('Registration not yet implemented with Supabase');
+          const res = await fetch('/api/profile/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firstName: firstName || formData.name,
+              lastName: lastName || '',
+              email: formData.email,
+            }),
+          });
+          if (!res.ok) throw new Error(`Sign up failed (${res.status})`);
+          await res.json();
+          try {
+            localStorage.setItem('profileEmail', formData.email);
+          } catch {
+            // ignore
+          }
+          onClose();
         } catch (err: any) {
           setServerError(err.message || 'Sign up failed.');
         } finally {

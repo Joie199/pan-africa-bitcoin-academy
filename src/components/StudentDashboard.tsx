@@ -38,18 +38,16 @@ export function StudentDashboard() {
     }
     const fetchStudent = async () => {
       try {
-        // TODO: Replace with Supabase query
-        // const res = await fetch('/api/notion/students');
-        // if (!res.ok) {
-        //   throw new Error(`Failed to load students (${res.status})`);
-        // }
-        // const data = await res.json();
-        // const students: any[] = data.students || [];
-        // const first = students.find((s) => s?.name) || students[0];
-        // if (mounted) {
-        //   setStudentData(first || null);
-        // }
-        throw new Error('Student data not yet implemented with Supabase');
+        const res = await fetch('/api/students');
+        if (!res.ok) {
+          throw new Error(`Failed to load students (${res.status})`);
+        }
+        const data = await res.json();
+        const students: any[] = data.students || [];
+        const first = students.find((s) => s?.name) || students[0];
+        if (mounted) {
+          setStudentData(first || null);
+        }
       } catch (err: any) {
         if (mounted) {
           setError(err.message || 'Failed to load student data');
@@ -59,21 +57,16 @@ export function StudentDashboard() {
 
     const fetchSatsTotals = async () => {
       try {
-        // TODO: Replace with Supabase query
-        // const res = await fetch('/api/notion/sats');
-        // if (!res.ok) {
-        //   throw new Error(`Failed to load sats (${res.status})`);
-        // }
-        // const data = await res.json();
-        // if (mounted) {
-        //   setSatsTotals({
-        //     paid: data.totalPaid ?? 0,
-        //     pending: data.totalPending ?? 0,
-        //   });
-        // }
-        // For now, set zeros until Supabase is implemented
+        const res = await fetch('/api/sats');
+        if (!res.ok) {
+          throw new Error(`Failed to load sats (${res.status})`);
+        }
+        const data = await res.json();
         if (mounted) {
-          setSatsTotals({ paid: 0, pending: 0 });
+          setSatsTotals({
+            paid: data.totalPaid ?? 0,
+            pending: data.totalPending ?? 0,
+          });
         }
       } catch (err) {
         // Keep fallback zeros; no user-facing error needed here
@@ -82,17 +75,11 @@ export function StudentDashboard() {
 
     const fetchLeaderboard = async () => {
       try {
-        // TODO: Replace with Supabase query
-        // const res = await fetch('/api/notion/leaderboard');
-        // if (!res.ok) throw new Error(`Failed to load leaderboard (${res.status})`);
-        // const data = await res.json();
-        // if (mounted && Array.isArray(data.leaderboard)) {
-        //   setLeaderboardData(data.leaderboard);
-        //   setLeaderboardError(null);
-        // }
-        // For now, set empty array until Supabase is implemented
-        if (mounted) {
-          setLeaderboardData([]);
+        const res = await fetch('/api/leaderboard');
+        if (!res.ok) throw new Error(`Failed to load leaderboard (${res.status})`);
+        const data = await res.json();
+        if (mounted && Array.isArray(data.leaderboard)) {
+          setLeaderboardData(data.leaderboard);
           setLeaderboardError(null);
         }
       } catch (err) {
@@ -119,20 +106,18 @@ export function StudentDashboard() {
       setProfileLoading(true);
       setProfileError(null);
       setProfileData(null);
-      // TODO: Replace with Supabase query
-      // const res = await fetch('/api/notion/profile/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email: lookupEmail }),
-      // });
-      // if (!res.ok) throw new Error(`Failed (${res.status})`);
-      // const data = await res.json();
-      // if (data.found) {
-      //   setProfileData(data.profile);
-      // } else {
-      //   setProfileError('Profile not found for this email.');
-      // }
-      throw new Error('Profile lookup not yet implemented with Supabase');
+      const res = await fetch('/api/profile/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: lookupEmail }),
+      });
+      if (!res.ok) throw new Error(`Failed (${res.status})`);
+      const data = await res.json();
+      if (data.found) {
+        setProfileData(data.profile);
+      } else {
+        setProfileError('Profile not found for this email.');
+      }
     } catch (err: any) {
       setProfileError(err.message || 'Failed to load profile.');
     } finally {
@@ -221,18 +206,16 @@ export function StudentDashboard() {
           onImageChange={setProfileImage}
           onUpdate={async (updatedData: any) => {
             try {
-              // TODO: Replace with Supabase update
-              // const res = await fetch('/api/notion/profile/update', {
-              //   method: 'POST',
-              //   headers: { 'Content-Type': 'application/json' },
-              //   body: JSON.stringify({ email: storedProfileEmail || profileEmail, ...updatedData }),
-              // });
-              // if (!res.ok) throw new Error('Failed to update profile');
-              // const data = await res.json();
-              // setProfileData(data.profile);
-              // setIsEditingProfile(false);
-              // alert('Profile updated successfully!');
-              throw new Error('Profile update not yet implemented with Supabase');
+              const res = await fetch('/api/profile/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: storedProfileEmail || profileEmail, ...updatedData }),
+              });
+              if (!res.ok) throw new Error('Failed to update profile');
+              const data = await res.json();
+              setProfileData(data.profile);
+              setIsEditingProfile(false);
+              alert('Profile updated successfully!');
             } catch (err: any) {
               alert(`Error: ${err.message}`);
             }
