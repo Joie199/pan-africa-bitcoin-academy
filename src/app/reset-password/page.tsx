@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Key, CheckCircle, XCircle } from 'lucide-react';
+import { Key, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -18,6 +18,8 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!token || !email) {
@@ -140,19 +142,34 @@ function ResetPasswordForm() {
               <label className="mb-2 block text-sm font-medium text-zinc-300">
                 New Password
               </label>
-              <input
-                type="password"
-                value={formData.newPassword}
-                onChange={(e) => {
-                  setFormData({ ...formData, newPassword: e.target.value });
-                  if (errors.newPassword) {
-                    setErrors({ ...errors, newPassword: '' });
-                  }
-                }}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-                placeholder="Enter new password"
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  value={formData.newPassword}
+                  onChange={(e) => {
+                    setFormData({ ...formData, newPassword: e.target.value });
+                    if (errors.newPassword) {
+                      setErrors({ ...errors, newPassword: '' });
+                    }
+                  }}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 pr-10 text-zinc-100 placeholder-zinc-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  placeholder="Enter new password"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  aria-label={showNewPassword ? "Hide password" : "Show password"}
+                  disabled={loading}
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
               {errors.newPassword && (
                 <p className="mt-1 text-sm text-red-400">{errors.newPassword}</p>
               )}
@@ -162,19 +179,34 @@ function ResetPasswordForm() {
               <label className="mb-2 block text-sm font-medium text-zinc-300">
                 Confirm New Password
               </label>
-              <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => {
-                  setFormData({ ...formData, confirmPassword: e.target.value });
-                  if (errors.confirmPassword) {
-                    setErrors({ ...errors, confirmPassword: '' });
-                  }
-                }}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-                placeholder="Confirm new password"
-                disabled={loading}
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => {
+                    setFormData({ ...formData, confirmPassword: e.target.value });
+                    if (errors.confirmPassword) {
+                      setErrors({ ...errors, confirmPassword: '' });
+                    }
+                  }}
+                  className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 pr-10 text-zinc-100 placeholder-zinc-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                  placeholder="Confirm new password"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  disabled={loading}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>
               )}
