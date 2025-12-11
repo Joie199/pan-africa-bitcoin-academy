@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/PageContainer";
 import { getChapterBySlug, chaptersContent } from "@/content/chaptersContent";
+import { ChapterAccessCheck } from "./ChapterAccessCheck";
+import { ChapterCompletionTracker } from "./ChapterCompletionTracker";
 
 type ChapterPageProps = {
   params: Promise<{ slug: string }>;
@@ -47,7 +49,9 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
     : null;
 
   return (
-    <PageContainer
+    <ChapterAccessCheck chapterNumber={chapter.number} chapterSlug={chapter.slug}>
+      <ChapterCompletionTracker chapterNumber={chapter.number} chapterSlug={chapter.slug} />
+      <PageContainer
       title={`${chapter.number < 10 ? `Chapter ${chapter.number}` : `Chapter ${chapter.number}`} · ${chapter.title}`}
       subtitle={`${chapter.level} · ${chapter.duration} · ${chapter.type}`}
     >
@@ -282,5 +286,6 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
         </div>
       </div>
     </PageContainer>
+    </ChapterAccessCheck>
   );
 }

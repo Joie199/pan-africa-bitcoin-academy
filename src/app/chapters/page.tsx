@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BitcoinIcon, WalletIcon, LightningIcon, BookIcon, ToolIcon, BlockchainIcon, KeysIcon, UTXOIcon, TransactionIcon, MiningIcon } from "@/components/BitcoinIcons";
+import { useAuth } from "@/hooks/useAuth";
 
 // Helper function to generate slug from title
 const generateSlug = (title: string): string => {
@@ -469,6 +471,65 @@ const comingSoon = [
 
 export default function ChaptersPage() {
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
+  const [chapterStatus, setChapterStatus] = useState<Record<number, { isUnlocked: boolean; isCompleted: boolean }>>({});
+  const [loadingStatus, setLoadingStatus] = useState(true);
+  const { isAuthenticated, profile, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchChapterStatus = async () => {
+      if (loading) return;
+      
+      if (!isAuthenticated || !profile) {
+        setLoadingStatus(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/chapters/unlock-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: profile.email }),
+        });
+
+        const data = await response.json();
+        if (data.chapters) {
+          setChapterStatus(data.chapters);
+        }
+      } catch (error) {
+        console.error('Error fetching chapter status:', error);
+      } finally {
+        setLoadingStatus(false);
+      }
+    };
+
+    fetchChapterStatus();
+  }, [isAuthenticated, profile, loading]);
+
+  const isChapterUnlocked = (chapterNumber: number): boolean => {
+    if (!isAuthenticated || !profile) return false;
+    // Chapter 1 is always unlocked for enrolled students
+    if (chapterNumber === 1) return true;
+    return chapterStatus[chapterNumber]?.isUnlocked || false;
+  };
+
+  const isChapterCompleted = (chapterNumber: number): boolean => {
+    if (!isAuthenticated || !profile) return false;
+    return chapterStatus[chapterNumber]?.isCompleted || false;
+  };
+
+  const handleChapterClick = (chapterNumber: number, chapterTitle: string) => {
+    if (!isAuthenticated || !profile) {
+      router.push('/apply?redirect=/chapters');
+      return;
+    }
+
+    if (!isChapterUnlocked(chapterNumber)) {
+      // Show message or redirect
+      alert(`Please complete Chapter ${chapterNumber - 1} first to unlock this chapter.`);
+      return;
+    }
+  };
 
   const getLevelChapters = (levelId: number) => {
     return chapters.filter((ch) => ch.level === levelId);
@@ -684,13 +745,49 @@ export default function ChaptersPage() {
                         </div>
                       )}
 
+                      {/* Chapter Status Badge */}
+                      {isAuthenticated && profile && (
+                        <div className="mb-3">
+                          {isChapterCompleted(chapter.number) ? (
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-green-500/20 px-2 py-1 text-[10px] font-medium text-green-300">
+                              ✓ Completed
+                            </span>
+                          ) : isChapterUnlocked(chapter.number) ? (
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-orange-500/20 px-2 py-1 text-[10px] font-medium text-orange-300">
+                              🔓 Unlocked
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-500/20 px-2 py-1 text-[10px] font-medium text-zinc-400">
+                              🔒 Locked
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       {/* View Chapter Button */}
-                      <Link
-                        href={`/chapters/${generateSlug(chapter.title)}`}
-                        className="block w-full rounded-lg bg-gradient-to-r from-cyan-400 to-orange-400 px-4 py-2 text-center text-sm font-semibold text-black transition hover:brightness-110"
-                      >
-                        View Chapter →
-                      </Link>
+                      {isAuthenticated && profile && isChapterUnlocked(chapter.number) ? (
+                        <Link
+                          href={`/chapters/${generateSlug(chapter.title)}`}
+                          className="block w-full rounded-lg bg-gradient-to-r from-cyan-400 to-orange-400 px-4 py-2 text-center text-sm font-semibold text-black transition hover:brightness-110"
+                        >
+                          {isChapterCompleted(chapter.number) ? 'Review Chapter →' : 'View Chapter →'}
+                        </Link>
+                      ) : isAuthenticated && profile ? (
+                        <button
+                          onClick={() => handleChapterClick(chapter.number, chapter.title)}
+                          className="block w-full rounded-lg bg-zinc-700/50 px-4 py-2 text-center text-sm font-semibold text-zinc-400 cursor-not-allowed"
+                          disabled
+                        >
+                          🔒 Locked
+                        </button>
+                      ) : (
+                        <Link
+                          href="/apply?redirect=/chapters"
+                          className="block w-full rounded-lg bg-gradient-to-r from-cyan-400 to-orange-400 px-4 py-2 text-center text-sm font-semibold text-black transition hover:brightness-110"
+                        >
+                          Register to Access →
+                        </Link>
+                      )}
                     </div>
                   ))}
                 </div>

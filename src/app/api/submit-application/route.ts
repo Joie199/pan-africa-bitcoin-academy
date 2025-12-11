@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -64,9 +64,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check if user already has a profile (they're already registered)
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id, email, status')
+      .eq('email', emailLower)
+      .maybeSingle();
+
     if (existingEmail?.id || existingPhone?.id) {
+      // Check if the existing application is already approved
+      const existingApp = existingEmail || existingPhone;
+      if (existingApp) {
+        const { data: appData } = await supabase
+          .from('applications')
+          .select('status, profile_id')
+          .eq('id', existingApp.id)
+          .single();
+        
+        if (appData?.status === 'Approved') {
+          return NextResponse.json(
+            { 
+              error: 'You already have an approved application. Please sign in to access your account.',
+              hasProfile: !!existingProfile,
+              needsPassword: existingProfile && !existingProfile.status?.includes('Active')
+            },
+            { status: 409 }
+          );
+        }
+      }
+      
       return NextResponse.json(
-        { error: 'An application with this email or phone already exists' },
+        { error: 'An application with this email or phone already exists and is pending review.' },
+        { status: 409 }
+      );
+    }
+
+    // If profile exists, they're already registered - tell them to sign in
+    if (existingProfile) {
+      return NextResponse.json(
+        { 
+          error: 'An account with this email already exists. Please sign in. If you forgot your password, use the "Forgot Password" option.',
+          hasProfile: true,
+          needsSignIn: true
+        },
         { status: 409 }
       );
     }

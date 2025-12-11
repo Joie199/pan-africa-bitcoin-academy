@@ -43,11 +43,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify password
+    // Check if password needs to be set
     if (!profile.password_hash) {
-      // Profile exists but no password set (legacy account)
+      // Profile exists but no password set - needs password setup
       return NextResponse.json(
-        { error: 'Please set a password for your account', found: false },
+        { 
+          error: 'Please set a password for your account. Your application was approved!',
+          found: true,
+          needsPasswordSetup: true,
+          setupPasswordUrl: `/setup-password?email=${encodeURIComponent(profile.email)}`
+        },
+        { status: 401 }
+      );
+    }
+
+    // Check if status is "Pending Password Setup"
+    if (profile.status === 'Pending Password Setup') {
+      return NextResponse.json(
+        { 
+          error: 'Please complete your registration by setting a password.',
+          found: true,
+          needsPasswordSetup: true,
+          setupPasswordUrl: `/setup-password?email=${encodeURIComponent(profile.email)}`
+        },
         { status: 401 }
       );
     }

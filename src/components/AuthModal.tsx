@@ -85,6 +85,12 @@ export function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
           const data = await res.json();
           
           if (!res.ok) {
+            // Check if user needs to set up password
+            if (data.needsPasswordSetup && data.setupPasswordUrl) {
+              onClose();
+              window.location.href = data.setupPasswordUrl;
+              return;
+            }
             // Handle specific error messages from API
             const errorMsg = data.error || `Sign in failed (${res.status})`;
             setServerError(errorMsg);

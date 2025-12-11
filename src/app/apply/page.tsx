@@ -309,31 +309,13 @@ export default function ApplyPage() {
     const cohortName = selectedCohortObj ? selectedCohortObj.name : formData.preferredCohort || '';
 
     try {
-      const [applicationRes] = await Promise.all([
-        fetch('/api/submit-application', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(finalFormData),
-        }),
-        // Best-effort profile registration (does not block success)
-        fetch('/api/profile/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            cohortNumber,
-            cohortName,
-          }),
-        }).catch((err) => {
-          console.warn('Profile registration failed:', err);
-        }),
-      ]);
+      const applicationRes = await fetch('/api/submit-application', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(finalFormData),
+      });
 
       const result = await applicationRes.json();
 
@@ -357,7 +339,18 @@ export default function ApplyPage() {
         setSelectedCohort(null);
         setBirthDate("");
       } else {
-        throw new Error(result.error || 'Failed to submit application');
+        // Handle specific error cases
+        if (result.hasProfile && result.needsSignIn) {
+          setSubmitError(
+            'An account with this email already exists. Please sign in to access your account. If you forgot your password, use the "Forgot Password" option.'
+          );
+        } else if (result.hasProfile && result.needsPassword) {
+          setSubmitError(
+            'Your application was already approved! Please set up your password to complete registration.'
+          );
+        } else {
+          throw new Error(result.error || 'Failed to submit application');
+        }
       }
     } catch (error: any) {
       console.error('Error submitting application:', error);
