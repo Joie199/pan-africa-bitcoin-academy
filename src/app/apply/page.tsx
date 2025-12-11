@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { useAuth } from '@/hooks/useAuth';
 
 interface Cohort {
   id: string;
@@ -124,6 +125,7 @@ const phoneRules: Record<string, { min: number; max: number }> = {
 };
 
 export default function ApplyPage() {
+  const { isAuthenticated, profile, loading: authLoading } = useAuth();
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [cohortsLoading, setCohortsLoading] = useState(true);
   const [cohortsError, setCohortsError] = useState<string | null>(null);
@@ -147,6 +149,45 @@ export default function ApplyPage() {
     preferredCohort: "",
     birthDate: "",
   });
+
+  // Pre-fill form data from profile if user is logged in
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && profile) {
+      // Split name into first and last name
+      const nameParts = profile.name?.split(' ') || [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Pre-fill form with profile data
+      setFormData(prev => ({
+        ...prev,
+        firstName: firstName,
+        lastName: lastName,
+        email: profile.email || '',
+        country: profile.country || '',
+        city: profile.city || '',
+      }));
+
+      // Pre-fill phone if exists
+      if (profile.phone) {
+        // Extract country code and number from phone (format: "+234 1234567890")
+        const phoneParts = profile.phone.split(' ');
+        if (phoneParts.length >= 2) {
+          const code = phoneParts[0];
+          const number = phoneParts.slice(1).join(' ');
+          setSelectedCountryCode(code);
+          setPhoneNumber(number);
+          // Try to find country from code
+          const country = africanCountries.find(c => c.code === code);
+          if (country) {
+            setSelectedCountry(country.name);
+          }
+        } else {
+          setPhoneNumber(profile.phone);
+        }
+      }
+    }
+  }, [isAuthenticated, profile, authLoading]);
 
   const getPhoneRule = (country: string) => phoneRules[country] || { min: 7, max: 12 };
 

@@ -49,24 +49,73 @@ export async function POST(req: NextRequest) {
 
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .select('id, email, status, cohort_id')
+      .select('id, email, status, cohort_id, student_id, phone, country, city')
       .eq('email', emailLower)
       .maybeSingle();
 
+    // Generate student_id if cohort exists and profile doesn't have one
+    let generatedStudentId: string | null = null;
+    if (application.preferred_cohort_id && !existingProfile?.student_id) {
+      // Get cohort info
+      const { data: cohort } = await supabaseAdmin
+        .from('cohorts')
+        .select('id, name')
+        .eq('id', application.preferred_cohort_id)
+        .maybeSingle();
+
+      if (cohort) {
+        // Count students in this cohort to get roll number
+        const { count } = await supabaseAdmin
+          .from('cohort_enrollment')
+          .select('*', { count: 'exact', head: true })
+          .eq('cohort_id', application.preferred_cohort_id);
+
+        const rollNumber = (count || 0) + 1; // Next roll number
+        const year = new Date().getFullYear();
+        
+        // Extract cohort number from name (e.g., "Cohort 1" -> 1) or use roll number
+        const cohortMatch = cohort.name.match(/\d+/);
+        const cohortNumber = cohortMatch ? cohortMatch[0] : rollNumber.toString();
+        
+        generatedStudentId = `${cohortNumber}/${rollNumber}/${year}`;
+      }
+    }
+
     if (existingProfile) {
-      // Link to existing profile
+      // Link to existing profile - update with application data
       profileId = existingProfile.id;
       isExistingProfile = true;
 
-      // Update profile with application data if missing
+      // Update profile with all application data
+      const updateData: any = {
+        name: fullName,
+        phone: application.phone || existingProfile.phone || null,
+        country: application.country || existingProfile.country || null,
+        city: application.city || existingProfile.city || null,
+      };
+
+      // Add student_id if generated and profile doesn't have one yet
+      if (generatedStudentId && !existingProfile.student_id) {
+        // Check if this student_id already exists (shouldn't happen, but safety check)
+        const { data: existingStudentId } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('student_id', generatedStudentId)
+          .maybeSingle();
+        
+        if (!existingStudentId) {
+          updateData.student_id = generatedStudentId;
+        }
+      }
+
+      // Update status if it's 'New' (just signed up, now approved)
+      if (existingProfile.status === 'New') {
+        updateData.status = existingProfile.password_hash ? 'Active' : 'Pending Password Setup';
+      }
+
       await supabaseAdmin
         .from('profiles')
-        .update({
-          name: fullName,
-          phone: application.phone || existingProfile.phone,
-          country: application.country || existingProfile.country,
-          city: application.city || existingProfile.city,
-        })
+        .update(updateData)
         .eq('id', profileId);
     } else {
       // Create new profile (without password - they'll set it later)
@@ -78,6 +127,7 @@ export async function POST(req: NextRequest) {
           phone: application.phone || null,
           country: application.country || null,
           city: application.city || null,
+          student_id: generatedStudentId, // Set student_id on creation
           status: 'Pending Password Setup', // Special status until password is set
           cohort_id: application.preferred_cohort_id || null,
         })

@@ -37,15 +37,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Prevent duplicate applications by email or phone
+    // Prevent duplicate applications by email or phone (use admin client for reliable queries)
     const [{ data: existingEmail, error: emailError }, existingPhoneResult] = await Promise.all([
-      supabase
+      supabaseAdmin
         .from('applications')
         .select('id')
         .eq('email', emailLower)
         .maybeSingle(),
       phoneNormalized
-        ? supabase
+        ? supabaseAdmin
             .from('applications')
             .select('id')
             .eq('phone', phoneNormalized)
@@ -64,8 +64,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already has a profile (they're already registered)
-    const { data: existingProfile } = await supabase
+    // Check if user already has a profile (they're already registered) - use admin client
+    const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
       .select('id, email, status')
       .eq('email', emailLower)
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
       // Check if the existing application is already approved
       const existingApp = existingEmail || existingPhone;
       if (existingApp) {
-        const { data: appData } = await supabase
+        const { data: appData } = await supabaseAdmin
           .from('applications')
           .select('status, profile_id')
           .eq('id', existingApp.id)
@@ -111,11 +111,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Resolve cohort (accepts ID or name). Frontend sends ID.
+    // Resolve cohort (accepts ID or name). Frontend sends ID. - use admin client
     let cohortId: string | null = null;
     if (preferredCohort) {
       // First try direct ID match
-      const { data: byId } = await supabase
+      const { data: byId } = await supabaseAdmin
         .from('cohorts')
         .select('id')
         .eq('id', preferredCohort)
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
         cohortId = byId.id;
       } else {
         // Fallback: try by name (legacy behavior)
-        const { data: byName } = await supabase
+        const { data: byName } = await supabaseAdmin
           .from('cohorts')
           .select('id')
           .eq('name', preferredCohort)
@@ -136,15 +136,15 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check cohort availability before applying
+    // Check cohort availability before applying - use admin client
     if (cohortId) {
       const [{ data: cohort, error: cohortError }, { count }] = await Promise.all([
-        supabase
+        supabaseAdmin
           .from('cohorts')
           .select('id, seats_total')
           .eq('id', cohortId)
           .maybeSingle(),
-        supabase
+        supabaseAdmin
           .from('cohort_enrollment')
           .select('*', { count: 'exact', head: true })
           .eq('cohort_id', cohortId),
@@ -168,8 +168,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create application
-    const { data: application, error } = await supabase
+    // Create application using admin client to bypass RLS and ensure reliable inserts
+    const { data: application, error } = await supabaseAdmin
       .from('applications')
       .insert({
         first_name: firstName,

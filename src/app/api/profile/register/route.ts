@@ -48,14 +48,16 @@ export async function POST(req: NextRequest) {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create profile - simplified, no student_id
+    // Create profile - minimal data, phone is empty/null
+    // This is just account creation, not academy enrollment
     const { data: newProfile, error: profileError } = await supabase
       .from('profiles')
       .insert({
         name: `${firstName} ${lastName}`.trim(),
         email: email.toLowerCase().trim(),
         password_hash: passwordHash,
-        status: 'New',
+        phone: null, // Keep phone empty - will be filled during application
+        status: 'New', // Just signed up, not enrolled yet
       })
       .select()
       .single();
