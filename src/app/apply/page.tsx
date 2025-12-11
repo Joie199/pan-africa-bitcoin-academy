@@ -150,44 +150,67 @@ export default function ApplyPage() {
     birthDate: "",
   });
 
-  // Pre-fill form data from profile if user is logged in
+  // Pre-fill form data from profile if user is logged in (only once when profile loads)
   useEffect(() => {
-    if (!authLoading && isAuthenticated && profile) {
-      // Split name into first and last name
-      const nameParts = profile.name?.split(' ') || [];
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
+    // Wait for auth to finish loading
+    if (authLoading) return;
+    
+    // Only pre-fill if user is authenticated and profile exists
+    if (!isAuthenticated || !profile) return;
+    
+    // Check if form is already filled (avoid re-filling if user has started typing)
+    const isFormEmpty = !formData.firstName && !formData.lastName && !formData.email;
+    if (!isFormEmpty) return; // Don't overwrite user input
+    
+    console.log('Pre-filling form with profile data:', profile);
+    
+    // Split name into first and last name
+    const nameParts = profile.name?.split(' ') || [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
-      // Pre-fill form with profile data
-      setFormData(prev => ({
-        ...prev,
-        firstName: firstName,
-        lastName: lastName,
-        email: profile.email || '',
-        country: profile.country || '',
-        city: profile.city || '',
-      }));
-
-      // Pre-fill phone if exists
-      if (profile.phone) {
-        // Extract country code and number from phone (format: "+234 1234567890")
-        const phoneParts = profile.phone.split(' ');
-        if (phoneParts.length >= 2) {
-          const code = phoneParts[0];
-          const number = phoneParts.slice(1).join(' ');
-          setSelectedCountryCode(code);
-          setPhoneNumber(number);
-          // Try to find country from code
-          const country = africanCountries.find(c => c.code === code);
-          if (country) {
-            setSelectedCountry(country.name);
-          }
-        } else {
-          setPhoneNumber(profile.phone);
+    // Determine country from phone or use profile country
+    let countryToSet = profile.country || '';
+    let countryCodeToSet = '';
+    let phoneNumberToSet = '';
+    
+    // Pre-fill phone if exists
+    if (profile.phone) {
+      // Extract country code and number from phone (format: "+234 1234567890")
+      const phoneParts = profile.phone.split(' ');
+      if (phoneParts.length >= 2) {
+        const code = phoneParts[0];
+        const number = phoneParts.slice(1).join(' ');
+        countryCodeToSet = code;
+        phoneNumberToSet = number;
+        // Try to find country from code
+        const country = africanCountries.find(c => c.code === code);
+        if (country) {
+          countryToSet = country.name;
         }
+      } else {
+        phoneNumberToSet = profile.phone;
       }
     }
-  }, [isAuthenticated, profile, authLoading]);
+
+    // Set phone-related state
+    if (countryCodeToSet) setSelectedCountryCode(countryCodeToSet);
+    if (phoneNumberToSet) setPhoneNumber(phoneNumberToSet);
+    if (countryToSet) setSelectedCountry(countryToSet);
+
+    // Pre-fill form with profile data
+    setFormData({
+      firstName: firstName,
+      lastName: lastName,
+      email: profile.email || '',
+      phone: profile.phone || '',
+      country: countryToSet,
+      city: profile.city || '',
+      experienceLevel: '',
+      preferredCohort: '',
+      birthDate: '',
+    });
+  }, [authLoading, isAuthenticated, profile]); // Only depend on auth state, not form state
 
   const getPhoneRule = (country: string) => phoneRules[country] || { min: 7, max: 12 };
 
