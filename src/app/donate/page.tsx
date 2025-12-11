@@ -1,3 +1,8 @@
+'use client';
+
+const ONCHAIN_ADDRESS = 'bc1q4pg073ws86qdnxac3y8zhk4t8vtkg2vx529jrj';
+const ONCHAIN_QR_SRC = '/images/onchain-btc-qr.jpeg'; // Using provided JPEG QR image
+
 export default function DonatePage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
@@ -81,12 +86,27 @@ export default function DonatePage() {
             <div className="rounded-xl border border-orange-500/25 bg-black/80 p-6 shadow-[0_0_30px_rgba(249,115,22,0.2)]">
               <h3 className="mb-4 text-lg font-semibold text-orange-200">On-Chain Address</h3>
               <div className="space-y-4">
+                {/* QR Image */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="rounded-xl border border-orange-500/30 bg-zinc-900/60 p-3">
+                    <img
+                      src={ONCHAIN_QR_SRC}
+                      alt="On-chain Bitcoin donation QR"
+                      className="h-48 w-48 rounded-lg object-contain"
+                    />
+                  </div>
+                  <p className="text-xs text-zinc-400">Scan to donate on-chain</p>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-xs font-medium text-zinc-400">Bitcoin Address</label>
                   <div className="rounded-lg border border-orange-500/20 bg-zinc-900/50 p-3 font-mono text-xs text-orange-300 break-all">
-                    bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+                    {ONCHAIN_ADDRESS}
                   </div>
-                  <button className="w-full rounded-lg bg-gradient-to-r from-orange-400 to-cyan-400 px-4 py-2 text-sm font-semibold text-black transition hover:brightness-110">
+                  <button
+                    onClick={() => navigator.clipboard?.writeText(ONCHAIN_ADDRESS)}
+                    className="w-full rounded-lg bg-gradient-to-r from-orange-400 to-cyan-400 px-4 py-2 text-sm font-semibold text-black transition hover:brightness-110"
+                  >
                     Copy Address
                   </button>
                 </div>

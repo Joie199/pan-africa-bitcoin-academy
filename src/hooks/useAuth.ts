@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Profile {
   id: string;
@@ -18,12 +18,65 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const logoutInProgressRef = useRef(false);
+
+  // Session inactivity config (30 minutes)
+  const INACTIVITY_LIMIT_MS = 30 * 60 * 1000;
+  const ACTIVITY_KEY = 'lastActivityAt';
 
   useEffect(() => {
+    const markActivity = () => {
+      try {
+        localStorage.setItem(ACTIVITY_KEY, Date.now().toString());
+      } catch (e) {
+        // Ignore storage errors
+      }
+    };
+
+    const hasExpired = () => {
+      try {
+        const last = localStorage.getItem(ACTIVITY_KEY);
+        if (!last) return false;
+        const lastTs = Number(last);
+        if (Number.isNaN(lastTs)) return false;
+        return Date.now() - lastTs > INACTIVITY_LIMIT_MS;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    const forceLogoutForInactivity = () => {
+      if (logoutInProgressRef.current) return;
+      logoutInProgressRef.current = true;
+      try {
+        localStorage.removeItem('profileEmail');
+        localStorage.setItem('sessionExpired', 'true');
+      } catch (e) {
+        // Ignore storage errors
+      }
+      setIsAuthenticated(false);
+      setProfile(null);
+      setLoading(false);
+      window.dispatchEvent(new CustomEvent('userLogout'));
+      alert('Session expired due to inactivity. Please sign in again.');
+      window.location.replace('/');
+    };
+
     const checkAuth = async () => {
       try {
         const storedEmail = localStorage.getItem('profileEmail');
         if (storedEmail) {
+          // Initialize activity timestamp if missing
+          if (!localStorage.getItem(ACTIVITY_KEY)) {
+            markActivity();
+          }
+
+          // If already expired, logout immediately
+          if (hasExpired()) {
+            forceLogoutForInactivity();
+            return;
+          }
+
           // Verify the session (profile exists) without requiring password
           const res = await fetch('/api/profile/verify-session', {
             method: 'POST',
@@ -34,6 +87,7 @@ export function useAuth() {
           if (res.ok) {
             const data = await res.json();
             if (data.valid && data.profile) {
+              markActivity();
               setIsAuthenticated(true);
               setProfile({
                 id: data.profile.id,
@@ -71,6 +125,18 @@ export function useAuth() {
 
     checkAuth();
 
+    // Activity listeners to refresh last activity timestamp
+    const activityEvents: (keyof DocumentEventMap)[] = ['click', 'keydown', 'mousemove', 'touchstart', 'scroll'];
+    activityEvents.forEach((evt) => document.addEventListener(evt, markActivity, { passive: true }));
+
+    // Inactivity interval check
+    const intervalId = window.setInterval(() => {
+      if (!isAuthenticated || logoutInProgressRef.current) return;
+      if (hasExpired()) {
+        forceLogoutForInactivity();
+      }
+    }, 60 * 1000);
+
     // Listen for storage changes (e.g., when user signs in/out in another tab)
     const handleStorageChange = (e: StorageEvent | Event) => {
       // Check if profileEmail was removed (logout)
@@ -101,8 +167,10 @@ export function useAuth() {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('userLogout', handleLogout);
+      activityEvents.forEach((evt) => document.removeEventListener(evt, markActivity));
+      window.clearInterval(intervalId);
     };
-  }, []);
+  }, [isAuthenticated]);
 
   const logout = () => {
     try {

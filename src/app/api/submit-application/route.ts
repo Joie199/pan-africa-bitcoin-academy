@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
       phone,
       country,
       city,
+      birthDate,
       experienceLevel,
       preferredCohort,
     } = body;
@@ -22,18 +23,108 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Find cohort by name if provided
-    let cohortId = null;
+    const emailLower = email.toLowerCase().trim();
+    const phoneNormalized = phone ? String(phone).trim() : null;
+
+    // Basic phone validation (ensure 7-15 digits)
+    if (phoneNormalized) {
+      const digits = (phoneNormalized.match(/\d/g) || []).join('');
+      if (digits.length < 7 || digits.length > 15) {
+        return NextResponse.json(
+          { error: 'Invalid phone number length' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Prevent duplicate applications by email or phone
+    const [{ data: existingEmail, error: emailError }, existingPhoneResult] = await Promise.all([
+      supabase
+        .from('applications')
+        .select('id')
+        .eq('email', emailLower)
+        .maybeSingle(),
+      phoneNormalized
+        ? supabase
+            .from('applications')
+            .select('id')
+            .eq('phone', phoneNormalized)
+            .maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+    ]);
+
+    const existingPhone = (existingPhoneResult as any)?.data;
+    const phoneError = (existingPhoneResult as any)?.error;
+
+    if (emailError || phoneError) {
+      console.error('Error checking existing applications:', emailError || phoneError);
+      return NextResponse.json(
+        { error: 'Failed to validate application' },
+        { status: 500 }
+      );
+    }
+
+    if (existingEmail?.id || existingPhone?.id) {
+      return NextResponse.json(
+        { error: 'An application with this email or phone already exists' },
+        { status: 409 }
+      );
+    }
+
+    // Resolve cohort (accepts ID or name). Frontend sends ID.
+    let cohortId: string | null = null;
     if (preferredCohort) {
-      const { data: cohort } = await supabase
+      // First try direct ID match
+      const { data: byId } = await supabase
         .from('cohorts')
         .select('id')
-        .eq('name', preferredCohort)
-        .limit(1)
-        .single();
+        .eq('id', preferredCohort)
+        .maybeSingle();
 
-      if (cohort) {
-        cohortId = cohort.id;
+      if (byId?.id) {
+        cohortId = byId.id;
+      } else {
+        // Fallback: try by name (legacy behavior)
+        const { data: byName } = await supabase
+          .from('cohorts')
+          .select('id')
+          .eq('name', preferredCohort)
+          .maybeSingle();
+        if (byName?.id) {
+          cohortId = byName.id;
+        }
+      }
+    }
+
+    // Check cohort availability before applying
+    if (cohortId) {
+      const [{ data: cohort, error: cohortError }, { count }] = await Promise.all([
+        supabase
+          .from('cohorts')
+          .select('id, seats_total')
+          .eq('id', cohortId)
+          .maybeSingle(),
+        supabase
+          .from('cohort_enrollment')
+          .select('*', { count: 'exact', head: true })
+          .eq('cohort_id', cohortId),
+      ]);
+
+      if (cohortError) {
+        console.error('Error fetching cohort:', cohortError);
+        return NextResponse.json(
+          { error: 'Failed to validate cohort availability' },
+          { status: 500 }
+        );
+      }
+
+      const seatsTotal = cohort?.seats_total || 0;
+      const enrolled = count || 0;
+      if (seatsTotal > 0 && enrolled >= seatsTotal) {
+        return NextResponse.json(
+          { error: 'This cohort is full. Please select another cohort.' },
+          { status: 409 }
+        );
       }
     }
 
@@ -43,10 +134,11 @@ export async function POST(req: NextRequest) {
       .insert({
         first_name: firstName,
         last_name: lastName,
-        email: email.toLowerCase().trim(),
-        phone: phone || null,
+        email: emailLower,
+        phone: phoneNormalized,
         country: country || null,
         city: city || null,
+        birth_date: birthDate || null,
         experience_level: experienceLevel || null,
         preferred_cohort_id: cohortId,
         status: 'Pending',

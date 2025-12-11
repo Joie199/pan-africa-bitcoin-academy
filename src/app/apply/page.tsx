@@ -69,6 +69,60 @@ const africanCountries = [
   { name: "Seychelles", code: "+248", flag: "🇸🇨" },
 ];
 
+const phoneRules: Record<string, { min: number; max: number }> = {
+  Nigeria: { min: 10, max: 10 },
+  Ghana: { min: 9, max: 9 },
+  Kenya: { min: 9, max: 9 },
+  "South Africa": { min: 9, max: 9 },
+  Egypt: { min: 9, max: 10 },
+  Ethiopia: { min: 9, max: 9 },
+  Tanzania: { min: 9, max: 9 },
+  Uganda: { min: 9, max: 9 },
+  Algeria: { min: 9, max: 9 },
+  Morocco: { min: 9, max: 9 },
+  Angola: { min: 9, max: 9 },
+  Mozambique: { min: 9, max: 9 },
+  Madagascar: { min: 9, max: 9 },
+  Cameroon: { min: 9, max: 9 },
+  "Côte d'Ivoire": { min: 8, max: 9 },
+  Niger: { min: 8, max: 8 },
+  "Burkina Faso": { min: 8, max: 8 },
+  Mali: { min: 8, max: 8 },
+  Malawi: { min: 8, max: 9 },
+  Zambia: { min: 9, max: 9 },
+  Senegal: { min: 9, max: 9 },
+  Chad: { min: 8, max: 8 },
+  Somalia: { min: 8, max: 9 },
+  Zimbabwe: { min: 9, max: 9 },
+  Guinea: { min: 8, max: 9 },
+  Rwanda: { min: 9, max: 9 },
+  Benin: { min: 8, max: 8 },
+  Burundi: { min: 8, max: 8 },
+  Tunisia: { min: 8, max: 8 },
+  "South Sudan": { min: 9, max: 9 },
+  Togo: { min: 8, max: 8 },
+  "Sierra Leone": { min: 8, max: 8 },
+  Libya: { min: 9, max: 9 },
+  Liberia: { min: 8, max: 8 },
+  "Central African Republic": { min: 8, max: 8 },
+  Mauritania: { min: 8, max: 8 },
+  Eritrea: { min: 7, max: 7 },
+  Gambia: { min: 7, max: 7 },
+  Botswana: { min: 8, max: 8 },
+  Namibia: { min: 9, max: 9 },
+  Gabon: { min: 8, max: 8 },
+  Lesotho: { min: 8, max: 8 },
+  "Guinea-Bissau": { min: 7, max: 7 },
+  "Equatorial Guinea": { min: 9, max: 9 },
+  Mauritius: { min: 8, max: 8 },
+  Eswatini: { min: 8, max: 8 },
+  Djibouti: { min: 6, max: 6 },
+  Comoros: { min: 7, max: 7 },
+  "Cabo Verde": { min: 7, max: 7 },
+  "São Tomé and Príncipe": { min: 7, max: 7 },
+  Seychelles: { min: 7, max: 7 },
+};
+
 export default function ApplyPage() {
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
   const [cohortsLoading, setCohortsLoading] = useState(true);
@@ -77,6 +131,11 @@ export default function ApplyPage() {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCountryCode, setSelectedCountryCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -86,11 +145,15 @@ export default function ApplyPage() {
     city: "",
     experienceLevel: "",
     preferredCohort: "",
+    birthDate: "",
   });
+
+  const getPhoneRule = (country: string) => phoneRules[country] || { min: 7, max: 12 };
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const country = e.target.value;
     setSelectedCountry(country);
+    setPhoneError(null);
     const countryData = africanCountries.find((c) => c.name === country);
     // Auto-fill country code if country is selected
     if (countryData) {
@@ -103,6 +166,7 @@ export default function ApplyPage() {
   const handleCountryCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const code = e.target.value;
     setSelectedCountryCode(code);
+    setPhoneError(null);
     // Update phone number in form data
     const fullPhone = code && phoneNumber ? `${code} ${phoneNumber}`.trim() : phoneNumber;
     setFormData({ ...formData, phone: fullPhone });
@@ -117,6 +181,17 @@ export default function ApplyPage() {
     // Combine with selected country code for form data
     const fullPhone = selectedCountryCode && cleanedValue ? `${selectedCountryCode} ${cleanedValue}`.trim() : cleanedValue;
     setFormData({ ...formData, phone: fullPhone });
+
+    // Live validate digits against country rule
+    if (selectedCountry) {
+      const digits = cleanedValue.replace(/\D/g, '');
+      const { min, max } = getPhoneRule(selectedCountry);
+      if (digits.length > 0 && (digits.length < min || digits.length > max)) {
+        setPhoneError(`Needs ${min}${min !== max ? `-${max}` : ''} digits for ${selectedCountry} (excluding country code).`);
+      } else {
+        setPhoneError(null);
+      }
+    }
   };
 
   // TODO: Fetch cohorts from Supabase
@@ -179,19 +254,54 @@ export default function ApplyPage() {
       const cohort = cohorts.find((c) => c.id === selectedCohort);
       if (cohort) {
         // Update preferredCohort to match the selected cohort ID (dropdown uses ID as value)
-        setFormData((prev) => ({ ...prev, preferredCohort: cohort.id }));
+        setFormData((prev) => ({
+          ...prev,
+          preferredCohort: cohort.id,
+          experienceLevel: cohort.level?.toLowerCase() || '',
+        }));
       }
     }
   }, [selectedCohort, cohorts]);
 
+  const selectedCohortData = selectedCohort ? cohorts.find((c) => c.id === selectedCohort) : null;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+    setSubmitSuccess(null);
+    setSubmitting(true);
+    setPhoneError(null);
+
+    // Validate phone length based on country rules
+    const phoneDigits = phoneNumber.replace(/\D/g, '');
+    const { min, max } = getPhoneRule(selectedCountry);
+    if (!selectedCountry) {
+      setSubmitError('Please select your country.');
+      setPhoneError('Please select your country.');
+      setSubmitting(false);
+      return;
+    }
+    if (!selectedCountryCode) {
+      setSubmitError('Please choose your country code.');
+      setPhoneError('Please choose your country code.');
+      setSubmitting(false);
+      return;
+    }
+    if (phoneDigits.length < min || phoneDigits.length > max) {
+      const msg = `Phone number should have ${min}${min !== max ? `-${max}` : ''} digits for ${selectedCountry}.`;
+      setSubmitError(msg);
+      setPhoneError(msg);
+      setSubmitting(false);
+      return;
+    }
     
     // The phone number is already combined in formData.phone via handlePhoneChange
     const finalFormData = {
       ...formData,
       name: `${formData.firstName} ${formData.lastName}`.trim(), // Combine first and last name
       country: selectedCountry,
+      birthDate: birthDate || null,
+      phone: `${selectedCountryCode} ${phoneNumber}`.trim(),
     };
 
     const selectedCohortObj = selectedCohort ? cohorts.find((c) => c.id === selectedCohort) : null;
@@ -228,7 +338,7 @@ export default function ApplyPage() {
       const result = await applicationRes.json();
 
       if (applicationRes.ok) {
-        alert('Application submitted successfully! We will review and get back to you soon.');
+        setSubmitSuccess('Application submitted successfully! We will review and get back to you soon.');
         // Reset form
         setFormData({
           firstName: "",
@@ -239,17 +349,21 @@ export default function ApplyPage() {
           city: "",
           experienceLevel: "",
           preferredCohort: "",
+          birthDate: "",
         });
         setSelectedCountry("");
         setSelectedCountryCode("");
         setPhoneNumber("");
         setSelectedCohort(null);
+        setBirthDate("");
       } else {
         throw new Error(result.error || 'Failed to submit application');
       }
     } catch (error: any) {
       console.error('Error submitting application:', error);
-      alert(`Error: ${error.message}. Please try again or contact support.`);
+      setSubmitError(error.message || 'Failed to submit application. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -346,6 +460,16 @@ export default function ApplyPage() {
         {/* Registration Form */}
         <section className="rounded-xl border border-cyan-400/25 bg-black/80 p-6 shadow-[0_0_40px_rgba(34,211,238,0.2)]">
           <h2 className="mb-6 text-xl font-semibold text-cyan-200">Application Form</h2>
+          {submitSuccess && (
+            <div className="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-200">
+              {submitSuccess}
+            </div>
+          )}
+          {submitError && (
+            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+              {submitError}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name and Last Name */}
             <div className="grid gap-4 sm:grid-cols-2">
@@ -377,20 +501,37 @@ export default function ApplyPage() {
               </div>
             </div>
 
-            {/* Email and Phone */}
+            {/* Email, Phone, Birth Date */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-zinc-300">
-                  Email <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
-                  placeholder="john@example.com"
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-zinc-300">
+                    Email <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+                    placeholder="john@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-zinc-300">
+                    Birth Date <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={birthDate}
+                    onChange={(e) => {
+                      setBirthDate(e.target.value);
+                      setFormData({ ...formData, birthDate: e.target.value });
+                    }}
+                    className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+                  />
+                </div>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-zinc-300">
@@ -420,6 +561,15 @@ export default function ApplyPage() {
                     placeholder="1234567890"
                   />
                 </div>
+                {selectedCountry && (
+                  <p className="mt-1 text-xs text-zinc-400">
+                    Requires {getPhoneRule(selectedCountry).min}
+                    {getPhoneRule(selectedCountry).min !== getPhoneRule(selectedCountry).max ? `-${getPhoneRule(selectedCountry).max}` : ''} digits (excluding country code).
+                  </p>
+                )}
+                {phoneError && (
+                  <p className="mt-1 text-xs text-red-300">{phoneError}</p>
+                )}
               </div>
             </div>
 
@@ -465,6 +615,7 @@ export default function ApplyPage() {
                   required
                   value={formData.experienceLevel}
                   onChange={(e) => setFormData({ ...formData, experienceLevel: e.target.value })}
+                  disabled={!!selectedCohort}
                   className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
                 >
                   <option value="" className="bg-zinc-950 text-zinc-400">Select your level</option>
@@ -472,6 +623,11 @@ export default function ApplyPage() {
                   <option value="intermediate" className="bg-zinc-950 text-zinc-50">Intermediate - Some knowledge</option>
                   <option value="advanced" className="bg-zinc-950 text-zinc-50">Advanced - Experienced user</option>
                 </select>
+                {selectedCohort && (
+                  <p className="mt-1 text-xs text-green-300">
+                    Auto-set to <span className="font-semibold">{selectedCohortData?.level || 'Beginner'}</span> from <span className="font-semibold">{selectedCohortData?.name || 'Cohort'}</span>.
+                  </p>
+                )}
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-zinc-300">
@@ -514,9 +670,12 @@ export default function ApplyPage() {
             <div className="flex justify-center">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-orange-400 to-cyan-400 px-6 py-3 text-base font-semibold text-black transition hover:brightness-110"
+                disabled={submitting}
+                className={`inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-orange-400 to-cyan-400 px-6 py-3 text-base font-semibold text-black transition ${
+                  submitting ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'
+                }`}
               >
-                Register
+                {submitting ? 'Submitting...' : 'Register'}
               </button>
             </div>
           </form>
