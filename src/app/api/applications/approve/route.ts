@@ -46,8 +46,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emailLower = application.email.toLowerCase().trim();
-    const fullName = `${application.first_name} ${application.last_name}`.trim();
+    const emailLower = application.email?.toLowerCase().trim();
+    const fullName = `${application.first_name || ''} ${application.last_name || ''}`.trim();
+
+    // Validate required fields
+    if (!emailLower) {
+      return NextResponse.json(
+        { error: 'Application email is missing' },
+        { status: 400 }
+      );
+    }
+
+    if (!fullName || fullName.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Application name is missing' },
+        { status: 400 }
+      );
+    }
 
     // Check if profile already exists
     let profileId: string;
@@ -125,25 +140,75 @@ export async function POST(req: NextRequest) {
         .eq('id', profileId);
     } else {
       // Create new profile (without password - they'll set it later)
+      // Check if student_id already exists (if we're generating one)
+      if (generatedStudentId) {
+        const { data: existingStudentId } = await supabaseAdmin
+          .from('profiles')
+          .select('id, email')
+          .eq('student_id', generatedStudentId)
+          .maybeSingle();
+        
+        if (existingStudentId) {
+          console.error('Student ID already exists:', generatedStudentId, 'for profile:', existingStudentId.email);
+          // Generate a new one or use roll number + 1
+          const rollNumber = parseInt(generatedStudentId.split('/')[1]) + 1;
+          const year = new Date().getFullYear();
+          const cohortNumber = generatedStudentId.split('/')[0];
+          generatedStudentId = `${cohortNumber}/${rollNumber}/${year}`;
+        }
+      }
+
+      const profileData: any = {
+        name: fullName,
+        email: emailLower,
+        phone: application.phone || null,
+        country: application.country || null,
+        city: application.city || null,
+        status: 'Pending Password Setup', // Special status until password is set
+      };
+
+      // Only add student_id if it's not null
+      if (generatedStudentId) {
+        profileData.student_id = generatedStudentId;
+      }
+
+      // Only add cohort_id if it exists and is valid
+      if (application.preferred_cohort_id) {
+        const { data: cohortCheck } = await supabaseAdmin
+          .from('cohorts')
+          .select('id')
+          .eq('id', application.preferred_cohort_id)
+          .maybeSingle();
+        
+        if (cohortCheck) {
+          profileData.cohort_id = application.preferred_cohort_id;
+        }
+      }
+
       const { data: newProfile, error: profileError } = await supabaseAdmin
         .from('profiles')
-        .insert({
-          name: fullName,
-          email: emailLower,
-          phone: application.phone || null,
-          country: application.country || null,
-          city: application.city || null,
-          student_id: generatedStudentId, // Set student_id on creation
-          status: 'Pending Password Setup', // Special status until password is set
-          cohort_id: application.preferred_cohort_id || null,
-        })
+        .insert(profileData)
         .select()
         .single();
 
       if (profileError || !newProfile) {
         console.error('Error creating profile:', profileError);
+        console.error('Profile creation details:', {
+          name: fullName,
+          email: emailLower,
+          phone: application.phone,
+          country: application.country,
+          city: application.city,
+          student_id: generatedStudentId,
+          cohort_id: application.preferred_cohort_id,
+        });
         return NextResponse.json(
-          { error: 'Failed to create profile', details: profileError?.message },
+          { 
+            error: 'Failed to create profile', 
+            details: profileError?.message || 'Unknown error',
+            code: profileError?.code,
+            hint: profileError?.hint,
+          },
           { status: 500 }
         );
       }
