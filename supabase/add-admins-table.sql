@@ -11,6 +11,13 @@ CREATE TABLE IF NOT EXISTS admins (
 
 CREATE INDEX IF NOT EXISTS idx_admins_email ON admins(email);
 
+-- Enable Row Level Security
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+
+-- Block all direct client access - only service role (supabaseAdmin) can access
+CREATE POLICY "API only - no direct client access" ON admins
+  FOR ALL USING (false) WITH CHECK (false);
+
 COMMENT ON TABLE admins IS 'Local admin users for the dashboard';
 COMMENT ON COLUMN admins.password_hash IS 'Bcrypt hash of admin password';
 
