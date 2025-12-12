@@ -60,7 +60,7 @@ const faqs = [
       },
       {
         q: "Can I switch cohorts?",
-        a: "Yes, if there's availability in another cohort and you provide at least 2 weeks' notice. Contact support@bitcoinacademy.africa to request a transfer.",
+        a: "Yes, if there's availability in another cohort and you provide at least 2 weeks' notice. Contact support@panafricanbitcoin.com to request a transfer.",
       },
       {
         q: "What happens if I miss a session?",
@@ -136,7 +136,7 @@ export default function FAQPage() {
           </p>
           <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:justify-center">
             <a
-              href="mailto:support@bitcoinacademy.africa"
+              href="mailto:support@panafricanbitcoin.com"
               className="rounded-lg bg-gradient-to-r from-cyan-400 to-orange-400 px-6 py-2 text-sm font-semibold text-black transition hover:brightness-110"
             >
               Email Us

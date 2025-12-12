@@ -159,7 +159,7 @@ export default function DonatePage() {
               Your support helps build Bitcoin sovereignty and education in Africa. Every contribution, no matter how small, makes a difference.
             </p>
             <p className="mt-2 text-xs text-zinc-400">
-              Questions? Contact us at <a href="mailto:support@bitcoinacademy.africa" className="text-cyan-300 hover:text-cyan-200">support@bitcoinacademy.africa</a>
+              Questions? Contact us at <a href="mailto:support@panafricanbitcoin.com" className="text-cyan-300 hover:text-cyan-200">support@panafricanbitcoin.com</a>
             </p>
           </div>
         </section>

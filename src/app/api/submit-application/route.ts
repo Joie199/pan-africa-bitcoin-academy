@@ -99,17 +99,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // If profile exists, they're already registered - tell them to sign in
-    if (existingProfile) {
-      return NextResponse.json(
-        { 
-          error: 'An account with this email already exists. Please sign in. If you forgot your password, use the "Forgot Password" option.',
-          hasProfile: true,
-          needsSignIn: true
-        },
-        { status: 409 }
-      );
-    }
+    // If profile exists, allow them to apply (they're signed in)
+    // The application will be linked to their existing profile on approval
+    // Don't block - they can apply even if they have a profile
 
     // Resolve cohort (accepts ID or name). Frontend sends ID. - use admin client
     let cohortId: string | null = null;
@@ -169,6 +161,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create application using admin client to bypass RLS and ensure reliable inserts
+    // Link to existing profile if user is signed in
     const { data: application, error } = await supabaseAdmin
       .from('applications')
       .insert({
@@ -182,6 +175,7 @@ export async function POST(req: NextRequest) {
         experience_level: experienceLevel || null,
         preferred_cohort_id: cohortId,
         status: 'Pending',
+        profile_id: existingProfile?.id || null, // Link to existing profile if found
       })
       .select()
       .single();
