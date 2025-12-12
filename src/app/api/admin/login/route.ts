@@ -18,18 +18,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
+    // Trim and normalize email
+    const normalizedEmail = email.trim().toLowerCase();
+
     const { data: admin, error } = await supabaseAdmin
       .from('admins')
       .select('id, email, password_hash, role')
-      .ilike('email', email)
+      .eq('email', normalizedEmail)
       .maybeSingle();
 
-    if (error || !admin) {
+    if (error) {
+      console.error('Database error fetching admin:', error);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
+    if (!admin) {
+      console.error('Admin not found for email:', normalizedEmail);
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const ok = await bcrypt.compare(password, admin.password_hash || '');
+    if (!admin.password_hash) {
+      console.error('Admin has no password hash:', admin.id);
+      return NextResponse.json({ error: 'Admin account not properly configured' }, { status: 500 });
+    }
+
+    const ok = await bcrypt.compare(password, admin.password_hash);
     if (!ok) {
+      console.error('Password mismatch for admin:', admin.id);
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
