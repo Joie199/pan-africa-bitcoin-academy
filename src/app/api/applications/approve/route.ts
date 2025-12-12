@@ -216,56 +216,120 @@ export async function POST(req: NextRequest) {
       profileId = newProfile.id;
     }
 
-    // Create student record if it doesn't exist
+    // STEP 2: Create/Update Students Record (SOURCE OF TRUTH)
+    // Students database is the main database - all student data goes here
     const { data: existingStudent } = await supabaseAdmin
       .from('students')
-      .select('id')
+      .select('id, name, email, phone, country, city, cohort_id, status')
       .eq('profile_id', profileId)
       .maybeSingle();
 
-    if (!existingStudent) {
-      const { error: studentError } = await supabaseAdmin
+    const studentData: any = {
+      profile_id: profileId,
+      name: fullName,
+      email: emailLower,
+      phone: application.phone || null,
+      country: application.country || null,
+      city: application.city || null,
+      cohort_id: application.preferred_cohort_id || null,
+      status: 'Enrolled', // Student is enrolled after approval
+      progress_percent: existingStudent?.progress_percent || 0,
+      assignments_completed: existingStudent?.assignments_completed || 0,
+      projects_completed: existingStudent?.projects_completed || 0,
+      live_sessions_attended: existingStudent?.live_sessions_attended || 0,
+    };
+
+    let studentRecord;
+    if (existingStudent) {
+      // Update existing student record with application data
+      const { data: updatedStudent, error: updateError } = await supabaseAdmin
         .from('students')
-        .insert({
-          profile_id: profileId,
-          progress_percent: 0,
-          assignments_completed: 0,
-          projects_completed: 0,
-          live_sessions_attended: 0,
-        });
+        .update(studentData)
+        .eq('id', existingStudent.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Error updating student record:', updateError);
+        return NextResponse.json(
+          { error: 'Failed to update student record', details: updateError.message },
+          { status: 500 }
+        );
+      }
+      studentRecord = updatedStudent;
+    } else {
+      // Create new student record (source of truth)
+      const { data: newStudent, error: studentError } = await supabaseAdmin
+        .from('students')
+        .insert(studentData)
+        .select()
+        .single();
 
       if (studentError) {
         console.error('Error creating student record:', studentError);
-        // Don't fail - student record can be created later
+        return NextResponse.json(
+          { error: 'Failed to create student record', details: studentError.message },
+          { status: 500 }
+        );
       }
+      studentRecord = newStudent;
     }
 
-    // Enroll in cohort if preferred_cohort_id exists
-    if (application.preferred_cohort_id) {
+    // STEP 3: Update Profile from Students Data (Profile is for display)
+    // Profile gets updated from students database (students is source of truth)
+    const profileUpdateData: any = {
+      name: studentRecord.name,
+      phone: studentRecord.phone,
+      country: studentRecord.country,
+      city: studentRecord.city,
+      cohort_id: studentRecord.cohort_id,
+    };
+
+    // Add student_id if generated
+    if (generatedStudentId) {
+      profileUpdateData.student_id = generatedStudentId;
+    }
+
+    // Update status based on password
+    if (existingProfile?.password_hash) {
+      profileUpdateData.status = 'Active';
+    } else {
+      profileUpdateData.status = 'Pending Password Setup';
+    }
+
+    const { error: profileUpdateError } = await supabaseAdmin
+      .from('profiles')
+      .update(profileUpdateData)
+      .eq('id', profileId);
+
+    if (profileUpdateError) {
+      console.error('Error updating profile from student data:', profileUpdateError);
+      // Don't fail - profile update is secondary
+    }
+
+    // STEP 4: Enroll in Cohort (if cohort_id exists in students record)
+    if (studentRecord.cohort_id) {
       // Check if already enrolled
       const { data: existingEnrollment } = await supabaseAdmin
         .from('cohort_enrollment')
         .select('id')
-        .eq('cohort_id', application.preferred_cohort_id)
-        .eq('student_id', profileId)
+        .eq('cohort_id', studentRecord.cohort_id)
+        .eq('student_id', profileId) // student_id in cohort_enrollment is profiles.id
         .maybeSingle();
 
       if (!existingEnrollment) {
-        // Create enrollment
-        await supabaseAdmin
+        // Create enrollment (linked by profiles.id)
+        const { error: enrollmentError } = await supabaseAdmin
           .from('cohort_enrollment')
           .insert({
-            cohort_id: application.preferred_cohort_id,
-            student_id: profileId,
+            cohort_id: studentRecord.cohort_id,
+            student_id: profileId, // This is profiles.id (student_id)
           });
 
-        // Update profile cohort_id
-        await supabaseAdmin
-          .from('profiles')
-          .update({
-            cohort_id: application.preferred_cohort_id,
-          })
-          .eq('id', profileId);
+        if (enrollmentError) {
+          console.error('Error creating cohort enrollment:', enrollmentError);
+          // Don't fail - enrollment can be fixed later
+        }
       }
     }
 
