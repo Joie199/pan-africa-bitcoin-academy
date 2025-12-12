@@ -10,33 +10,79 @@ export async function GET(_req: NextRequest) {
     }
 
     // Fetch profiles with students, chapter_progress, and attendance relationships
-    const { data: profiles, error } = await supabaseAdmin
-      .from('profiles')
-      .select(`
-        id,
-        first_name,
-        last_name,
-        email,
-        status,
-        students:students(id, cohort_id, created_at),
-        chapter_progress:chapter_progress(is_completed, is_unlocked, chapter_number),
-        attendance:attendance(event_id, join_time, duration_minutes)
-      `)
-      .limit(200);
+    // Note: profiles table uses 'name' not 'first_name'/'last_name'
+    // Handle cases where related tables might not exist yet
+    let profiles: any[] = [];
+    let error: any = null;
+
+    try {
+      const result = await supabaseAdmin
+        .from('profiles')
+        .select(`
+          id,
+          name,
+          email,
+          status,
+          students:students(id, cohort_id, created_at),
+          chapter_progress:chapter_progress(is_completed, is_unlocked, chapter_number),
+          attendance:attendance(event_id, join_time, duration_minutes)
+        `)
+        .limit(200);
+
+      if (result.error) {
+        // If error is about missing table/column, try without relationships
+        if (result.error.message?.includes('relation') || result.error.message?.includes('column')) {
+          console.warn('Some relationships may not exist, fetching profiles only:', result.error.message);
+          const simpleResult = await supabaseAdmin
+            .from('profiles')
+            .select('id, name, email, status')
+            .limit(200);
+          
+          if (simpleResult.error) {
+            throw simpleResult.error;
+          }
+          profiles = simpleResult.data || [];
+        } else {
+          throw result.error;
+        }
+      } else {
+        profiles = result.data || [];
+      }
+    } catch (fetchError: any) {
+      console.error('Error fetching profiles:', fetchError);
+      error = fetchError;
+    }
 
     if (error) {
-      throw error;
+      return NextResponse.json(
+        { 
+          error: 'Failed to fetch student progress', 
+          details: error.message,
+          hint: 'Make sure all database tables (profiles, students, chapter_progress, attendance) exist'
+        },
+        { status: 500 }
+      );
     }
 
     // Get total live-class events count for attendance calculation
-    const { data: liveEvents } = await supabaseAdmin
-      .from('events')
-      .select('id', { count: 'exact', head: false })
-      .eq('type', 'live-class');
+    let totalLiveLectures = 0;
+    try {
+      const { data: liveEvents, error: eventsError } = await supabaseAdmin
+        .from('events')
+        .select('id')
+        .eq('type', 'live-class');
+      
+      if (eventsError) {
+        console.error('Error fetching live events (non-critical):', eventsError);
+      } else {
+        totalLiveLectures = liveEvents?.length || 0;
+      }
+    } catch (eventsError) {
+      console.error('Error fetching live events (non-critical):', eventsError);
+      // Continue without attendance data
+    }
 
-    const totalLiveLectures = liveEvents?.length || 0;
-
-    const progress = (profiles || []).map((p: any) => {
+    const progress = profiles.map((p: any) => {
       const chapterData = p.chapter_progress || [];
       const completed = chapterData.filter((c: any) => c.is_completed).length;
       const unlocked = chapterData.length;
@@ -53,7 +99,7 @@ export async function GET(_req: NextRequest) {
 
       return {
         id: p.id,
-        name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unnamed',
+        name: p.name || 'Unnamed',
         email: p.email,
         status: p.status,
         cohortId: p.students?.[0]?.cohort_id || null,
