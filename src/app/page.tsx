@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Github, MessageCircle, Link as LinkIcon, MessageSquare } from "lucide-react";
+import { Facebook, Twitter, Instagram, Music2 } from "lucide-react";
 import { StructuredData } from "@/components/StructuredData";
 
 const curriculumCards = [
@@ -445,35 +445,32 @@ export default function Home() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 {
-                  name: "GitHub",
-                  icon: "Github",
-                  url: "https://github.com/Joie199/pan-africa-bitcoin-academy",
-                  color: "hover:bg-zinc-700",
+                  name: "Facebook",
+                  icon: Facebook,
+                  url: "https://www.facebook.com/profile.php?id=61585070968194",
+                  color: "hover:bg-blue-500/20",
                 },
                 {
-                  name: "WhatsApp",
-                  icon: "MessageCircle",
-                  url: "https://chat.whatsapp.com/KpjlC90BGIj1EChMHsW6Ji",
-                  color: "hover:bg-green-500/20",
+                  name: "X (Twitter)",
+                  icon: Twitter,
+                  url: "https://x.com/panafricanbtc",
+                  color: "hover:bg-slate-500/20",
                 },
                 {
-                  name: "Nostr",
-                  icon: "Link",
-                  url: "https://nostr.com",
+                  name: "Instagram",
+                  icon: Instagram,
+                  url: "https://www.instagram.com/panafricanbitcoin/",
+                  color: "hover:bg-pink-500/20",
+                },
+                {
+                  name: "TikTok",
+                  icon: Music2,
+                  url: "https://www.tiktok.com/@panafricanbitcoin",
                   color: "hover:bg-purple-500/20",
                 },
-                {
-                  name: "Discord",
-                  icon: "MessageSquare",
-                  url: "https://discord.gg/bitcoinacademy",
-                  color: "hover:bg-indigo-500/20",
-                },
               ].map((social, index) => {
-                const IconComponent = social.icon === "Github" ? Github :
-                                    social.icon === "MessageCircle" ? MessageCircle :
-                                    social.icon === "Link" ? LinkIcon :
-                                    social.icon === "MessageSquare" ? MessageSquare : null;
-                
+                const IconComponent = social.icon;
+
                 return (
                   <a
                     key={index}
