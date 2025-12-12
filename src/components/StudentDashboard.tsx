@@ -66,6 +66,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editFormData, setEditFormData] = useState({ name: '', email: '', phone: '', country: '', city: '' });
+  const [chapterStatus, setChapterStatus] = useState<Record<number, { isUnlocked: boolean; isCompleted: boolean }>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -221,6 +222,31 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
     };
   }, [storedProfileEmail, profileEmail]);
 
+  // Fetch chapter status (same as chapters page)
+  useEffect(() => {
+    const fetchChapterStatus = async () => {
+      const email = userData?.profile?.email || storedProfileEmail || profileEmail;
+      if (!email) return;
+
+      try {
+        const response = await fetch('/api/chapters/unlock-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+        if (data.chapters) {
+          setChapterStatus(data.chapters);
+        }
+      } catch (error) {
+        console.error('Error fetching chapter status:', error);
+      }
+    };
+
+    fetchChapterStatus();
+  }, [userData, storedProfileEmail, profileEmail]);
+
   const fetchProfileByEmail = async (lookupEmail: string) => {
     if (!lookupEmail) {
       setProfileError('Email is required');
@@ -303,15 +329,12 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
     ? student.liveSessions
     : createFallbackLiveSessions();
   
-  // Build chapters list from chaptersContent with completion status
-  const completedChapterNumbers = student.completedChapterNumbers || [];
-  const studentChapters = student.chapters || [];
-  const chaptersMap = new Map(studentChapters.map((ch: any) => [ch.chapterNumber, ch]));
-  
+  // Build chapters list from chaptersContent with completion status (using same logic as chapters page)
   const chapters = chaptersContent.map((chapter) => {
-    const studentChapter = chaptersMap.get(chapter.number);
-    const isCompleted = completedChapterNumbers.includes(chapter.number);
-    const isUnlocked = studentChapter?.isUnlocked ?? (chapter.number === 1);
+    // Use chapter status from API (same as chapters page)
+    const status = chapterStatus[chapter.number];
+    const isCompleted = status?.isCompleted || false;
+    const isUnlocked = status?.isUnlocked || (chapter.number === 1); // Chapter 1 always unlocked for enrolled students
     
     return {
       id: `chapter-${chapter.number}`,
@@ -321,6 +344,8 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
       duration: chapter.duration,
       status: isCompleted ? 'completed' : isUnlocked ? 'in-progress' : 'locked',
       link: `/chapters/${chapter.slug}`,
+      isCompleted,
+      isUnlocked,
     };
   });
   
@@ -618,13 +643,20 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                       )}
                     </div>
                     <p className="mb-3 text-sm text-zinc-400">Duration: {chapter.duration}</p>
-                    {chapter.status !== 'locked' && (
+                    {chapter.isUnlocked ? (
                       <Link
                         href={chapter.link}
                         className="inline-block rounded-lg bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-300 transition hover:bg-cyan-500/30"
                       >
-                        {chapter.status === 'completed' ? 'Review Chapter →' : 'Continue →'}
+                        {chapter.isCompleted ? 'Review Chapter →' : 'Continue →'}
                       </Link>
+                    ) : (
+                      <button
+                        disabled
+                        className="inline-block rounded-lg bg-zinc-800/50 px-4 py-2 text-sm font-medium text-zinc-500 cursor-not-allowed"
+                      >
+                        Locked
+                      </button>
                     )}
                   </div>
                 ))}
