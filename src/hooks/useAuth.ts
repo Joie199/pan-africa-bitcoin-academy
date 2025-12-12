@@ -208,16 +208,19 @@ export function useAuth() {
     }
   };
 
-  const SessionExpiredPopup = () => (
-    <SessionExpiredModal
-      isOpen={showSessionExpired}
-      onClose={() => {
-        setShowSessionExpired(false);
-        window.location.replace('/');
-      }}
-      userType="student"
-    />
-  );
+  const SessionExpiredPopup = () => {
+    if (!showSessionExpired) return null;
+    return (
+      <SessionExpiredModal
+        isOpen={showSessionExpired}
+        onClose={() => {
+          setShowSessionExpired(false);
+          window.location.replace('/');
+        }}
+        userType="student"
+      />
+    );
+  };
 
   return { isAuthenticated, profile, loading, logout, SessionExpiredPopup };
 }

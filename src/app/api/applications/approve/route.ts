@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
     // Students database is the main database - all student data goes here
     const { data: existingStudent } = await supabaseAdmin
       .from('students')
-      .select('id, name, email, phone, country, city, cohort_id, status')
+      .select('id, name, email, phone, country, city, cohort_id, status, progress_percent, assignments_completed, projects_completed, live_sessions_attended')
       .eq('profile_id', profileId)
       .maybeSingle();
 
