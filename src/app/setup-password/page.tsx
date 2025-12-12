@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/PageContainer';
 
-export default function SetupPasswordPage() {
+function SetupPasswordContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const email = searchParams.get('email');
@@ -200,4 +200,23 @@ export default function SetupPasswordPage() {
     </PageContainer>
   );
 }
+
+export default function SetupPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer title="Set Up Your Password" subtitle="Loading...">
+          <div className="mx-auto max-w-md space-y-4 rounded-xl border border-cyan-400/25 bg-black/80 p-6 text-center text-zinc-200">
+            Loading password setup...
+          </div>
+        </PageContainer>
+      }
+    >
+      <SetupPasswordContent />
+    </Suspense>
+  );
+}
+
+
+
 

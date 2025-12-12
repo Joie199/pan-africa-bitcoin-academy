@@ -21,3 +21,6 @@ COMMENT ON COLUMN applications.rejected_reason IS 'Reason for rejection if appli
 COMMENT ON COLUMN applications.rejected_at IS 'Timestamp when application was rejected';
 COMMENT ON COLUMN applications.profile_id IS 'Links approved application to created profile (null until approved)';
 
+
+
+

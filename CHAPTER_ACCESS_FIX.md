@@ -121,3 +121,6 @@ If chapters still don't open:
 
 The system now gracefully degrades to allow access for enrolled students while still blocking unregistered users.
 
+
+
+

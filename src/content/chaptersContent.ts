@@ -345,15 +345,13 @@ export const chaptersContent: ChapterContent[] = [
         heading: "3.2 Centralized Control — Governments and Banks",
         paragraphs: [
           "Another challenge is that fiat money is controlled by a few powerful institutions. Governments and central banks decide:",
+          "Commercial banks hold most people's money, but they can also restrict access — freezing accounts, setting withdrawal limits, or charging high fees.",
+          "This centralized control means ordinary citizens have very little say. If leaders mismanage money, everyone suffers. For example, when governments print more to cover debts or fund wars, citizens pay the price through inflation and instability.",
         ],
         bullets: [
           "How much money to print?",
           "What interest rates to set?",
           "Who gets bailed out when crises hit?",
-        ],
-        paragraphs: [
-          "Commercial banks hold most people's money, but they can also restrict access — freezing accounts, setting withdrawal limits, or charging high fees.",
-          "This centralized control means ordinary citizens have very little say. If leaders mismanage money, everyone suffers. For example, when governments print more to cover debts or fund wars, citizens pay the price through inflation and instability.",
         ],
         images: [
           {
@@ -437,16 +435,14 @@ export const chaptersContent: ChapterContent[] = [
         heading: "4.1 The Cypherpunks & Early Digital Currencies → Satoshi's Breakthrough",
         paragraphs: [
           "In the 1990s, a group of computer rebels called cypherpunks saw the danger. They believed that if money stayed in the hands of governments and banks, privacy and freedom would vanish. They started experimenting with digital cash:",
+          "Then came 2008. The global financial crisis hit. Banks collapsed, people lost homes, and governments bailed out the very institutions that caused the mess.",
+          "At that exact moment, someone named Satoshi Nakamoto released a whitepaper describing Bitcoin — a new form of money without banks, governments, or middlemen.",
+          "It was the first time in history that humans had digital money that no one could shut down, inflate, or control.",
         ],
         bullets: [
           "DigiCash (David Chaum) — early digital money, but it required a central company.",
           "E-gold — backed by gold, but was shut down by governments.",
           "Hashcash (Adam Back) — created as a way to fight email spam, but its 'proof of work' idea later inspired Bitcoin mining.",
-        ],
-        paragraphs: [
-          "Then came 2008. The global financial crisis hit. Banks collapsed, people lost homes, and governments bailed out the very institutions that caused the mess.",
-          "At that exact moment, someone named Satoshi Nakamoto released a whitepaper describing Bitcoin — a new form of money without banks, governments, or middlemen.",
-          "It was the first time in history that humans had digital money that no one could shut down, inflate, or control.",
         ],
         callouts: [
           {
@@ -540,14 +536,12 @@ export const chaptersContent: ChapterContent[] = [
           "When you send Bitcoin, you don't need a bank's approval. You simply use your private key to sign the transaction, proving it's yours. The network checks it, confirms it, and adds it to the blockchain. Once confirmed, it can't be reversed or erased.",
           "This makes Bitcoin truly peer-to-peer electronic cash — just like handing over cash in person, but now possible over the internet, instantly, across borders, without middlemen.",
           "But Bitcoin was not just another type of money. It introduced three revolutionary features:",
+          "For the first time in history, humanity had a tool to store and transfer value without relying on trust in powerful institutions.",
         ],
         bullets: [
           "Decentralization — no central bank or company controls it.",
           "Transparency — every transaction is recorded publicly.",
           "Scarcity — only 21 million bitcoins will ever exist, making it immune to the endless money-printing that causes inflation.",
-        ],
-        paragraphs: [
-          "For the first time in history, humanity had a tool to store and transfer value without relying on trust in powerful institutions.",
         ],
       },
     ],
@@ -605,6 +599,7 @@ export const chaptersContent: ChapterContent[] = [
         heading: "6.1 Public/Private Keys Explained Simply",
         paragraphs: [
           "Think of your Bitcoin wallet as a mailbox:",
+          "This system is based on cryptography, but you don't need to be a mathematician to grasp the idea. Just remember:",
         ],
         bullets: [
           "The public key is like your mailbox address. Anyone can know it, and people use it to send you Bitcoin.",
@@ -612,11 +607,6 @@ export const chaptersContent: ChapterContent[] = [
           "Together, these keys form the heart of Bitcoin security:",
           "Your private key allows you to sign transactions (like writing your signature on a cheque).",
           "The public key allows others to verify that the signature is genuine.",
-        ],
-        paragraphs: [
-          "This system is based on cryptography, but you don't need to be a mathematician to grasp the idea. Just remember:",
-        ],
-        bullets: [
           "Public = address for receiving.",
           "Private = proof of ownership.",
         ],
@@ -638,15 +628,13 @@ export const chaptersContent: ChapterContent[] = [
         heading: "6.2 Peer-to-Peer Transactions (P2P)",
         paragraphs: [
           "So how does a Bitcoin transaction actually happen? Let's follow the steps:",
+          "This peer-to-peer process is what makes Bitcoin powerful: no bank, no government, and no middleman—just cryptography and consensus.",
         ],
         bullets: [
           "Creating the Transaction – Alice wants to send 0.01 BTC to Bob. She opens her wallet app, enters Bob's public address, and signs the transaction with her private key.",
           "Broadcasting – The signed transaction is sent out to the Bitcoin network (like announcing to the whole world: 'I'm sending this money to Bob').",
           "Verification – Thousands of computers (called nodes) verify the signature against Alice's public key to ensure its valid and not a forgery. If it checks out, the transaction is considered legitimate.",
           "Confirmation – Miners collect valid transactions into blocks. Once Alice's transaction is added to a block and confirmed by the network, it becomes permanent. No one can erase it, no one can double-spend it.",
-        ],
-        paragraphs: [
-          "This peer-to-peer process is what makes Bitcoin powerful: no bank, no government, and no middleman—just cryptography and consensus.",
         ],
         images: [
           {
@@ -846,6 +834,7 @@ export const chaptersContent: ChapterContent[] = [
         paragraphs: [
           "A Bitcoin 'wallet' is really two things: a signer and a notebook. The signer is the part that holds your secret—your private keys—and uses them to sign transactions. The notebook is the interface that helps you see balances and create payments. Many apps bundle both into one, so we simply refer to it as a wallet.",
           "Creating a wallet feels like opening a new lockbox. The app will generate a seed phrase—usually 12 or 24 simple words. Those words are the master key to every present and future address your wallet will create. Write them carefully on paper, check the spelling, and store the paper where fire, water, and curious eyes can't reach. Don't take photos, don't put the words in cloud storage, and don't paste them into chat apps. If someone gets that phrase, they can take your coins without asking. If you lose it and your phone dies, no company can help you recover—Bitcoin is a bearer asset.",
+          "Add a strong wallet PIN, and if your app supports it, learn about the optional 'passphrase' (sometimes called the 25th word). This adds a second layer of protection that safeguards you if someone discovers your written seed. It also means you must remember two things instead of one. Security is a trade-off; choose the level that fits your life. Before you receive any real value, practice a full recovery: wipe the app, restore from the seed you wrote down, and confirm that your addresses and test funds reappear. That ten-minute rehearsal is priceless.",
         ],
         callouts: [
           {
@@ -863,9 +852,6 @@ export const chaptersContent: ChapterContent[] = [
             alt: "Example of a 24-word seed phrase written on paper",
             caption: "Example seed phrase - write it down carefully on paper",
           },
-        ],
-        paragraphs: [
-          "Add a strong wallet PIN, and if your app supports it, learn about the optional 'passphrase' (sometimes called the 25th word). This adds a second layer of protection that safeguards you if someone discovers your written seed. It also means you must remember two things instead of one. Security is a trade-off; choose the level that fits your life. Before you receive any real value, practice a full recovery: wipe the app, restore from the seed you wrote down, and confirm that your addresses and test funds reappear. That ten-minute rehearsal is priceless.",
         ],
       },
       {
@@ -975,13 +961,11 @@ export const chaptersContent: ChapterContent[] = [
         paragraphs: [
           "Unlike credit card payments or bank transfers, Bitcoin transaction fees aren't based on the amount of money being sent. Instead, fees are determined by the size of the transaction in virtual bytes (vB). More inputs and outputs make a transaction larger, and larger transactions cost more to include in the blockchain.",
           "Here's where input selection matters:",
+          "Most wallets automatically choose inputs for you, but understanding this process helps you save money on fees and keep better control over your privacy.",
         ],
         bullets: [
           "If you use many small UTXOs to pay, the transaction grows bigger, and fees increase.",
           "If you use fewer, larger UTXOs, the transaction is smaller and cheaper, but you may reveal more information about your balance.",
-        ],
-        paragraphs: [
-          "Most wallets automatically choose inputs for you, but understanding this process helps you save money on fees and keep better control over your privacy.",
         ],
         callouts: [
           {
@@ -1414,14 +1398,12 @@ export const chaptersContent: ChapterContent[] = [
         heading: "13.3 First-Time Node Sync (Full vs Pruned/Light; Storage/Bandwidth Planning)",
         paragraphs: [
           "When you first run a Bitcoin node, it needs to download and verify the entire blockchain — currently over 500 GB of data. This initial sync can take days or weeks depending on your internet connection and hardware. You have a few options:",
+          "For most users, a pruned node offers the best balance — you get full validation with much less storage. Plan ahead for the initial sync time and bandwidth usage, and don't worry about advanced configurations until you're comfortable with the basics.",
         ],
         bullets: [
           "Full node: Downloads and stores the complete blockchain. Maximum security and features, but requires significant storage (500+ GB).",
           "Pruned node: Downloads the full chain but deletes old blocks after verification, keeping only recent ones. Saves storage (about 5 GB) while maintaining full validation.",
           "Light node: Doesn't download the full chain, relies on others for some data. Less secure but uses minimal resources.",
-        ],
-        paragraphs: [
-          "For most users, a pruned node offers the best balance — you get full validation with much less storage. Plan ahead for the initial sync time and bandwidth usage, and don't worry about advanced configurations until you're comfortable with the basics.",
         ],
         callouts: [
           {
@@ -1885,6 +1867,7 @@ export const chaptersContent: ChapterContent[] = [
         paragraphs: [
           "Multi-sig requires careful backup planning. Keys should be stored in geographically separated locations to protect against natural disasters, theft, or loss. Each key holder should have clear instructions on what to do if they lose their key, if another key holder dies, or if there's an emergency.",
           "Operational playbooks should document:",
+          "Regular drills — like practicing a spend with all signers — ensure everyone knows the process and can execute it when needed. These playbooks are as important as the technical setup itself.",
         ],
         bullets: [
           "Key generation and distribution procedures",
@@ -1892,9 +1875,6 @@ export const chaptersContent: ChapterContent[] = [
           "Emergency spending protocols",
           "Signer rotation procedures (if someone leaves or needs to be replaced)",
           "Regular testing and verification",
-        ],
-        paragraphs: [
-          "Regular drills — like practicing a spend with all signers — ensure everyone knows the process and can execute it when needed. These playbooks are as important as the technical setup itself.",
         ],
         callouts: [
           {
@@ -1961,15 +1941,13 @@ export const chaptersContent: ChapterContent[] = [
         heading: "18.0 Locking and Unlocking Types (P2PKH, P2WPKH, P2SH, P2TR)",
         paragraphs: [
           "Bitcoin has evolved several standard script types, each with different characteristics:",
+          "Each type has trade-offs in terms of fees, privacy, and features. Modern wallets typically use P2WPKH or P2TR for single-sig, and P2SH or P2TR for multi-sig. Understanding these types helps you understand what your wallet is doing under the hood.",
         ],
         bullets: [
           "P2PKH (Pay to Public Key Hash): The original script type, now mostly legacy. Uses public key hashes.",
           "P2WPKH (Pay to Witness Public Key Hash): SegWit version of P2PKH, more efficient and cheaper.",
           "P2SH (Pay to Script Hash): Allows complex scripts to be hidden behind a hash, enabling features like multi-sig.",
           "P2TR (Pay to Taproot): The newest script type, offering better privacy and efficiency. Uses Schnorr signatures.",
-        ],
-        paragraphs: [
-          "Each type has trade-offs in terms of fees, privacy, and features. Modern wallets typically use P2WPKH or P2TR for single-sig, and P2SH or P2TR for multi-sig. Understanding these types helps you understand what your wallet is doing under the hood.",
         ],
         callouts: [
           {
@@ -1989,13 +1967,11 @@ export const chaptersContent: ChapterContent[] = [
         heading: "18.1 Timelocks and Simple Policies (CLTV/CSV)",
         paragraphs: [
           "Timelocks are Script features that enable conditional spending based on time. There are two types:",
+          "These enable powerful use cases like vaults (requiring a delay before spending), inheritance (funds unlock after a certain date), or escrow (requiring time for disputes). Timelocks add an extra layer of security and enable more sophisticated Bitcoin applications.",
         ],
         bullets: [
           "CLTV (CheckLockTimeVerify): Absolute timelock — funds can only be spent after a specific date/time.",
           "CSV (CheckSequenceVerify): Relative timelock — funds can only be spent after a certain number of blocks or time has passed since the output was created.",
-        ],
-        paragraphs: [
-          "These enable powerful use cases like vaults (requiring a delay before spending), inheritance (funds unlock after a certain date), or escrow (requiring time for disputes). Timelocks add an extra layer of security and enable more sophisticated Bitcoin applications.",
         ],
         callouts: [
           {
@@ -2015,15 +1991,13 @@ export const chaptersContent: ChapterContent[] = [
         heading: "18.2 How Wallets Abstract Scripts",
         paragraphs: [
           "Most users never interact with Script directly because wallets handle it automatically. When you create a transaction, your wallet:",
+          "This abstraction makes Bitcoin user-friendly, but understanding what's happening underneath helps you make better decisions about wallet choice, transaction types, and security. Lightning and multi-sig both rely heavily on Script, so understanding Script helps you understand these advanced features.",
         ],
         bullets: [
           "Generates the appropriate locking script for the recipient",
           "Builds a PSBT with the necessary unlocking script",
           "Handles witness data (for SegWit transactions)",
           "Manages complex scripts like multi-sig or Lightning channels",
-        ],
-        paragraphs: [
-          "This abstraction makes Bitcoin user-friendly, but understanding what's happening underneath helps you make better decisions about wallet choice, transaction types, and security. Lightning and multi-sig both rely heavily on Script, so understanding Script helps you understand these advanced features.",
         ],
         callouts: [
           {
@@ -2036,6 +2010,7 @@ export const chaptersContent: ChapterContent[] = [
         heading: "18.3 Transaction Flow (Create → Lock → Sign → Validate → Broadcast)",
         paragraphs: [
           "The complete flow of a Bitcoin transaction involves Script at every step:",
+          "Understanding this flow helps you appreciate how Bitcoin transactions work and why certain operations (like multi-sig) require coordination between multiple parties.",
         ],
         bullets: [
           "Create transaction: Define inputs (UTXOs to spend) and outputs (recipients and amounts)",
@@ -2043,9 +2018,6 @@ export const chaptersContent: ChapterContent[] = [
           "Sign/unlock: Create unlocking script with signatures and other required data",
           "Validate: Network verifies that unlocking script satisfies locking script",
           "Broadcast: Valid transaction is broadcast to the network",
-        ],
-        paragraphs: [
-          "Understanding this flow helps you appreciate how Bitcoin transactions work and why certain operations (like multi-sig) require coordination between multiple parties.",
         ],
       },
     ],
@@ -2204,14 +2176,12 @@ export const chaptersContent: ChapterContent[] = [
         heading: "20.0 Money Frameworks (Chartalism, Metallism, Platform Money)",
         paragraphs: [
           "Throughout history, there have been different theories about what makes money valuable:",
+          "Bitcoin's innovation is creating platform money that doesn't require state backing or physical properties. Instead, it relies on cryptographic proof, network consensus, and transparent rules enforced by code.",
         ],
         bullets: [
           "Chartalism: Money has value because the state says it does and requires it for taxes. Fiat currencies are chartalist — they're valuable because governments accept them and citizens need them to pay taxes.",
           "Metallism: Money has value because of its physical properties (like gold's scarcity and durability). Commodity money is metallist — its value comes from the material itself.",
           "Platform Money: Money has value because of network consensus and cryptographic scarcity. Bitcoin is platform money — its value comes from the network agreeing on its rules and the mathematical guarantee of limited supply.",
-        ],
-        paragraphs: [
-          "Bitcoin's innovation is creating platform money that doesn't require state backing or physical properties. Instead, it relies on cryptographic proof, network consensus, and transparent rules enforced by code.",
         ],
         callouts: [
           {
@@ -2245,15 +2215,13 @@ export const chaptersContent: ChapterContent[] = [
         paragraphs: [
           "Bitcoin enables trust-minimized finance — financial transactions that don't require trusting banks, governments, or other intermediaries. This is revolutionary because it broadens access to financial services. People who are unbanked, underbanked, or living under oppressive regimes can now participate in the global economy without permission.",
           "The benefits extend to:",
+          "Bitcoin's permissionless access, censorship resistance, and fixed supply make it uniquely suited to serve these populations. Understanding who benefits helps you appreciate Bitcoin's real-world impact beyond price speculation.",
         ],
         bullets: [
           "The unbanked: People without access to traditional banking can store and transfer value",
           "Savers: People in countries with high inflation can protect their wealth",
           "Global users: People can send value across borders without expensive remittance services",
           "Anyone seeking financial sovereignty: People who want to control their own money without gatekeepers",
-        ],
-        paragraphs: [
-          "Bitcoin's permissionless access, censorship resistance, and fixed supply make it uniquely suited to serve these populations. Understanding who benefits helps you appreciate Bitcoin's real-world impact beyond price speculation.",
         ],
         callouts: [
           {

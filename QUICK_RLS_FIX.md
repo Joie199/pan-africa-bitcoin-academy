@@ -48,3 +48,6 @@ After running:
 
 **Run the SQL above in Supabase SQL Editor to secure your table!** 🔒
 
+
+
+

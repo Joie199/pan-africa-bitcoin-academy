@@ -193,3 +193,6 @@ The chapters listing page (`/chapters`) now shows:
 - Next chapter unlocks immediately when previous is completed
 - All redirects preserve the intended destination via query params
 
+
+
+

@@ -42,3 +42,6 @@ export function ChapterCompletionTracker({ chapterNumber, chapterSlug }: Chapter
   return null; // This component doesn't render anything
 }
 
+
+
+
