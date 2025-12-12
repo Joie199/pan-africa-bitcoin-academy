@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .select('id, email, status, cohort_id, student_id, phone, country, city')
+      .select('id, email, status, cohort_id, student_id, phone, country, city, password_hash')
       .eq('email', emailLower)
       .maybeSingle();
 
