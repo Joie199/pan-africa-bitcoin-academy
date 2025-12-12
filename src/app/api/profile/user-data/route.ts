@@ -115,12 +115,59 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Get chapter progress data
+    let chapterProgress = {
+      completedChapters: 0,
+      totalChapters: 20,
+      completedChapterNumbers: [] as number[],
+      chapters: [] as any[],
+    };
+
+    if (student) {
+      // Get all chapter progress (unlocked and completed)
+      const { data: progressData, error: progressError } = await supabaseAdmin
+        .from('chapter_progress')
+        .select('chapter_number, is_completed, chapter_slug, is_unlocked')
+        .eq('student_id', profile.id)
+        .order('chapter_number', { ascending: true });
+
+      if (progressError) {
+        console.error('Error fetching chapter progress:', progressError);
+      }
+
+      if (progressData && progressData.length > 0) {
+        // Filter for completed chapters (explicitly check for true)
+        const completed = progressData.filter((p: any) => p.is_completed === true);
+        chapterProgress.completedChapters = completed.length;
+        chapterProgress.completedChapterNumbers = completed.map((p: any) => p.chapter_number);
+        
+        // Build chapters list with status
+        chapterProgress.chapters = progressData.map((p: any) => ({
+          chapterNumber: p.chapter_number,
+          chapterSlug: p.chapter_slug,
+          isCompleted: p.is_completed === true,
+          isUnlocked: p.is_unlocked === true,
+        }));
+
+        // Debug logging
+        console.log(`[user-data] Student ${profile.id}: Found ${progressData.length} progress records, ${completed.length} completed`);
+      } else {
+        console.log(`[user-data] Student ${profile.id}: No chapter progress records found`);
+      }
+    }
+
     // Get student progress data if student exists
     const studentData = student ? {
-      progressPercent: student.progress_percent || 0,
+      progressPercent: chapterProgress.completedChapters > 0 
+        ? Math.round((chapterProgress.completedChapters / 20) * 100)
+        : student.progress_percent || 0,
       assignmentsCompleted: student.assignments_completed || 0,
       projectsCompleted: student.projects_completed || 0,
       liveSessionsAttended: student.live_sessions_attended || 0,
+      chaptersCompleted: chapterProgress.completedChapters,
+      totalChapters: chapterProgress.totalChapters,
+      completedChapterNumbers: chapterProgress.completedChapterNumbers,
+      chapters: chapterProgress.chapters,
     } : null;
 
     return NextResponse.json(

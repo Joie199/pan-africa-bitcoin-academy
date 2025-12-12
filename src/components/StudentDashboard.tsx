@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Calendar } from './Calendar';
+import { chaptersContent } from '@/content/chaptersContent';
 
 interface UserData {
   profile: {
@@ -22,6 +23,15 @@ interface UserData {
     assignmentsCompleted: number;
     projectsCompleted: number;
     liveSessionsAttended: number;
+    chaptersCompleted?: number;
+    totalChapters?: number;
+    completedChapterNumbers?: number[];
+    chapters?: Array<{
+      chapterNumber: number;
+      chapterSlug: string;
+      isCompleted: boolean;
+      isUnlocked: boolean;
+    }>;
   } | null;
   cohort: {
     id: string;
@@ -245,7 +255,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
     role: 'Student',
     courseProgress: 0,
     chaptersCompleted: 0,
-    totalChapters: 6,
+    totalChapters: 20,
     assignmentsCompleted: 0,
     totalAssignments: 4,
     satsEarned: 0,
@@ -292,7 +302,28 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
   const liveSessions = (student.liveSessions && student.liveSessions.length > 0)
     ? student.liveSessions
     : createFallbackLiveSessions();
-  const chapters = student.chapters || [];
+  
+  // Build chapters list from chaptersContent with completion status
+  const completedChapterNumbers = student.completedChapterNumbers || [];
+  const studentChapters = student.chapters || [];
+  const chaptersMap = new Map(studentChapters.map((ch: any) => [ch.chapterNumber, ch]));
+  
+  const chapters = chaptersContent.map((chapter) => {
+    const studentChapter = chaptersMap.get(chapter.number);
+    const isCompleted = completedChapterNumbers.includes(chapter.number);
+    const isUnlocked = studentChapter?.isUnlocked ?? (chapter.number === 1);
+    
+    return {
+      id: `chapter-${chapter.number}`,
+      number: chapter.number,
+      title: chapter.title,
+      slug: chapter.slug,
+      duration: chapter.duration,
+      status: isCompleted ? 'completed' : isUnlocked ? 'in-progress' : 'locked',
+      link: `/chapters/${chapter.slug}`,
+    };
+  });
+  
   const assignments = student.assignments || [];
   const resources = student.resources || [];
   const leaderboard = leaderboardData;
@@ -508,7 +539,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                       <div className="mb-2 text-2xl">📘</div>
                       <div className="text-sm text-zinc-400">Chapters</div>
                       <div className="text-lg font-semibold text-cyan-300">
-                            {chaptersCompleted}/{student.totalChapters ?? 6}
+                            {chaptersCompleted}/{student.totalChapters ?? 20}
                       </div>
                     </div>
                     <div className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-4">
@@ -573,9 +604,11 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                     }`}
                   >
                     <div className="mb-2 flex items-center justify-between">
-                      <h3 className="font-semibold text-zinc-100">{chapter.title}</h3>
+                      <h3 className="font-semibold text-zinc-100">
+                        Chapter {chapter.number}: {chapter.title}
+                      </h3>
                       {chapter.status === 'completed' && (
-                        <span className="text-green-400">✔</span>
+                        <span className="text-green-400">✓</span>
                       )}
                       {chapter.status === 'in-progress' && (
                         <span className="text-orange-400">●</span>
@@ -584,7 +617,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                         <span className="text-zinc-500">🔒</span>
                       )}
                     </div>
-                    <p className="mb-3 text-sm text-zinc-400">Time: {chapter.time}</p>
+                    <p className="mb-3 text-sm text-zinc-400">Duration: {chapter.duration}</p>
                     {chapter.status !== 'locked' && (
                       <Link
                         href={chapter.link}
@@ -667,7 +700,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                 <div className="space-y-2">
                   <h3 className="font-medium text-zinc-100">Requirements Remaining:</h3>
                   <ul className="space-y-1 text-sm text-zinc-400">
-                    <li>✓ Complete all 6 chapters</li>
+                    <li>✓ Complete all 20 chapters</li>
                     <li>✓ Complete all 4 assignments</li>
                     <li>✗ Attend at least 80% of live sessions</li>
                     <li>✗ Earn at least 500 sats</li>
