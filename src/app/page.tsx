@@ -173,22 +173,13 @@ export default function Home() {
                     src="/images/bailouts-to-blockchain.jpg" 
                     alt="From Bailouts to Blockchain - Bitcoin's origin story"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback if image doesn't exist
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = `
-                          <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center">
-                            <div class="text-6xl mb-4">₿</div>
-                            <div class="text-xl font-semibold text-orange-200 mb-2">From Bailouts to Blockchain</div>
-                            <div class="text-sm text-zinc-400">Bitcoin's response to the 2008 financial crisis</div>
-                          </div>
-                        `;
-                      }
-                    }}
                   />
+                  {/* Fallback content (shown if image doesn't load) */}
+                  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-12 text-center bg-gradient-to-br from-zinc-900 via-orange-900/20 to-zinc-900 opacity-0 hover:opacity-100 transition-opacity">
+                    <div className="text-6xl mb-4">₿</div>
+                    <div className="text-xl font-semibold text-orange-200 mb-2">From Bailouts to Blockchain</div>
+                    <div className="text-sm text-zinc-400">Bitcoin's response to the 2008 financial crisis</div>
+                  </div>
                 </div>
               </div>
             </div>
