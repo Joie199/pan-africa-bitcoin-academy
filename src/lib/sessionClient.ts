@@ -149,7 +149,7 @@ export function setupCrossTabActivityListener(
   };
 }
 
-
+/**
  * Handles cross-tab activity tracking and session expiration
  */
 
