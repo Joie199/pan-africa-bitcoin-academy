@@ -630,13 +630,20 @@ export default function ApplyPage() {
                       </div>
                     </div>
                     <button
-                      onClick={() => {
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Cohort selected:', cohort.id, cohort.name);
                         setSelectedCohort(cohort.id);
                         setFormData((prev) => ({
                           ...prev,
                           preferredCohort: cohort.id,
                           experienceLevel: cohort.level?.toLowerCase() || '',
                         }));
+                      }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
                       }}
                       className={`mt-4 w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
                         selectedCohort === cohort.id
