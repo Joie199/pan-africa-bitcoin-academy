@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import dynamic from "next/dynamic";
+import { ResourceHints } from "@/components/ResourceHints";
 
 // Lazy load Navbar and Footer to reduce initial bundle size
 const Navbar = dynamic(() => import("@/components/Navbar").then(mod => ({ default: mod.Navbar })), {
@@ -103,6 +104,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <ResourceHints />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-50 antialiased`}
         suppressHydrationWarning
