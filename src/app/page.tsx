@@ -154,7 +154,47 @@ export default function Home() {
       {/* Content Sections - Full Width */}
       <div className="relative z-10 w-full bg-black/95">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          {/* 2. About Preview */}
+          {/* 2. How It Started Section */}
+          <section className="mb-32 space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-semibold text-orange-200 sm:text-4xl lg:text-5xl">
+                How It Started: From Bailouts to Blockchain
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-zinc-300 sm:text-lg max-w-3xl mx-auto">
+                In 2008, the global financial crisis exposed the fragility of traditional banking. While governments bailed out the banks, ordinary people lost homes, jobs, and savings. Bitcoin was born from this crisis — a decentralized alternative that doesn't require trust in banks or governments.
+              </p>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="relative w-full max-w-4xl rounded-xl overflow-hidden border border-orange-500/25 shadow-[0_0_40px_rgba(249,115,22,0.2)]">
+                {/* Image container */}
+                <div className="relative w-full aspect-video bg-gradient-to-br from-zinc-900 via-orange-900/20 to-zinc-900 flex items-center justify-center">
+                  {/* Placeholder for image - replace with actual image */}
+                  <img 
+                    src="/images/bailouts-to-blockchain.jpg" 
+                    alt="From Bailouts to Blockchain - Bitcoin's origin story"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback if image doesn't exist
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.innerHTML = `
+                          <div class="w-full h-full flex flex-col items-center justify-center p-12 text-center">
+                            <div class="text-6xl mb-4">₿</div>
+                            <div class="text-xl font-semibold text-orange-200 mb-2">From Bailouts to Blockchain</div>
+                            <div class="text-sm text-zinc-400">Bitcoin's response to the 2008 financial crisis</div>
+                          </div>
+                        `;
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 3. About Preview */}
           <section className="mb-32 rounded-xl border border-orange-500/25 bg-black/80 p-8 shadow-[0_0_40px_rgba(249,115,22,0.2)] sm:p-12">
             <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
               <div className="space-y-6">
@@ -197,7 +237,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 3. Curriculum Preview */}
+          {/* 4. Curriculum Preview */}
           <section className="mb-32 space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl lg:text-5xl">What You Will Learn</h2>
@@ -224,7 +264,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 4. How It Works Preview */}
+          {/* 5. How It Works Preview */}
           <section className="mb-32 space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl lg:text-5xl">How It Works</h2>
@@ -259,7 +299,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 5. Impact Preview */}
+          {/* 6. Impact Preview */}
           <section className="mb-32 rounded-xl border border-orange-500/25 bg-black/80 p-12 shadow-[0_0_40px_rgba(249,115,22,0.2)]">
             <div className="text-center">
               <h2 className="mb-12 text-3xl font-semibold text-orange-200 sm:text-4xl">Our Impact</h2>
@@ -288,7 +328,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 6. Community Preview */}
+          {/* 7. Community Preview */}
           <section className="mb-32 space-y-8 text-center">
             <div>
               <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl lg:text-5xl">Join Our Community</h2>
@@ -326,7 +366,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 7. Mentors Preview */}
+          {/* 8. Mentors Preview */}
           <section className="mb-32 space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl lg:text-5xl">
@@ -358,7 +398,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 8. Blog Preview */}
+          {/* 9. Blog Preview */}
           <section className="mb-32 space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl lg:text-5xl">Student Stories</h2>
@@ -419,7 +459,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 9. Partners & Funders Section */}
+          {/* 10. Partners & Funders Section */}
           <section className="mb-32">
             <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
               {[
@@ -452,7 +492,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 10. Social Media Section */}
+          {/* 11. Social Media Section */}
           <section className="mb-32 space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-semibold text-zinc-50 sm:text-4xl lg:text-5xl">Connect With Us</h2>
@@ -509,7 +549,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 11. Donate Preview */}
+          {/* 12. Donate Preview */}
           <section className="mb-20 rounded-xl border border-orange-500/25 bg-black/80 p-12 text-center shadow-[0_0_40px_rgba(249,115,22,0.2)]">
             <h2 className="mb-6 text-3xl font-semibold text-orange-200 sm:text-4xl">Support Our Mission</h2>
             <p className="mb-8 text-base text-zinc-300 sm:text-lg">
