@@ -2,8 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { StudentDashboard } from "@/components/StudentDashboard";
-import { SessionExpiredModal } from '@/components/SessionExpiredModal';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy dashboard components
+const StudentDashboard = dynamic(() => import("@/components/StudentDashboard").then(mod => ({ default: mod.StudentDashboard })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-zinc-400">Loading dashboard...</div>
+    </div>
+  ),
+});
+
+const SessionExpiredModal = dynamic(() => import('@/components/SessionExpiredModal').then(mod => ({ default: mod.SessionExpiredModal })), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function DashboardPage() {
   const router = useRouter();

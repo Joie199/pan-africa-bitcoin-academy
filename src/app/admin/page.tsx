@@ -1,9 +1,23 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { SessionExpiredModal } from '@/components/SessionExpiredModal';
-import { Calendar } from '@/components/Calendar';
+import dynamic from 'next/dynamic';
 import { useSession } from '@/hooks/useSession';
+
+// Lazy load heavy admin components
+const SessionExpiredModal = dynamic(() => import('@/components/SessionExpiredModal').then(mod => ({ default: mod.SessionExpiredModal })), {
+  ssr: false,
+  loading: () => null,
+});
+
+const Calendar = dynamic(() => import('@/components/Calendar').then(mod => ({ default: mod.Calendar })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-64 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/50">
+      <div className="text-zinc-400">Loading calendar...</div>
+    </div>
+  ),
+});
 
 interface Application {
   id: string;

@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Experimental features for better code splitting
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+  
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],

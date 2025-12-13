@@ -1,13 +1,15 @@
 'use client';
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Menu, X, User, LogOut, LayoutDashboard, Key, ChevronDown } from "lucide-react";
-import { AuthModal } from "./AuthModal";
-import { ChangePasswordModal } from "./ChangePasswordModal";
-import { ProfileModal } from "./ProfileModal";
-import { SessionExpiredModal } from "./SessionExpiredModal";
 import { useAuth } from "@/hooks/useAuth";
+
+// Lazy load modals - only load when needed (using React.lazy for better code splitting)
+const AuthModal = lazy(() => import("./AuthModal").then(mod => ({ default: mod.AuthModal })));
+const ChangePasswordModal = lazy(() => import("./ChangePasswordModal").then(mod => ({ default: mod.ChangePasswordModal })));
+const ProfileModal = lazy(() => import("./ProfileModal").then(mod => ({ default: mod.ProfileModal })));
+const SessionExpiredModal = lazy(() => import("./SessionExpiredModal").then(mod => ({ default: mod.SessionExpiredModal })));
 
 export function Navbar() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -533,75 +535,91 @@ export function Navbar() {
         </div>
       )}
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        mode={authMode}
-      />
+      {authModalOpen && (
+        <Suspense fallback={null}>
+          <AuthModal
+            isOpen={authModalOpen}
+            onClose={() => setAuthModalOpen(false)}
+            mode={authMode}
+          />
+        </Suspense>
+      )}
       {/* Always render modals if user is authenticated - they handle their own visibility */}
       {isAuthenticated && profile?.email && (
         <>
-          <ChangePasswordModal
-            isOpen={changePasswordOpen}
-            onClose={() => {
-              setChangePasswordOpen(false);
-            }}
-            userEmail={profile.email}
-          />
-          <ProfileModal
-            isOpen={profileModalOpen}
-            onClose={() => {
-              setProfileModalOpen(false);
-              setProfileData(null);
-              setProfileError(null);
-              setProfileImage(null);
-            }}
-            userEmail={profile.email}
-            profileData={profileData}
-            profileLoading={profileLoading}
-            profileError={profileError}
-            profileImage={profileImage}
-            onProfileUpdate={async () => {
-              // Refresh auth state after profile update
-              if (profile?.email) {
-                try {
-                  const res = await fetch('/api/profile/verify-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: profile.email }),
-                  });
-                  if (res.ok) {
-                    const data = await res.json();
-                    if (data.valid && data.profile) {
-                      // Trigger a storage event to update useAuth hook
-                      localStorage.setItem('profileEmail', profile.email);
-                      window.dispatchEvent(new Event('storage'));
-                      // Reload to ensure all components update
+          {changePasswordOpen && (
+            <Suspense fallback={null}>
+              <ChangePasswordModal
+                isOpen={changePasswordOpen}
+                onClose={() => {
+                  setChangePasswordOpen(false);
+                }}
+                userEmail={profile.email}
+              />
+            </Suspense>
+          )}
+          {profileModalOpen && (
+            <Suspense fallback={null}>
+              <ProfileModal
+                isOpen={profileModalOpen}
+                onClose={() => {
+                  setProfileModalOpen(false);
+                  setProfileData(null);
+                  setProfileError(null);
+                  setProfileImage(null);
+                }}
+                userEmail={profile.email}
+                profileData={profileData}
+                profileLoading={profileLoading}
+                profileError={profileError}
+                profileImage={profileImage}
+                onProfileUpdate={async () => {
+                  // Refresh auth state after profile update
+                  if (profile?.email) {
+                    try {
+                      const res = await fetch('/api/profile/verify-session', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: profile.email }),
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        if (data.valid && data.profile) {
+                          // Trigger a storage event to update useAuth hook
+                          localStorage.setItem('profileEmail', profile.email);
+                          window.dispatchEvent(new Event('storage'));
+                          // Reload to ensure all components update
+                          window.location.reload();
+                        }
+                      }
+                    } catch (err) {
+                      console.error('Error refreshing profile:', err);
                       window.location.reload();
                     }
+                  } else {
+                    window.location.reload();
                   }
-                } catch (err) {
-                  console.error('Error refreshing profile:', err);
-                  window.location.reload();
-                }
-              } else {
-                window.location.reload();
-              }
-            }}
-          />
+                }}
+              />
+            </Suspense>
+          )}
         </>
       )}
 
       {/* Session Expired Modal */}
-      <SessionExpiredModal
-        isOpen={showSessionExpired}
-        onClose={() => {
-          // Logout student and redirect to home/sign in
-          setShowSessionExpired(false);
-          logout();
-        }}
-        userType="student"
-      />
+      {showSessionExpired && (
+        <Suspense fallback={null}>
+          <SessionExpiredModal
+            isOpen={showSessionExpired}
+            onClose={() => {
+              // Logout student and redirect to home/sign in
+              setShowSessionExpired(false);
+              logout();
+            }}
+            userType="student"
+          />
+        </Suspense>
+      )}
     </header>
   );
 }

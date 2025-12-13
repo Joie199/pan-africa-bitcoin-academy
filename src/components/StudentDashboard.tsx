@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import Link from 'next/link';
-import { Calendar } from './Calendar';
 import { chaptersContent } from '@/content/chaptersContent';
 import { Download, Book, FileText } from 'lucide-react';
-import { CertificateImageSection } from './CertificateImageSection';
+
+// Lazy load heavy components
+const Calendar = lazy(() => import('./Calendar').then(mod => ({ default: mod.Calendar })));
+const CertificateImageSection = lazy(() => import('./CertificateImageSection').then(mod => ({ default: mod.CertificateImageSection })));
 
 interface UserData {
   profile: {
@@ -549,7 +551,9 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
               </div>
               {/* Right side: Calendar */}
               <div className="lg:col-span-1">
-                <Calendar cohortId={userData?.cohort?.id || null} />
+                <Suspense fallback={<div className="flex h-64 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/50"><div className="text-zinc-400">Loading calendar...</div></div>}>
+                  <Calendar cohortId={userData?.cohort?.id || null} />
+                </Suspense>
               </div>
             </div>
 
@@ -1170,7 +1174,9 @@ function ProfileModal({
           
           {/* Certificate Image Upload Section - Only show if student is registered */}
           {isRegistered && profile && (
-            <CertificateImageSection profile={profile} />
+            <Suspense fallback={null}>
+              <CertificateImageSection profile={profile} />
+            </Suspense>
           )}
           
           {!profile && !loading && !error && (
