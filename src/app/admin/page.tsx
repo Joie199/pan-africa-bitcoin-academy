@@ -133,7 +133,51 @@ export default function AdminDashboardPage() {
     sessions: '',
   });
 
+  // Session inactivity tracking (30 minutes)
+  const INACTIVITY_LIMIT_MS = 30 * 60 * 1000;
+  const ACTIVITY_KEY = 'adminLastActivityAt';
+
   useEffect(() => {
+    const markActivity = () => {
+      try {
+        localStorage.setItem(ACTIVITY_KEY, Date.now().toString());
+      } catch (e) {
+        // Ignore storage errors
+      }
+    };
+
+    const hasExpired = () => {
+      try {
+        const last = localStorage.getItem(ACTIVITY_KEY);
+        if (!last) return false;
+        const lastTs = Number(last);
+        if (Number.isNaN(lastTs)) return false;
+        return Date.now() - lastTs > INACTIVITY_LIMIT_MS;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    const forceLogoutForInactivity = async () => {
+      try {
+        // Clear admin session
+        await fetch('/api/admin/logout', { method: 'POST' });
+        localStorage.removeItem(ACTIVITY_KEY);
+        setAdmin(null);
+        setApplications([]);
+        setOverview(null);
+        setEvents([]);
+        setCohorts([]);
+        setProgress([]);
+        setMentorships([]);
+        setShowSessionExpired(true);
+      } catch (e) {
+        // Ignore errors
+        setAdmin(null);
+        setShowSessionExpired(true);
+      }
+    };
+
     const checkSession = async () => {
       try {
         setAuthLoading(true);
@@ -141,6 +185,7 @@ export default function AdminDashboardPage() {
         if (!res.ok) {
           if (res.status === 401) {
             // Session expired
+            localStorage.removeItem(ACTIVITY_KEY);
             setShowSessionExpired(true);
           }
           setAdmin(null);
@@ -148,6 +193,9 @@ export default function AdminDashboardPage() {
         }
         const data = await res.json();
         setAdmin({ email: data.admin.email, role: data.admin.role });
+        
+        // Initialize activity timestamp
+        markActivity();
         await loadData();
       } catch (err: any) {
         console.error(err);
@@ -156,8 +204,26 @@ export default function AdminDashboardPage() {
         setAuthLoading(false);
       }
     };
+
     checkSession();
-  }, []);
+
+    // Activity listeners to refresh last activity timestamp
+    const activityEvents: (keyof DocumentEventMap)[] = ['click', 'keydown', 'mousemove', 'touchstart', 'scroll'];
+    activityEvents.forEach((evt) => document.addEventListener(evt, markActivity, { passive: true }));
+
+    // Inactivity interval check (only when admin is logged in)
+    const intervalId = window.setInterval(() => {
+      if (!admin) return;
+      if (hasExpired()) {
+        forceLogoutForInactivity();
+      }
+    }, 60 * 1000); // Check every minute
+
+    return () => {
+      activityEvents.forEach((evt) => document.removeEventListener(evt, markActivity));
+      window.clearInterval(intervalId);
+    };
+  }, [admin]);
 
   const fetchWithAuth = async (url: string, options?: RequestInit) => {
     const res = await fetch(url, options);
@@ -275,9 +341,12 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const [loginLoading, setLoginLoading] = useState(false);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
+    setLoginLoading(true);
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
@@ -292,10 +361,19 @@ export default function AdminDashboardPage() {
         console.error('Admin login error:', data);
         return;
       }
+      // Initialize activity timestamp on successful login
+      try {
+        localStorage.setItem(ACTIVITY_KEY, Date.now().toString());
+      } catch (e) {
+        // Ignore storage errors
+      }
       setAdmin({ email: data.admin.email, role: data.admin.role });
+      setLoginForm({ email: '', password: '' }); // Clear form
       await loadData();
     } catch (err: any) {
       setAuthError(err.message || 'Login failed');
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -494,9 +572,10 @@ export default function AdminDashboardPage() {
             </div>
             <button
               type="submit"
-              className="w-full rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-black transition hover:brightness-110"
+              disabled={loginLoading}
+              className="w-full rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-black transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {loginLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
         </div>
