@@ -62,9 +62,10 @@ const eventTypeLabels = {
 
 interface CalendarProps {
   cohortId?: string | null;
+  showCohorts?: boolean; // Show cohort start/end dates as events
 }
 
-export function Calendar({ cohortId }: CalendarProps) {
+export function Calendar({ cohortId, showCohorts = false }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'list'>('month');
@@ -79,8 +80,10 @@ export function Calendar({ cohortId }: CalendarProps) {
         setLoading(true);
         setError(null);
         
-        // Build URL with cohort_id if provided
-        const url = cohortId 
+        // Build URL - use admin endpoint if showCohorts is true (admin mode)
+        const url = showCohorts
+          ? '/api/admin/events/all'
+          : cohortId 
           ? `/api/events?cohort_id=${encodeURIComponent(cohortId)}`
           : '/api/events';
         
@@ -98,9 +101,11 @@ export function Calendar({ cohortId }: CalendarProps) {
           isArray: Array.isArray(data.events),
         });
         
+        let transformedEvents: CalendarEvent[] = [];
+        
         if (data.events && Array.isArray(data.events)) {
           // Transform API events (date is ISO string) to CalendarEvent format
-          const transformedEvents: CalendarEvent[] = data.events
+          transformedEvents = data.events
             .filter((event: any) => {
               // Only include events with valid dates
               if (!event.date) {
@@ -123,18 +128,67 @@ export function Calendar({ cohortId }: CalendarProps) {
               link: event.link || '#',
               description: event.description || '',
             }));
-          
-          console.log('📅 Calendar: Transformed events:', transformedEvents.length);
-          
-          if (transformedEvents.length > 0) {
-            setEvents(transformedEvents);
-            console.log('✅ Calendar: Events loaded successfully');
-          } else {
-            console.warn('⚠️ Calendar: No valid events found, using fallback');
-            setEvents(createFallbackEvents());
+        }
+        
+        // If showCohorts is true, fetch and add cohort dates
+        if (showCohorts) {
+          try {
+            const cohortsResponse = await fetch('/api/cohorts');
+            if (cohortsResponse.ok) {
+              const cohortsData = await cohortsResponse.json();
+              if (cohortsData.cohorts && Array.isArray(cohortsData.cohorts)) {
+                const cohortEvents: CalendarEvent[] = [];
+                
+                cohortsData.cohorts.forEach((cohort: any) => {
+                  // Add cohort start date
+                  if (cohort.startDate) {
+                    const startDate = new Date(cohort.startDate);
+                    if (!isNaN(startDate.getTime())) {
+                      cohortEvents.push({
+                        id: `cohort-start-${cohort.id}`,
+                        title: `${cohort.name} - Start`,
+                        date: startDate,
+                        type: 'cohort',
+                        time: '',
+                        link: '#',
+                        description: `Cohort ${cohort.name} starts (${cohort.level || ''} - ${cohort.status || ''})`,
+                      });
+                    }
+                  }
+                  
+                  // Add cohort end date
+                  if (cohort.endDate) {
+                    const endDate = new Date(cohort.endDate);
+                    if (!isNaN(endDate.getTime())) {
+                      cohortEvents.push({
+                        id: `cohort-end-${cohort.id}`,
+                        title: `${cohort.name} - End`,
+                        date: endDate,
+                        type: 'cohort',
+                        time: '',
+                        link: '#',
+                        description: `Cohort ${cohort.name} ends`,
+                      });
+                    }
+                  }
+                });
+                
+                transformedEvents = [...transformedEvents, ...cohortEvents];
+              }
+            }
+          } catch (cohortsErr) {
+            console.warn('⚠️ Calendar: Error fetching cohorts:', cohortsErr);
+            // Continue without cohort events
           }
+        }
+        
+        console.log('📅 Calendar: Transformed events:', transformedEvents.length);
+        
+        if (transformedEvents.length > 0) {
+          setEvents(transformedEvents);
+          console.log('✅ Calendar: Events loaded successfully');
         } else {
-          console.warn('⚠️ Calendar: Invalid events format, using fallback');
+          console.warn('⚠️ Calendar: No valid events found, using fallback');
           setEvents(createFallbackEvents());
         }
       } catch (err: any) {
@@ -148,7 +202,7 @@ export function Calendar({ cohortId }: CalendarProps) {
     }
 
     fetchEvents();
-  }, [cohortId]);
+  }, [cohortId, showCohorts]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -227,19 +281,19 @@ export function Calendar({ cohortId }: CalendarProps) {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="rounded-xl border border-cyan-400/25 bg-black/80 p-4 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
+    <div className="rounded-xl border border-cyan-400/25 bg-black/80 p-2 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-1.5 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-zinc-50">Calendar</h2>
-          <p className="text-sm text-zinc-400">
+          <h2 className="text-sm font-semibold text-zinc-50">Calendar</h2>
+          <p className="text-xs text-zinc-400">
             {monthNames[month]} {year}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <button
             onClick={() => setView(view === 'month' ? 'list' : 'month')}
-            className="rounded-lg border border-zinc-700 bg-zinc-900/50 px-3 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800"
+            className="rounded border border-zinc-700 bg-zinc-900/50 px-1.5 py-0.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-800"
           >
             {view === 'month' ? 'List' : 'Month'}
           </button>
@@ -248,14 +302,14 @@ export function Calendar({ cohortId }: CalendarProps) {
 
       {/* Loading State */}
       {loading && (
-        <div className="mb-4 text-center text-sm text-zinc-400">
+        <div className="mb-1.5 text-center text-xs text-zinc-400">
           Loading events...
         </div>
       )}
 
       {/* Error State */}
       {error && !loading && (
-        <div className="mb-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-2 text-xs text-yellow-300">
+        <div className="mb-1.5 rounded border border-yellow-500/30 bg-yellow-500/10 p-1 text-xs text-yellow-300">
           {error} (using fallback events)
         </div>
       )}
@@ -263,40 +317,40 @@ export function Calendar({ cohortId }: CalendarProps) {
       {view === 'month' ? (
         <>
           {/* Month Navigation */}
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-1.5 flex items-center justify-between">
             <button
               onClick={previousMonth}
-              className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-2 text-zinc-300 transition hover:bg-zinc-800"
+              className="rounded border border-zinc-700 bg-zinc-900/50 p-1 text-zinc-300 transition hover:bg-zinc-800"
             >
               ←
             </button>
             <button
               onClick={() => setCurrentDate(new Date())}
-              className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-300 transition hover:bg-cyan-500/20"
+              className="rounded border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-xs font-medium text-cyan-300 transition hover:bg-cyan-500/20"
             >
               Today
             </button>
             <button
               onClick={nextMonth}
-              className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-2 text-zinc-300 transition hover:bg-zinc-800"
+              className="rounded border border-zinc-700 bg-zinc-900/50 p-1 text-zinc-300 transition hover:bg-zinc-800"
             >
               →
             </button>
           </div>
 
           {/* Calendar Grid */}
-          <div className="mb-4">
+          <div className="mb-1.5">
             {/* Day Headers */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
+            <div className="grid grid-cols-7 gap-0.5 mb-0.5">
               {dayNames.map((day) => (
-                <div key={day} className="p-2 text-center text-xs font-medium text-zinc-400">
+                <div key={day} className="p-0.5 text-center text-xs font-medium text-zinc-400">
                   {day}
                 </div>
               ))}
             </div>
 
             {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7 gap-0.5">
               {/* Empty cells for days before month starts */}
               {Array.from({ length: startingDayOfWeek }).map((_, i) => (
                 <div key={`empty-${i}`} className="aspect-square" />
@@ -321,7 +375,7 @@ export function Calendar({ cohortId }: CalendarProps) {
                   <button
                     key={day}
                     onClick={() => setSelectedDate(date)}
-                    className={`aspect-square rounded-lg border p-1 text-xs transition ${
+                    className={`aspect-square rounded border p-0.5 text-[10px] transition ${
                       isToday
                         ? 'border-orange-500 bg-orange-500/20 text-orange-300 font-semibold'
                         : isSelected
@@ -329,20 +383,20 @@ export function Calendar({ cohortId }: CalendarProps) {
                         : 'border-zinc-700 bg-zinc-900/50 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800'
                     }`}
                   >
-                    <div className="text-center">{day}</div>
+                    <div className="text-center leading-none">{day}</div>
                     {dayEvents.length > 0 && (
-                      <div className="mt-1 flex flex-wrap gap-0.5">
+                      <div className="mt-0.5 flex flex-wrap gap-0.5">
                         {dayEvents.slice(0, 3).map((event) => (
                           <div
                             key={event.id}
-                            className={`h-1 w-full rounded ${
+                            className={`h-0.5 w-full rounded ${
                               eventTypeColors[event.type].split(' ')[0]
                             }`}
                             title={event.title}
                           />
                         ))}
                         {dayEvents.length > 3 && (
-                          <div className="h-1 w-full rounded bg-zinc-600" title="More events" />
+                          <div className="h-0.5 w-full rounded bg-zinc-600" title="More events" />
                         )}
                       </div>
                     )}
@@ -354,47 +408,47 @@ export function Calendar({ cohortId }: CalendarProps) {
 
           {/* Selected Date Events */}
           {selectedDate && (
-            <div className="mb-4 rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-cyan-300">
+            <div className="mb-1.5 rounded border border-cyan-500/30 bg-cyan-500/10 p-1.5">
+              <div className="mb-0.5 flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-cyan-300">
                   {selectedDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
+                    weekday: 'short',
+                    month: 'short',
                     day: 'numeric',
                   })}
                 </h3>
                 <button
                   onClick={() => setSelectedDate(null)}
-                  className="text-zinc-400 hover:text-zinc-200"
+                  className="text-xs text-zinc-400 hover:text-zinc-200"
                 >
                   ×
                 </button>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-0.5">
                 {getEventsForDate(selectedDate).map((event) => (
                   <div
                     key={event.id}
-                    className={`rounded-lg border p-2 text-xs ${eventTypeColors[event.type]}`}
+                    className={`rounded border p-1 text-xs ${eventTypeColors[event.type]}`}
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium">{event.title}</div>
-                        {event.time && <div className="text-zinc-400">{event.time}</div>}
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate font-medium">{event.title}</div>
+                        {event.time && <div className="text-xs text-zinc-400">{event.time}</div>}
                       </div>
                       <a
                         href={generateGoogleCalendarLink(event)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded px-2 py-1 text-xs font-medium text-zinc-300 hover:bg-zinc-800"
+                        className="flex-shrink-0 rounded px-1 py-0.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800"
                         title="Add to Google Calendar"
                       >
-                        + Google
+                        +G
                       </a>
                     </div>
                   </div>
                 ))}
                 {getEventsForDate(selectedDate).length === 0 && (
-                  <div className="text-center text-sm text-zinc-500">No events</div>
+                  <div className="text-center text-xs text-zinc-500">No events</div>
                 )}
               </div>
             </div>
@@ -402,15 +456,15 @@ export function Calendar({ cohortId }: CalendarProps) {
         </>
       ) : (
         /* List View */
-        <div className="space-y-2">
+        <div className="space-y-1">
           {getUpcomingEvents().map((event) => (
             <div
               key={event.id}
-              className={`rounded-lg border p-3 ${eventTypeColors[event.type]}`}
+              className={`rounded border p-1.5 ${eventTypeColors[event.type]}`}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="mb-1 flex items-center gap-2">
+              <div className="flex items-start justify-between gap-1">
+                <div className="flex-1 min-w-0">
+                  <div className="mb-0.5 flex items-center gap-1 flex-wrap">
                     <span className="text-xs font-medium text-zinc-400">
                       {event.date.toLocaleDateString('en-US', {
                         month: 'short',
@@ -426,25 +480,25 @@ export function Calendar({ cohortId }: CalendarProps) {
                       </>
                     )}
                   </div>
-                  <div className="font-medium">{event.title}</div>
+                  <div className="text-xs font-medium truncate">{event.title}</div>
                   {event.description && (
-                    <div className="mt-1 text-xs text-zinc-400 line-clamp-2">{event.description}</div>
+                    <div className="mt-0.5 text-xs text-zinc-400 line-clamp-1">{event.description}</div>
                   )}
                 </div>
                 <a
                   href={generateGoogleCalendarLink(event)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-2 rounded px-2 py-1 text-xs font-medium text-zinc-300 hover:bg-zinc-800"
+                  className="flex-shrink-0 rounded px-1 py-0.5 text-xs font-medium text-zinc-300 hover:bg-zinc-800"
                   title="Add to Google Calendar"
                 >
-                  + Google
+                  +G
                 </a>
               </div>
             </div>
           ))}
           {getUpcomingEvents().length === 0 && (
-            <div className="rounded-lg border border-zinc-700 bg-zinc-900/50 p-3 text-center text-sm text-zinc-400">
+            <div className="rounded border border-zinc-700 bg-zinc-900/50 p-1.5 text-center text-xs text-zinc-400">
               No upcoming events
             </div>
           )}

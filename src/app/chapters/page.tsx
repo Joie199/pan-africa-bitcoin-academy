@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BitcoinIcon, WalletIcon, LightningIcon, BookIcon, ToolIcon, BlockchainIcon, KeysIcon, UTXOIcon, TransactionIcon, MiningIcon } from "@/components/BitcoinIcons";
 import { useAuth } from "@/hooks/useAuth";
+import { Download, FileText, BookOpen, ExternalLink } from 'lucide-react';
 
 // Helper function to generate slug from title
 const generateSlug = (title: string): string => {
@@ -608,24 +609,204 @@ export default function ChaptersPage() {
             </div>
           </div>
 
-          {/* Recommended Path */}
+          {/* Study Materials */}
           <div className="mb-16">
-            <h2 className="mb-3 text-2xl font-semibold text-orange-300 sm:text-3xl">Recommended Learning Path</h2>
+            <h2 className="mb-3 text-2xl font-semibold text-orange-300 sm:text-3xl">Study Materials</h2>
             <p className="mb-8 text-base text-zinc-300 sm:text-lg">
-              We recommend following these chapters in order for the best learning experience:
+              Download essential Bitcoin resources and books to deepen your understanding:
             </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-              {chapters.slice(0, 8).map((chapter) => (
-                <Link
-                  key={chapter.id}
-                  href={`/chapters/${generateSlug(chapter.title)}`}
-                  className="group rounded-xl border border-orange-400/30 bg-black/60 px-4 py-3 text-center transition hover:border-orange-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)]"
-                >
-                  <div className="text-sm font-medium text-orange-300 transition group-hover:text-orange-200">
-                    {chapter.number}. {chapter.title}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Bitcoin White Paper */}
+              <a
+                href="https://bitcoin.org/bitcoin.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-xl border border-orange-400/30 bg-black/60 p-6 transition hover:border-orange-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-orange-500/20 p-3">
+                    <FileText className="h-6 w-6 text-orange-400" />
                   </div>
-                </Link>
-              ))}
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-orange-300 transition group-hover:text-orange-200">
+                      Bitcoin: A Peer-to-Peer Electronic Cash System
+                    </h3>
+                    <p className="text-sm text-zinc-400">Satoshi Nakamoto (2008)</p>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-zinc-300">
+                  The original white paper that started it all. Essential reading for understanding Bitcoin's core design.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-medium text-orange-300">
+                    PDF
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-orange-400">
+                    <span>Download</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </a>
+
+              {/* The Little Book of Bitcoin */}
+              <a
+                href="https://www.littlebitcoinbook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-xl border border-cyan-400/30 bg-black/60 p-6 transition hover:border-cyan-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-cyan-500/20 p-3">
+                    <BookOpen className="h-6 w-6 text-cyan-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-cyan-300 transition group-hover:text-cyan-200">
+                      The Little Bitcoin Book
+                    </h3>
+                    <p className="text-sm text-zinc-400">Bitcoin Collective (2019)</p>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-zinc-300">
+                  A simple, beginner-friendly introduction to Bitcoin that explains why it matters for financial freedom.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-medium text-cyan-300">
+                    Free
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-cyan-400">
+                    <span>Read Online</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </a>
+
+              {/* Mastering Bitcoin */}
+              <a
+                href="https://github.com/bitcoinbook/bitcoinbook"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-xl border border-purple-400/30 bg-black/60 p-6 transition hover:border-purple-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-purple-500/20 p-3">
+                    <BookOpen className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-purple-300 transition group-hover:text-purple-200">
+                      Mastering Bitcoin
+                    </h3>
+                    <p className="text-sm text-zinc-400">Andreas M. Antonopoulos</p>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-zinc-300">
+                  Comprehensive technical guide to Bitcoin for developers, engineers, and technically-minded individuals.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-purple-500/20 px-3 py-1 text-xs font-medium text-purple-300">
+                    Free (GitHub)
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-purple-400">
+                    <span>Access</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </a>
+
+              {/* The Bitcoin Standard */}
+              <a
+                href="https://saifedean.com/thebitcoinstandard/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-xl border border-yellow-400/30 bg-black/60 p-6 transition hover:border-yellow-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(234,179,8,0.2)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-yellow-500/20 p-3">
+                    <BookOpen className="h-6 w-6 text-yellow-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-yellow-300 transition group-hover:text-yellow-200">
+                      The Bitcoin Standard
+                    </h3>
+                    <p className="text-sm text-zinc-400">Saifedean Ammous (2018)</p>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-zinc-300">
+                  Economic analysis of Bitcoin's origins, monetary properties, and its potential impact on the global economy.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-medium text-yellow-300">
+                    Book
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-yellow-400">
+                    <span>Learn More</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </a>
+
+              {/* Programming Bitcoin */}
+              <a
+                href="https://github.com/jimmysong/programmingbitcoin"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-xl border border-green-400/30 bg-black/60 p-6 transition hover:border-green-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(34,197,94,0.2)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-green-500/20 p-3">
+                    <BookOpen className="h-6 w-6 text-green-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-green-300 transition group-hover:text-green-200">
+                      Programming Bitcoin
+                    </h3>
+                    <p className="text-sm text-zinc-400">Jimmy Song (2019)</p>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-zinc-300">
+                  Learn Bitcoin by programming it from scratch. Build Bitcoin libraries in Python step by step.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs font-medium text-green-300">
+                    Free (GitHub)
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-green-400">
+                    <span>Access</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </a>
+
+              {/* Layered Money */}
+              <a
+                href="https://www.layeredmoney.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col rounded-xl border border-blue-400/30 bg-black/60 p-6 transition hover:border-blue-400/50 hover:bg-black/80 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-500/20 p-3">
+                    <BookOpen className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-blue-300 transition group-hover:text-blue-200">
+                      Layered Money
+                    </h3>
+                    <p className="text-sm text-zinc-400">Nik Bhatia (2021)</p>
+                  </div>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-zinc-300">
+                  Explains the evolution of money through different layers and why Bitcoin represents a new monetary layer.
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-300">
+                    Book
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-blue-400">
+                    <span>Learn More</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </a>
             </div>
           </div>
 

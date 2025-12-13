@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Calendar } from './Calendar';
 import { chaptersContent } from '@/content/chaptersContent';
+import { Download, Book, FileText } from 'lucide-react';
 
 interface UserData {
   profile: {
@@ -643,53 +644,162 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
               </div>
             </div>
 
-            {/* Learning Path */}
+            {/* Study Materials */}
             <div className="rounded-xl border border-cyan-400/25 bg-black/80 p-6 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
-              <h2 className="mb-4 text-2xl font-semibold text-zinc-50">Your Learning Path</h2>
+              <h2 className="mb-4 text-2xl font-semibold text-zinc-50">Study Materials</h2>
+              <p className="mb-6 text-sm text-zinc-400">
+                Download essential Bitcoin resources and reading materials to support your learning journey.
+              </p>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {chapters.map((chapter: any) => (
-                  <div
-                    key={chapter.id}
-                    className={`rounded-lg border p-4 transition ${
-                      chapter.status === 'completed'
-                        ? 'border-green-500/50 bg-green-500/10'
-                        : chapter.status === 'in-progress'
-                        ? 'border-orange-500/50 bg-orange-500/10'
-                        : 'border-zinc-700 bg-zinc-900/50 opacity-60'
-                    }`}
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <h3 className="font-semibold text-zinc-100">
-                        Chapter {chapter.number}: {chapter.title}
-                      </h3>
-                      {chapter.status === 'completed' && (
-                        <span className="text-green-400">✓</span>
-                      )}
-                      {chapter.status === 'in-progress' && (
-                        <span className="text-orange-400">●</span>
-                      )}
-                      {chapter.status === 'locked' && (
-                        <span className="text-zinc-500">🔒</span>
-                      )}
+                {/* Bitcoin Whitepaper */}
+                <a
+                  href="https://bitcoin.org/bitcoin.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-lg border border-orange-500/30 bg-orange-500/10 p-4 transition hover:border-orange-500/50 hover:bg-orange-500/20 hover:shadow-[0_0_20px_rgba(249,115,22,0.3)]"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-orange-500/20 p-2">
+                      <FileText className="h-5 w-5 text-orange-300" />
                     </div>
-                    <p className="mb-3 text-sm text-zinc-400">Duration: {chapter.duration}</p>
-                    {chapter.isUnlocked ? (
-                      <Link
-                        href={chapter.link}
-                        className="inline-block rounded-lg bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-300 transition hover:bg-cyan-500/30"
-                      >
-                        {chapter.isCompleted ? 'Review Chapter →' : 'Continue →'}
-                      </Link>
-                    ) : (
-                      <button
-                        disabled
-                        className="inline-block rounded-lg bg-zinc-800/50 px-4 py-2 text-sm font-medium text-zinc-500 cursor-not-allowed"
-                      >
-                        Locked
-                      </button>
-                    )}
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-zinc-100">Bitcoin Whitepaper</h3>
+                      <p className="text-xs text-zinc-400">Satoshi Nakamoto</p>
+                    </div>
                   </div>
-                ))}
+                  <p className="mb-3 text-sm text-zinc-300">
+                    The original paper that started it all. Essential reading for every Bitcoin learner.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-orange-300 group-hover:text-orange-200">
+                    <Download className="h-4 w-4" />
+                    <span>Download PDF</span>
+                  </div>
+                </a>
+
+                {/* The Little Book of Bitcoin */}
+                <a
+                  href="https://www.littlebitcoinbook.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-4 transition hover:border-cyan-500/50 hover:bg-cyan-500/20 hover:shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-cyan-500/20 p-2">
+                      <Book className="h-5 w-5 text-cyan-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-zinc-100">The Little Book of Bitcoin</h3>
+                      <p className="text-xs text-zinc-400">Bitcoin Foundation</p>
+                    </div>
+                  </div>
+                  <p className="mb-3 text-sm text-zinc-300">
+                    A concise introduction to Bitcoin concepts. Perfect for beginners.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-cyan-300 group-hover:text-cyan-200">
+                    <Download className="h-4 w-4" />
+                    <span>Download / Read</span>
+                  </div>
+                </a>
+
+                {/* Mastering Bitcoin */}
+                <a
+                  href="https://github.com/bitcoinbook/bitcoinbook"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-lg border border-purple-500/30 bg-purple-500/10 p-4 transition hover:border-purple-500/50 hover:bg-purple-500/20 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-purple-500/20 p-2">
+                      <Book className="h-5 w-5 text-purple-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-zinc-100">Mastering Bitcoin</h3>
+                      <p className="text-xs text-zinc-400">Andreas M. Antonopoulos</p>
+                    </div>
+                  </div>
+                  <p className="mb-3 text-sm text-zinc-300">
+                    Technical deep dive into Bitcoin. Essential for understanding Bitcoin at a deeper level.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-purple-300 group-hover:text-purple-200">
+                    <Download className="h-4 w-4" />
+                    <span>Read Online / Download</span>
+                  </div>
+                </a>
+
+                {/* The Bitcoin Standard */}
+                <a
+                  href="https://saifedean.com/thebitcoinstandard/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 transition hover:border-yellow-500/50 hover:bg-yellow-500/20 hover:shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-yellow-500/20 p-2">
+                      <Book className="h-5 w-5 text-yellow-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-zinc-100">The Bitcoin Standard</h3>
+                      <p className="text-xs text-zinc-400">Saifedean Ammous</p>
+                    </div>
+                  </div>
+                  <p className="mb-3 text-sm text-zinc-300">
+                    Economic perspective on Bitcoin as sound money and its role in the monetary system.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-yellow-300 group-hover:text-yellow-200">
+                    <Download className="h-4 w-4" />
+                    <span>Learn More</span>
+                  </div>
+                </a>
+
+                {/* Programming Bitcoin */}
+                <a
+                  href="https://programmingbitcoin.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 transition hover:border-blue-500/50 hover:bg-blue-500/20 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-blue-500/20 p-2">
+                      <Book className="h-5 w-5 text-blue-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-zinc-100">Programming Bitcoin</h3>
+                      <p className="text-xs text-zinc-400">Jimmy Song</p>
+                    </div>
+                  </div>
+                  <p className="mb-3 text-sm text-zinc-300">
+                    Learn Bitcoin programming from scratch. Build Bitcoin from the ground up in Python.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-blue-300 group-hover:text-blue-200">
+                    <Download className="h-4 w-4" />
+                    <span>Get the Book</span>
+                  </div>
+                </a>
+
+                {/* Bitcoin Development Resources */}
+                <a
+                  href="https://bitcoin.org/en/developer-documentation"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group rounded-lg border border-green-500/30 bg-green-500/10 p-4 transition hover:border-green-500/50 hover:bg-green-500/20 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="rounded-lg bg-green-500/20 p-2">
+                      <FileText className="h-5 w-5 text-green-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-zinc-100">Bitcoin Developer Docs</h3>
+                      <p className="text-xs text-zinc-400">Bitcoin.org</p>
+                    </div>
+                  </div>
+                  <p className="mb-3 text-sm text-zinc-300">
+                    Official Bitcoin developer documentation and technical resources.
+                  </p>
+                  <div className="flex items-center gap-2 text-sm font-medium text-green-300 group-hover:text-green-200">
+                    <Download className="h-4 w-4" />
+                    <span>Browse Docs</span>
+                  </div>
+                </a>
               </div>
             </div>
 

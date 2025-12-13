@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from '@/hooks/useAuth';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Cohort {
   id: string;
@@ -130,6 +131,112 @@ export default function ApplyPage() {
   const [cohortsLoading, setCohortsLoading] = useState(true);
   const [cohortsError, setCohortsError] = useState<string | null>(null);
   const [selectedCohort, setSelectedCohort] = useState<string | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(1);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Calculate items per view based on screen size
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsPerView(3);
+      } else if (window.innerWidth >= 640) {
+        setItemsPerView(2);
+      } else {
+        setItemsPerView(1);
+      }
+    };
+
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
+
+  // Reset carousel index when items per view or cohorts change
+  useEffect(() => {
+    const maxIndex = Math.max(0, cohorts.length - itemsPerView);
+    if (carouselIndex > maxIndex) {
+      setCarouselIndex(Math.max(0, maxIndex));
+    }
+  }, [itemsPerView, cohorts.length, carouselIndex]);
+
+  // Swipe handlers
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      const maxIndex = Math.max(0, cohorts.length - itemsPerView);
+      setCarouselIndex((prev) => Math.min(maxIndex, prev + 1));
+    }
+    
+    if (isRightSwipe) {
+      setCarouselIndex((prev) => Math.max(0, prev - 1));
+    }
+
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Mouse drag handlers for desktop
+  const onMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setTouchStart(e.clientX);
+    setTouchEnd(null);
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setTouchEnd(e.clientX);
+  };
+
+  const onMouseUp = () => {
+    if (!isDragging || !touchStart || !touchEnd) {
+      setIsDragging(false);
+      return;
+    }
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      const maxIndex = Math.max(0, cohorts.length - itemsPerView);
+      setCarouselIndex((prev) => Math.min(maxIndex, prev + 1));
+    }
+    
+    if (isRightSwipe) {
+      setCarouselIndex((prev) => Math.max(0, prev - 1));
+    }
+
+    setIsDragging(false);
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  const onMouseLeave = () => {
+    setIsDragging(false);
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCountryCode, setSelectedCountryCode] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -148,6 +255,7 @@ export default function ApplyPage() {
     experienceLevel: "",
     preferredCohort: "",
     birthDate: "",
+    preferredLanguage: "",
   });
 
   // Pre-fill form data from profile if user is logged in (only once when profile loads)
@@ -209,6 +317,7 @@ export default function ApplyPage() {
       experienceLevel: '',
       preferredCohort: '',
       birthDate: '',
+      preferredLanguage: '',
     });
   }, [authLoading, isAuthenticated, profile]); // Only depend on auth state, not form state
 
@@ -396,6 +505,7 @@ export default function ApplyPage() {
           experienceLevel: "",
           preferredCohort: "",
           birthDate: "",
+          preferredLanguage: "",
         });
         setSelectedCountry("");
         setSelectedCountryCode("");
@@ -455,64 +565,133 @@ export default function ApplyPage() {
           ) : cohorts.length === 0 ? (
             <div className="text-center py-8 text-zinc-400">No upcoming cohorts available at this time.</div>
           ) : (
-          <div className="w-full overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-            <div className="flex flex-row flex-nowrap sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:w-full snap-x snap-mandatory sm:snap-none pb-2 sm:pb-0">
-              {cohorts.map((cohort) => (
-                <div
-                  key={cohort.id}
-                  className={`flex-none w-[90vw] sm:w-auto sm:max-w-none rounded-xl border p-6 transition snap-start ${
-                    selectedCohort === cohort.id
-                      ? "border-orange-400/50 bg-orange-500/10 shadow-[0_0_30px_rgba(249,115,22,0.3)]"
-                      : "border-cyan-400/25 bg-black/80 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
-                  }`}
+          <div className="relative">
+            {/* Carousel Container */}
+            <div 
+              className="relative overflow-hidden rounded-xl cursor-grab active:cursor-grabbing select-none"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseLeave}
+            >
+              <div 
+                ref={carouselRef}
+                className="flex transition-transform duration-300 ease-in-out gap-4"
+                style={{
+                  transform: `translateX(-${carouselIndex * (100 / itemsPerView)}%)`,
+                  pointerEvents: isDragging ? 'none' : 'auto',
+                }}
               >
-                <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-zinc-50">{cohort.name}</h3>
-                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                    cohort.level?.toLowerCase() === 'beginner' 
-                      ? 'bg-blue-500/20 text-blue-300'
-                      : cohort.level?.toLowerCase() === 'intermediate'
-                      ? 'bg-orange-500/20 text-orange-300'
-                      : cohort.level?.toLowerCase() === 'advanced'
-                      ? 'bg-purple-500/20 text-purple-300'
-                      : 'bg-cyan-500/20 text-cyan-300'
-                  }`}>
-                    {cohort.level}
-                  </span>
-                </div>
-                <div className="space-y-2 text-sm text-zinc-300">
-                  <p><span className="font-medium text-zinc-400">Start:</span> {cohort.startDate}</p>
-                  <p><span className="font-medium text-zinc-400">End:</span> {cohort.endDate}</p>
-                  {cohort.status && (
-                    <p><span className="font-medium text-zinc-400">Status:</span> {cohort.status}</p>
-                  )}
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center justify-between rounded-lg border border-cyan-400/20 bg-zinc-900/50 p-2">
-                      <span className="text-xs text-zinc-400">Sessions</span>
-                      <span className="font-semibold text-cyan-400">
-                        {cohort.sessions}
+                {cohorts.map((cohort) => (
+                  <div
+                    key={cohort.id}
+                    className={`min-w-0 flex-[0_0_100%] sm:flex-[0_0_calc(50%-0.5rem)] lg:flex-[0_0_calc(33.333%-0.67rem)] rounded-xl border p-6 transition ${
+                      selectedCohort === cohort.id
+                        ? "border-orange-400/50 bg-orange-500/10 shadow-[0_0_30px_rgba(249,115,22,0.3)]"
+                        : "border-cyan-400/25 bg-black/80 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
+                    }`}
+                  >
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-zinc-50">{cohort.name}</h3>
+                      <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                        cohort.level?.toLowerCase() === 'beginner' 
+                          ? 'bg-blue-500/20 text-blue-300'
+                          : cohort.level?.toLowerCase() === 'intermediate'
+                          ? 'bg-orange-500/20 text-orange-300'
+                          : cohort.level?.toLowerCase() === 'advanced'
+                          ? 'bg-purple-500/20 text-purple-300'
+                          : 'bg-cyan-500/20 text-cyan-300'
+                      }`}>
+                        {cohort.level}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between rounded-lg border border-orange-400/20 bg-zinc-900/50 p-2">
-                      <span className="text-xs text-zinc-400">Seats Available</span>
-                      <span className={`font-semibold ${cohort.available > 0 ? "text-orange-400" : "text-red-400"}`}>
-                        {cohort.available} / {cohort.seats}
-                      </span>
+                    <div className="space-y-2 text-sm text-zinc-300">
+                      <p><span className="font-medium text-zinc-400">Start:</span> {cohort.startDate}</p>
+                      <p><span className="font-medium text-zinc-400">End:</span> {cohort.endDate}</p>
+                      {cohort.status && (
+                        <p><span className="font-medium text-zinc-400">Status:</span> {cohort.status}</p>
+                      )}
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-between rounded-lg border border-cyan-400/20 bg-zinc-900/50 p-2">
+                          <span className="text-xs text-zinc-400">Sessions</span>
+                          <span className="font-semibold text-cyan-400">
+                            {cohort.sessions}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between rounded-lg border border-orange-400/20 bg-zinc-900/50 p-2">
+                          <span className="text-xs text-zinc-400">Seats Available</span>
+                          <span className={`font-semibold ${cohort.available > 0 ? "text-orange-400" : "text-red-400"}`}>
+                            {cohort.available} / {cohort.seats}
+                          </span>
+                        </div>
+                      </div>
                     </div>
+                    <button
+                      onClick={() => setSelectedCohort(cohort.id)}
+                      className={`mt-4 w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                        selectedCohort === cohort.id
+                          ? "bg-orange-400 text-black"
+                          : "bg-cyan-400/20 text-cyan-300 hover:bg-cyan-400/30"
+                      }`}
+                    >
+                      {selectedCohort === cohort.id ? "Selected" : "Select This Cohort"}
+                    </button>
                   </div>
-                </div>
-                <button
-                  onClick={() => setSelectedCohort(cohort.id)}
-                  className={`mt-4 w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                    selectedCohort === cohort.id
-                      ? "bg-orange-400 text-black"
-                      : "bg-cyan-400/20 text-cyan-300 hover:bg-cyan-400/30"
-                  }`}
-                >
-                  {selectedCohort === cohort.id ? "Selected" : "Select This Cohort"}
-                </button>
+                ))}
               </div>
-              ))}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <button
+                onClick={() => {
+                  setCarouselIndex((prev) => Math.max(0, prev - 1));
+                }}
+                disabled={carouselIndex === 0}
+                className={`rounded-lg border border-zinc-700 bg-zinc-900/50 p-2 transition ${
+                  carouselIndex === 0
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-zinc-800 text-zinc-300'
+                }`}
+                aria-label="Previous cohort"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              
+              {/* Dots Indicator */}
+              <div className="flex gap-2">
+                {Array.from({ length: Math.ceil(cohorts.length / itemsPerView) }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCarouselIndex(index)}
+                    className={`h-2 rounded-full transition ${
+                      carouselIndex === index
+                        ? 'w-8 bg-cyan-400'
+                        : 'w-2 bg-zinc-600 hover:bg-zinc-500'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+
+              <button
+                onClick={() => {
+                  const maxIndex = Math.max(0, cohorts.length - itemsPerView);
+                  setCarouselIndex((prev) => Math.min(maxIndex, prev + 1));
+                }}
+                disabled={carouselIndex >= Math.max(0, cohorts.length - itemsPerView)}
+                className={`rounded-lg border border-zinc-700 bg-zinc-900/50 p-2 transition ${
+                  carouselIndex >= Math.max(0, cohorts.length - itemsPerView)
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-zinc-800 text-zinc-300'
+                }`}
+                aria-label="Next cohort"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
             </div>
           </div>
           )}
@@ -562,37 +741,20 @@ export default function ApplyPage() {
               </div>
             </div>
 
-            {/* Email, Phone, Birth Date */}
+            {/* Email, Phone, Birth Date, Language */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-300">
-                    Email <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-zinc-300">
-                    Birth Date <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={birthDate}
-                    onChange={(e) => {
-                      setBirthDate(e.target.value);
-                      setFormData({ ...formData, birthDate: e.target.value });
-                    }}
-                    className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
-                  />
-                </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-300">
+                  Email <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+                  placeholder="john@example.com"
+                />
               </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-zinc-300">
@@ -631,6 +793,36 @@ export default function ApplyPage() {
                 {phoneError && (
                   <p className="mt-1 text-xs text-red-300">{phoneError}</p>
                 )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-300">
+                  Birth Date <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={birthDate}
+                  onChange={(e) => {
+                    setBirthDate(e.target.value);
+                    setFormData({ ...formData, birthDate: e.target.value });
+                  }}
+                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-zinc-300">
+                  Preferred Language <span className="text-red-400">*</span>
+                </label>
+                <select
+                  required
+                  value={formData.preferredLanguage}
+                  onChange={(e) => setFormData({ ...formData, preferredLanguage: e.target.value })}
+                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+                >
+                  <option value="" className="bg-zinc-950 text-zinc-400">Select</option>
+                  <option value="english" className="bg-zinc-950 text-zinc-50">English</option>
+                  <option value="tigrigna" className="bg-zinc-950 text-zinc-50">Tigrinya (ትግርኛ)</option>
+                </select>
               </div>
             </div>
 

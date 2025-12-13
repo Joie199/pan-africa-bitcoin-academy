@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { SessionExpiredModal } from '@/components/SessionExpiredModal';
+import { Calendar } from '@/components/Calendar';
 
 interface Application {
   id: string;
@@ -793,29 +794,9 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-        {/* Events list */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-          <h3 className="mb-3 text-lg font-semibold text-zinc-50">Events</h3>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((ev) => (
-              <div key={ev.id} className="rounded-lg border border-zinc-800 bg-black/60 p-3 text-sm">
-                <p className="font-semibold text-zinc-100">{ev.name}</p>
-                <p className="text-xs text-zinc-500">{ev.type}</p>
-                <p className="mt-1 text-zinc-300">
-                  {new Date(ev.start_time).toLocaleString()}
-                </p>
-                {ev.end_time && (
-                  <p className="text-xs text-zinc-500">Ends: {new Date(ev.end_time).toLocaleString()}</p>
-                )}
-                <p className="text-xs text-zinc-500">
-                  Audience: {ev.cohort_id ? `Cohort ${ev.cohort_id}` : 'Everyone'}
-                </p>
-              </div>
-            ))}
-          </div>
-          {events.length === 0 && (
-            <p className="text-sm text-zinc-400">No events yet.</p>
-          )}
+        {/* Calendar - Events, Cohorts & Activities */}
+        <div className="max-w-md">
+          <Calendar cohortId={null} showCohorts={true} />
         </div>
 
         {/* Mentorship applications */}

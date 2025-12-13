@@ -24,13 +24,6 @@ const roles = [
     time: "Flexible",
     icon: "🤝",
   },
-  {
-    id: "ambassador",
-    title: "Ambassador",
-    description: "Represent the academy in your region, organize local meetups, and help spread Bitcoin education in your community.",
-    time: "2–5 hours/week",
-    icon: "🌍",
-  },
 ];
 
 const mentors = [

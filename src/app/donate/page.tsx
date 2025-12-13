@@ -142,7 +142,7 @@ export default function DonatePage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-400">✓</span>
-              <span><strong className="text-purple-200">Student Rewards:</strong> 60% of donations go directly to student sats rewards</span>
+              <span><strong className="text-purple-200">Student Rewards:</strong> 50% of donations go directly to student sats rewards</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-400">✓</span>
@@ -150,7 +150,7 @@ export default function DonatePage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-400">✓</span>
-              <span><strong className="text-purple-200">Growth:</strong> 15% for expanding to new regions and communities</span>
+              <span><strong className="text-purple-200">Growth:</strong> 10% for expanding to new regions and communities</span>
             </li>
           </ul>
           <div className="mt-4 rounded-lg border border-purple-500/20 bg-purple-500/5 p-4">
