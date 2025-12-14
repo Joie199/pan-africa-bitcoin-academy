@@ -68,11 +68,22 @@ export async function POST(req: NextRequest) {
     let profileId: string;
     let isExistingProfile = false;
 
-    const { data: existingProfile } = await supabaseAdmin
+    const { data: existingProfile, error: profileCheckError } = await supabaseAdmin
       .from('profiles')
       .select('id, email, status, cohort_id, student_id, phone, country, city, password_hash')
       .eq('email', emailLower)
       .maybeSingle();
+
+    if (profileCheckError && profileCheckError.code !== 'PGRST116') {
+      console.error('Error checking for existing profile:', profileCheckError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to check for existing profile', 
+          details: profileCheckError.message 
+        },
+        { status: 500 }
+      );
+    }
 
     // Generate student_id if cohort exists and profile doesn't have one
     let generatedStudentId: string | null = null;
@@ -154,36 +165,77 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const { data: newProfile, error: profileError } = await supabaseAdmin
+      // Double-check email doesn't exist (race condition protection)
+      const { data: duplicateCheck } = await supabaseAdmin
         .from('profiles')
-        .insert(profileData)
-        .select()
-        .single();
+        .select('id')
+        .eq('email', emailLower)
+        .maybeSingle();
 
-      if (profileError || !newProfile) {
-        console.error('Error creating profile:', profileError);
-        console.error('Profile creation details:', {
-          name: fullName,
-          email: emailLower,
-          phone: application.phone,
-          country: application.country,
-          city: application.city,
-          student_id: generatedStudentId,
-          cohort_id: application.preferred_cohort_id,
-        });
-        return NextResponse.json(
-          { 
-            error: 'Failed to create profile', 
-            details: profileError?.message || 'Unknown error',
-            code: profileError?.code,
-            hint: profileError?.hint,
-          },
-          { status: 500 }
-        );
+      if (duplicateCheck) {
+        // Profile was created between our check and now - use existing one
+        profileId = duplicateCheck.id;
+        isExistingProfile = true;
+      } else {
+        const { data: newProfile, error: profileError } = await supabaseAdmin
+          .from('profiles')
+          .insert(profileData)
+          .select()
+          .single();
+
+        if (profileError || !newProfile) {
+          console.error('Error creating profile:', profileError);
+          console.error('Profile creation details:', {
+            name: fullName,
+            email: emailLower,
+            phone: application.phone,
+            country: application.country,
+            city: application.city,
+            student_id: generatedStudentId,
+            cohort_id: application.preferred_cohort_id,
+            profileData,
+          });
+          
+          // Check if it's a unique constraint violation
+          if (profileError?.code === '23505') {
+            // Unique constraint violation - likely email or student_id already exists
+            if (profileError.message?.includes('email')) {
+              return NextResponse.json(
+                { 
+                  error: 'Failed to create profile', 
+                  details: 'Email already exists. Please check if profile was already created.',
+                  code: profileError.code,
+                  hint: 'A profile with this email may already exist. Try refreshing the applications list.',
+                },
+                { status: 409 }
+              );
+            } else if (profileError.message?.includes('student_id')) {
+              return NextResponse.json(
+                { 
+                  error: 'Failed to create profile', 
+                  details: 'Student ID already exists. Please try again.',
+                  code: profileError.code,
+                  hint: 'The generated student ID conflicts with an existing one.',
+                },
+                { status: 409 }
+              );
+            }
+          }
+          
+          return NextResponse.json(
+            { 
+              error: 'Failed to create profile', 
+              details: profileError?.message || 'Unknown error',
+              code: profileError?.code,
+              hint: profileError?.hint,
+            },
+            { status: 500 }
+          );
+        }
+        
+        profileId = newProfile.id;
       }
 
-      profileId = newProfile.id;
-    }
 
     // STEP 2: Create/Update Students Record (SOURCE OF TRUTH)
     // Students database is the main database - all student data goes here

@@ -345,10 +345,14 @@ export default function AdminDashboardPage() {
         await fetchApplications();
         await fetchOverview();
       } else {
-        alert(`Error: ${data.error || 'Failed to approve application'}`);
+        // Show detailed error message
+        const errorMsg = data.error || 'Failed to approve application';
+        const details = data.details ? `\n\nDetails: ${data.details}` : '';
+        const hint = data.hint ? `\n\nHint: ${data.hint}` : '';
+        alert(`Error: ${errorMsg}${details}${hint}`);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to approve application');
+      alert(`Error: ${err.message || 'Failed to approve application'}`);
     } finally {
       setProcessing(null);
     }
