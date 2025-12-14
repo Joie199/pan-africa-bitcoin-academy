@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Bitcoin essays",
     "PanAfrican Bitcoin Academy",
   ],
+  alternates: {
+    canonical: '/blog',
+  },
   openGraph: {
     title: 'Bitcoin Blog - Articles & Essays | PanAfrican Bitcoin Academy',
     description: 'Read Bitcoin articles, student essays, and technical deep dives from PanAfrican Bitcoin Academy.',

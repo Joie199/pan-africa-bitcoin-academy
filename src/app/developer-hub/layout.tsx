@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Bitcoin programming",
     "PanAfrican Bitcoin Academy",
   ],
+  alternates: {
+    canonical: '/developer-hub',
+  },
   openGraph: {
     title: 'Developer Hub - Bitcoin Developer Resources | PanAfrican Bitcoin Academy',
     description: 'Bitcoin developer resources and pathways. Learn Bitcoin development and contribute to open source.',

@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   publisher: "Pan-African Bitcoin Academy",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://panafricanbitcoin.com'),
   alternates: {
-    canonical: '/',
+    canonical: '/', // Homepage canonical
   },
   openGraph: {
     type: 'website',

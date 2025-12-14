@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     "Bitcoin education Africa",
     "PanAfrican Bitcoin Academy",
   ],
+  alternates: {
+    canonical: '/mentorship',
+  },
   openGraph: {
     title: 'Mentorship Program - Bitcoin Mentorship | PanAfrican Bitcoin Academy',
     description: 'Join the Bitcoin mentorship program. Get guidance from experienced Bitcoin mentors.',

@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Eritrea Bitcoin academy",
     "Bitcoin education mission",
   ],
+  alternates: {
+    canonical: '/about',
+  },
   openGraph: {
     title: 'About PanAfrican Bitcoin Academy - First Eritrea Based Bitcoin Academy',
     description: 'PanAfrican Bitcoin Academy - first Eritrea based Bitcoin academy. Learn about our mission to provide clear Bitcoin education across Africa.',

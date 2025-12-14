@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Bitcoin step by step",
     "PanAfrican Bitcoin Academy",
   ],
+  alternates: {
+    canonical: '/chapters',
+  },
   openGraph: {
     title: 'Bitcoin Tutorials for Beginners - Learn Bitcoin Step by Step',
     description: 'Bitcoin tutorials for beginners at PanAfrican Bitcoin Academy. Learn Bitcoin step by step with clear lessons and real security.',
