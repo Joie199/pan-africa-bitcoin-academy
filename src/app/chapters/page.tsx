@@ -606,8 +606,7 @@ export default function ChaptersPage() {
                 
                 {/* Path 1 (I to II) */}
                 <div className="relative flex-1 mx-2 h-0.5 bg-cyan-400/30 overflow-visible">
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/0 via-cyan-400/0 to-cyan-400/0 transition-all duration-1000 animate-path-glow-1"></div>
-                  <div className="absolute top-1/2 left-0 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,1)] animate-star-move-1"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/0 via-cyan-400/0 to-cyan-400/0 transition-all duration-1000 animate-path-glow-1" style={{ height: '2px', top: '-1px' }}></div>
                 </div>
                 
                 {/* Level II */}
@@ -618,8 +617,7 @@ export default function ChaptersPage() {
                 
                 {/* Path 2 (II to III) */}
                 <div className="relative flex-1 mx-2 h-0.5 bg-orange-400/30 overflow-visible">
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-400/0 via-orange-400/0 to-orange-400/0 transition-all duration-1000 animate-path-glow-2"></div>
-                  <div className="absolute top-1/2 left-0 h-3 w-3 -translate-y-1/2 -translate-x-1/2 rounded-full bg-orange-400 shadow-[0_0_15px_rgba(249,115,22,1)] animate-star-move-2"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-400/0 via-orange-400/0 to-orange-400/0 transition-all duration-1000 animate-path-glow-2" style={{ height: '2px', top: '-1px' }}></div>
                 </div>
                 
                 {/* Level III */}
@@ -636,80 +634,123 @@ export default function ChaptersPage() {
             </div>
             </div>
             <style jsx>{`
-              /* Continuous star movement: I → II → III → back */
-              @keyframes star-move-1 {
-                0% {
-                  transform: translate(-50%, -50%) translateX(0);
-                  opacity: 1;
-                }
-                30% {
-                  transform: translate(-50%, -50%) translateX(100%);
-                  opacity: 1;
-                }
-                35% {
-                  opacity: 0;
-                }
-                65% {
-                  opacity: 0;
-                }
-                100% {
-                  transform: translate(-50%, -50%) translateX(0);
-                  opacity: 1;
-                }
-              }
-              
-              @keyframes star-move-2 {
-                0%, 30% {
-                  transform: translate(-50%, -50%) translateX(0);
-                  opacity: 0;
-                }
-                35% {
-                  opacity: 1;
-                  transform: translate(-50%, -50%) translateX(0);
-                }
-                65% {
-                  transform: translate(-50%, -50%) translateX(100%);
-                  opacity: 1;
-                }
-                70% {
-                  opacity: 0;
-                }
-                100% {
-                  transform: translate(-50%, -50%) translateX(0);
-                  opacity: 0;
-                }
-              }
-              
-              /* Path glow animations */
+              /* Path glow animations - Forward (1→2→3) and Reverse (3→2→1) */
               @keyframes path-glow-1 {
+                /* Forward: 1→2 (0-25%) */
                 0% {
-                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.8) 0%, transparent 0%);
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0) 0%, transparent 0%);
+                  box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+                  filter: blur(0px);
                 }
-                30% {
-                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.8) 50%, transparent 100%);
+                5% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.7) 10%, rgba(34, 211, 238, 0.9) 15%, rgba(34, 211, 238, 0.7) 20%, transparent 35%);
+                  box-shadow: 0 0 15px rgba(34, 211, 238, 0.8), 0 0 30px rgba(34, 211, 238, 0.6);
+                  filter: blur(0.5px);
                 }
-                35%, 100% {
-                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.8) 0%, transparent 0%);
+                12.5% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.8) 30%, rgba(34, 211, 238, 1) 40%, rgba(34, 211, 238, 0.8) 50%, transparent 70%);
+                  box-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 50px rgba(34, 211, 238, 0.7), 0 0 75px rgba(34, 211, 238, 0.5);
+                  filter: blur(1px);
+                }
+                20% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.9) 60%, rgba(34, 211, 238, 1) 70%, rgba(34, 211, 238, 0.9) 80%, transparent 95%);
+                  box-shadow: 0 0 30px rgba(34, 211, 238, 1), 0 0 60px rgba(34, 211, 238, 0.8), 0 0 90px rgba(34, 211, 238, 0.6);
+                  filter: blur(1.5px);
+                }
+                25% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0) 100%, transparent 100%);
+                  box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+                  filter: blur(0px);
+                }
+                /* Rest period (25-75%) */
+                25.1%, 75% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0) 0%, transparent 0%);
+                  box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+                  filter: blur(0px);
+                }
+                /* Reverse: 2→1 (75-100%) */
+                80% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.9) 60%, rgba(34, 211, 238, 1) 70%, rgba(34, 211, 238, 0.9) 80%, transparent 95%);
+                  box-shadow: 0 0 30px rgba(34, 211, 238, 1), 0 0 60px rgba(34, 211, 238, 0.8), 0 0 90px rgba(34, 211, 238, 0.6);
+                  filter: blur(1.5px);
+                }
+                87.5% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.8) 30%, rgba(34, 211, 238, 1) 40%, rgba(34, 211, 238, 0.8) 50%, transparent 70%);
+                  box-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 50px rgba(34, 211, 238, 0.7), 0 0 75px rgba(34, 211, 238, 0.5);
+                  filter: blur(1px);
+                }
+                95% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0.7) 10%, rgba(34, 211, 238, 0.9) 15%, rgba(34, 211, 238, 0.7) 20%, transparent 35%);
+                  box-shadow: 0 0 15px rgba(34, 211, 238, 0.8), 0 0 30px rgba(34, 211, 238, 0.6);
+                  filter: blur(0.5px);
+                }
+                100% {
+                  background: linear-gradient(to right, transparent 0%, rgba(34, 211, 238, 0) 0%, transparent 0%);
+                  box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+                  filter: blur(0px);
                 }
               }
               
               @keyframes path-glow-2 {
-                0%, 30% {
-                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.8) 0%, transparent 0%);
+                /* Rest period (0-25%) */
+                0%, 25% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0) 0%, transparent 0%);
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  filter: blur(0px);
                 }
-                35% {
-                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.8) 0%, transparent 0%);
+                /* Forward: 2→3 (25-50%) */
+                30% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.7) 10%, rgba(249, 115, 22, 0.9) 15%, rgba(249, 115, 22, 0.7) 20%, transparent 35%);
+                  box-shadow: 0 0 15px rgba(249, 115, 22, 0.8), 0 0 30px rgba(249, 115, 22, 0.6);
+                  filter: blur(0.5px);
                 }
-                65% {
-                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.8) 50%, transparent 100%);
+                37.5% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.8) 30%, rgba(249, 115, 22, 1) 40%, rgba(249, 115, 22, 0.8) 50%, transparent 70%);
+                  box-shadow: 0 0 25px rgba(249, 115, 22, 0.9), 0 0 50px rgba(249, 115, 22, 0.7), 0 0 75px rgba(249, 115, 22, 0.5);
+                  filter: blur(1px);
                 }
-                70%, 100% {
-                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.8) 0%, transparent 0%);
+                45% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.9) 60%, rgba(249, 115, 22, 1) 70%, rgba(249, 115, 22, 0.9) 80%, transparent 95%);
+                  box-shadow: 0 0 30px rgba(249, 115, 22, 1), 0 0 60px rgba(249, 115, 22, 0.8), 0 0 90px rgba(249, 115, 22, 0.6);
+                  filter: blur(1.5px);
+                }
+                50% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0) 100%, transparent 100%);
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  filter: blur(0px);
+                }
+                /* Rest period (50-75%) */
+                50.1%, 75% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0) 0%, transparent 0%);
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  filter: blur(0px);
+                }
+                /* Reverse: 3→2 (75-100%) */
+                80% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.9) 60%, rgba(249, 115, 22, 1) 70%, rgba(249, 115, 22, 0.9) 80%, transparent 95%);
+                  box-shadow: 0 0 30px rgba(249, 115, 22, 1), 0 0 60px rgba(249, 115, 22, 0.8), 0 0 90px rgba(249, 115, 22, 0.6);
+                  filter: blur(1.5px);
+                }
+                87.5% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.8) 30%, rgba(249, 115, 22, 1) 40%, rgba(249, 115, 22, 0.8) 50%, transparent 70%);
+                  box-shadow: 0 0 25px rgba(249, 115, 22, 0.9), 0 0 50px rgba(249, 115, 22, 0.7), 0 0 75px rgba(249, 115, 22, 0.5);
+                  filter: blur(1px);
+                }
+                95% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0.7) 10%, rgba(249, 115, 22, 0.9) 15%, rgba(249, 115, 22, 0.7) 20%, transparent 35%);
+                  box-shadow: 0 0 15px rgba(249, 115, 22, 0.8), 0 0 30px rgba(249, 115, 22, 0.6);
+                  filter: blur(0.5px);
+                }
+                100% {
+                  background: linear-gradient(to right, transparent 0%, rgba(249, 115, 22, 0) 0%, transparent 0%);
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  filter: blur(0px);
                 }
               }
               
-              /* Circle glow animations - activated when star reaches them */
+              /* Circle glow animations - activated when glow reaches them */
               @keyframes level-glow-1 {
+                /* Forward: glow reaches level 1 (0-25%) */
                 0%, 100% {
                   box-shadow: 0 0 0 rgba(34, 211, 238, 0);
                   background-color: rgba(34, 211, 238, 0.2);
@@ -718,45 +759,115 @@ export default function ChaptersPage() {
                   box-shadow: 0 0 30px rgba(34, 211, 238, 1), 0 0 50px rgba(34, 211, 238, 0.6);
                   background-color: rgba(34, 211, 238, 0.6);
                 }
-                25% {
+                12.5% {
+                  box-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 45px rgba(34, 211, 238, 0.5);
+                  background-color: rgba(34, 211, 238, 0.5);
+                }
+                20% {
                   box-shadow: 0 0 20px rgba(34, 211, 238, 0.7), 0 0 40px rgba(34, 211, 238, 0.4);
                   background-color: rgba(34, 211, 238, 0.4);
                 }
-                35% {
+                25% {
                   box-shadow: 0 0 0 rgba(34, 211, 238, 0);
                   background-color: rgba(34, 211, 238, 0.2);
+                }
+                /* Rest period (25-75%) */
+                25.1%, 75% {
+                  box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+                  background-color: rgba(34, 211, 238, 0.2);
+                }
+                /* Reverse: glow reaches level 1 again (75-100%) */
+                80% {
+                  box-shadow: 0 0 20px rgba(34, 211, 238, 0.7), 0 0 40px rgba(34, 211, 238, 0.4);
+                  background-color: rgba(34, 211, 238, 0.4);
+                }
+                87.5% {
+                  box-shadow: 0 0 25px rgba(34, 211, 238, 0.9), 0 0 45px rgba(34, 211, 238, 0.5);
+                  background-color: rgba(34, 211, 238, 0.5);
+                }
+                95% {
+                  box-shadow: 0 0 30px rgba(34, 211, 238, 1), 0 0 50px rgba(34, 211, 238, 0.6);
+                  background-color: rgba(34, 211, 238, 0.6);
                 }
               }
               
               @keyframes level-glow-2 {
-                0%, 30%, 70%, 100% {
+                /* Rest period (0-25%) */
+                0%, 25% {
                   box-shadow: 0 0 0 rgba(249, 115, 22, 0);
                   background-color: rgba(249, 115, 22, 0.2);
                 }
-                40% {
+                /* Forward: glow reaches level 2 (25-50%) */
+                30% {
                   box-shadow: 0 0 30px rgba(249, 115, 22, 1), 0 0 50px rgba(249, 115, 22, 0.6);
                   background-color: rgba(249, 115, 22, 0.6);
                 }
-                60% {
+                37.5% {
+                  box-shadow: 0 0 25px rgba(249, 115, 22, 0.9), 0 0 45px rgba(249, 115, 22, 0.5);
+                  background-color: rgba(249, 115, 22, 0.5);
+                }
+                45% {
                   box-shadow: 0 0 20px rgba(249, 115, 22, 0.7), 0 0 40px rgba(249, 115, 22, 0.4);
                   background-color: rgba(249, 115, 22, 0.4);
+                }
+                50% {
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  background-color: rgba(249, 115, 22, 0.2);
+                }
+                /* Rest period (50-75%) */
+                50.1%, 75% {
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  background-color: rgba(249, 115, 22, 0.2);
+                }
+                /* Reverse: glow reaches level 2 again (75-100%) */
+                80% {
+                  box-shadow: 0 0 20px rgba(249, 115, 22, 0.7), 0 0 40px rgba(249, 115, 22, 0.4);
+                  background-color: rgba(249, 115, 22, 0.4);
+                }
+                87.5% {
+                  box-shadow: 0 0 25px rgba(249, 115, 22, 0.9), 0 0 45px rgba(249, 115, 22, 0.5);
+                  background-color: rgba(249, 115, 22, 0.5);
+                }
+                95% {
+                  box-shadow: 0 0 30px rgba(249, 115, 22, 1), 0 0 50px rgba(249, 115, 22, 0.6);
+                  background-color: rgba(249, 115, 22, 0.6);
+                }
+                100% {
+                  box-shadow: 0 0 0 rgba(249, 115, 22, 0);
+                  background-color: rgba(249, 115, 22, 0.2);
                 }
               }
               
               @keyframes level-glow-3 {
-                0%, 65%, 100% {
+                /* Rest period (0-50%) */
+                0% {
                   box-shadow: 0 0 0 rgba(168, 85, 247, 0);
                   background-color: rgba(168, 85, 247, 0.2);
                 }
-                70% {
+                /* Forward: glow reaches level 3 (50%) */
+                50% {
                   box-shadow: 0 0 30px rgba(168, 85, 247, 1), 0 0 50px rgba(168, 85, 247, 0.6);
                   background-color: rgba(168, 85, 247, 0.6);
                 }
-                90% {
+                /* Rest period (50-75%) */
+                50.1%, 75% {
+                  box-shadow: 0 0 0 rgba(168, 85, 247, 0);
+                  background-color: rgba(168, 85, 247, 0.2);
+                }
+                /* Reverse: glow reaches level 3 again (75-100%) */
+                80% {
                   box-shadow: 0 0 20px rgba(168, 85, 247, 0.7), 0 0 40px rgba(168, 85, 247, 0.4);
                   background-color: rgba(168, 85, 247, 0.4);
                 }
+                87.5% {
+                  box-shadow: 0 0 25px rgba(168, 85, 247, 0.9), 0 0 45px rgba(168, 85, 247, 0.5);
+                  background-color: rgba(168, 85, 247, 0.5);
+                }
                 95% {
+                  box-shadow: 0 0 30px rgba(168, 85, 247, 1), 0 0 50px rgba(168, 85, 247, 0.6);
+                  background-color: rgba(168, 85, 247, 0.6);
+                }
+                100% {
                   box-shadow: 0 0 0 rgba(168, 85, 247, 0);
                   background-color: rgba(168, 85, 247, 0.2);
                 }
@@ -764,79 +875,133 @@ export default function ChaptersPage() {
               
               /* Glow overlay for circles */
               @keyframes glow-overlay-1 {
-                0%, 35%, 100% { 
+                /* Forward: glow reaches level 1 (0-25%) */
+                0%, 100% { 
                   opacity: 0; 
                 }
                 5% { 
                   opacity: 1; 
                 }
-                25% { 
+                12.5% { 
+                  opacity: 0.7; 
+                }
+                20% { 
                   opacity: 0.5; 
+                }
+                25% { 
+                  opacity: 0; 
+                }
+                /* Rest period (25-75%) */
+                25.1%, 75% { 
+                  opacity: 0; 
+                }
+                /* Reverse: glow reaches level 1 again (75-100%) */
+                80% { 
+                  opacity: 0.5; 
+                }
+                87.5% { 
+                  opacity: 0.7; 
+                }
+                95% { 
+                  opacity: 1; 
                 }
               }
               
               @keyframes glow-overlay-2 {
-                0%, 30%, 70%, 100% { 
+                /* Rest period (0-25%) */
+                0%, 25% { 
                   opacity: 0; 
                 }
-                40% { 
+                /* Forward: glow reaches level 2 (25-50%) */
+                30% { 
                   opacity: 1; 
                 }
-                60% { 
+                37.5% { 
+                  opacity: 0.7; 
+                }
+                45% { 
                   opacity: 0.5; 
+                }
+                50% { 
+                  opacity: 0; 
+                }
+                /* Rest period (50-75%) */
+                50.1%, 75% { 
+                  opacity: 0; 
+                }
+                /* Reverse: glow reaches level 2 again (75-100%) */
+                80% { 
+                  opacity: 0.5; 
+                }
+                87.5% { 
+                  opacity: 0.7; 
+                }
+                95% { 
+                  opacity: 1; 
+                }
+                100% { 
+                  opacity: 0; 
                 }
               }
               
               @keyframes glow-overlay-3 {
-                0%, 65%, 100% { 
+                /* Rest period (0-50%) */
+                0% { 
                   opacity: 0; 
                 }
-                70% { 
+                /* Forward: glow reaches level 3 (50%) */
+                50% { 
                   opacity: 1; 
                 }
-                90% { 
+                /* Rest period (50-75%) */
+                50.1%, 75% { 
+                  opacity: 0; 
+                }
+                /* Reverse: glow reaches level 3 again (75-100%) */
+                80% { 
                   opacity: 0.5; 
                 }
-              }
-              
-              .animate-star-move-1 {
-                animation: star-move-1 10s ease-in-out infinite;
-              }
-              
-              .animate-star-move-2 {
-                animation: star-move-2 10s ease-in-out infinite;
+                87.5% { 
+                  opacity: 0.7; 
+                }
+                95% { 
+                  opacity: 1; 
+                }
+                100% { 
+                  opacity: 0; 
+                }
               }
               
               .animate-path-glow-1 {
-                animation: path-glow-1 10s ease-in-out infinite;
+                animation: path-glow-1 20s ease-in-out infinite;
               }
               
               .animate-path-glow-2 {
-                animation: path-glow-2 10s ease-in-out infinite;
+                animation: path-glow-2 20s ease-in-out infinite;
               }
               
               #level-1-circle {
-                animation: level-glow-1 10s ease-in-out infinite;
+                animation: level-glow-1 20s ease-in-out infinite;
               }
               
               #level-2-circle {
-                animation: level-glow-2 10s ease-in-out infinite;
+                animation: level-glow-2 20s ease-in-out infinite;
               }
               
               #level-3-circle {
-                animation: level-glow-3 10s ease-in-out infinite;
+                animation: level-glow-3 20s ease-in-out infinite;
               }
               
               #level-1-glow {
-                animation: glow-overlay-1 10s ease-in-out infinite;
+                animation: glow-overlay-1 20s ease-in-out infinite;
               }
               
               #level-2-glow {
-                animation: glow-overlay-2 10s ease-in-out infinite;
+                animation: glow-overlay-2 20s ease-in-out infinite;
               }
               
               #level-3-glow {
-                animation: glow-overlay-3 10s ease-in-out infinite;
+                animation: glow-overlay-3 20s ease-in-out infinite;
               }
             `}</style>
           </AnimatedSection>
