@@ -162,8 +162,16 @@ export default function AdminDashboardPage() {
     const res = await fetch(url, options);
     if (res.status === 401) {
       // Session expired - trigger session check to properly handle logout
-      await checkSession();
-      throw new Error('Unauthorized');
+      try {
+        await checkSession();
+      } catch (err) {
+        // Ignore checkSession errors - we'll still throw Unauthorized
+        console.warn('Session check failed:', err);
+      }
+      // Always throw Unauthorized error for 401 responses
+      const error = new Error('Unauthorized');
+      error.name = 'UnauthorizedError';
+      throw error;
     }
     return res;
   };
