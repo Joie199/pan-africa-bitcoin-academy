@@ -399,6 +399,31 @@ export default function AdminDashboardPage() {
     [applications, filter],
   );
 
+  // Filter and sort student progress data
+  const filteredAndSortedProgress = useMemo(() => {
+    if (!progress || progress.length === 0) return [];
+    
+    let filtered = [...progress];
+    
+    // Filter by cohort
+    if (cohortFilter) {
+      filtered = filtered.filter(p => p.cohortId === cohortFilter);
+    }
+    
+    // Sort by attendance
+    if (attendanceSort) {
+      filtered.sort((a, b) => {
+        const aPercent = a.attendancePercent ?? 0;
+        const bPercent = b.attendancePercent ?? 0;
+        return attendanceSort === 'desc' 
+          ? bPercent - aPercent // High to low
+          : aPercent - bPercent; // Low to high
+      });
+    }
+    
+    return filtered;
+  }, [progress, cohortFilter, attendanceSort]);
+
   const createEvent = async () => {
     setCreatingEvent(true);
     try {
@@ -954,7 +979,11 @@ export default function AdminDashboardPage() {
                 <div className="mt-1 flex items-center gap-2 text-xs text-zinc-400">
                   {cohortFilter && (
                     <span>
-                      Filtered: <span className="text-cyan-400">{progress.find(p => p.cohortId === cohortFilter)?.cohortName || 'Cohort'}</span>
+                      Filtered: <span className="text-cyan-400">
+                        {progress?.find(p => p.cohortId === cohortFilter)?.cohortName || 
+                         cohorts?.find(c => c.id === cohortFilter)?.name || 
+                         'Cohort'}
+                      </span>
                     </span>
                   )}
                   {attendanceSort && (
@@ -997,6 +1026,7 @@ export default function AdminDashboardPage() {
                     title="Click to filter by cohort"
                     onClick={() => {
                       // Get unique cohorts from progress (by ID)
+                      if (!progress || progress.length === 0) return;
                       const uniqueCohorts = Array.from(new Set(progress.map(p => p.cohortId).filter(Boolean))) as string[];
                       if (uniqueCohorts.length === 0) return;
                       
@@ -1016,7 +1046,12 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-1">
                       Cohort
                       {cohortFilter && (
-                        <span className="text-cyan-400 text-xs" title={`Filtered: ${progress.find(p => p.cohortId === cohortFilter)?.cohortName || cohortFilter}`}>●</span>
+                        <span 
+                          className="text-cyan-400 text-xs" 
+                          title={`Filtered: ${progress?.find(p => p.cohortId === cohortFilter)?.cohortName || cohorts?.find(c => c.id === cohortFilter)?.name || cohortFilter}`}
+                        >
+                          ●
+                        </span>
                       )}
                     </div>
                   </th>
@@ -1048,27 +1083,7 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {useMemo(() => {
-                  let filtered = progress;
-                  
-                  // Filter by cohort
-                  if (cohortFilter) {
-                    filtered = filtered.filter(p => p.cohortId === cohortFilter);
-                  }
-                  
-                  // Sort by attendance
-                  if (attendanceSort) {
-                    filtered = [...filtered].sort((a, b) => {
-                      const aPercent = a.attendancePercent ?? 0;
-                      const bPercent = b.attendancePercent ?? 0;
-                      return attendanceSort === 'desc' 
-                        ? bPercent - aPercent // High to low
-                        : aPercent - bPercent; // Low to high
-                    });
-                  }
-                  
-                  return filtered;
-                }, [progress, cohortFilter, attendanceSort]).map((p) => (
+                {filteredAndSortedProgress.map((p) => (
                   <tr 
                     key={p.id} 
                     className={`border-b border-zinc-800 ${cohortFilter && p.cohortId === cohortFilter ? 'bg-zinc-800/30' : ''}`}
@@ -1110,13 +1125,7 @@ export default function AdminDashboardPage() {
             {progress.length === 0 && (
               <p className="p-3 text-sm text-zinc-400">No progress data yet.</p>
             )}
-            {progress.length > 0 && useMemo(() => {
-              let filtered = progress;
-              if (cohortFilter) {
-                filtered = filtered.filter(p => p.cohortId === cohortFilter);
-              }
-              return filtered;
-            }, [progress, cohortFilter]).length === 0 && (
+            {progress.length > 0 && filteredAndSortedProgress.length === 0 && (
               <p className="p-3 text-sm text-zinc-400">No students found for the selected cohort filter.</p>
             )}
           </div>
