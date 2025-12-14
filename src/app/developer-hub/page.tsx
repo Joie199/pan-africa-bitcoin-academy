@@ -188,8 +188,9 @@ export default function DeveloperHubPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-orange-300 hover:text-orange-200"
+                        aria-label="Visit Bitcoin Core website (opens in new tab)"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
                       </a>
                     </div>
                     <p className="mb-3 text-sm text-zinc-300">The fundamental tool for any Bitcoin developer.</p>
@@ -211,8 +212,9 @@ export default function DeveloperHubPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-cyan-300 hover:text-cyan-200"
+                        aria-label="Visit Sparrow Wallet website (opens in new tab)"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
                       </a>
                     </div>
                     <p className="mb-3 text-sm text-zinc-300">One of the best educational tools for understanding UTXOs, signing, and PSBTs.</p>
@@ -234,8 +236,9 @@ export default function DeveloperHubPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-purple-300 hover:text-purple-200"
+                        aria-label="View Bitcoin CLI RPC Commands documentation (opens in new tab)"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
                       </a>
                     </div>
                     <p className="mb-3 text-sm text-zinc-300">This is what Bitcoin Core developers use daily.</p>
