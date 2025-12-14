@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ExternalLink, Code, GitBranch, Users, Calendar, Award, BookOpen, Rocket, HelpCircle, Github, Mail } from 'lucide-react';
+import { AnimatedSection } from '@/components/AnimatedSection';
 
 interface DeveloperResource {
   id: string;
