@@ -162,6 +162,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create application using admin client to bypass RLS and ensure reliable inserts
+    // The application.id (UUID) will be used as the student identifier across all databases
     // Link to existing profile if user is signed in
     const { data: application, error } = await supabaseAdmin
       .from('applications')

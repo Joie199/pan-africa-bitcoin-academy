@@ -20,7 +20,7 @@ const Calendar = dynamic(() => import('@/components/Calendar').then(mod => ({ de
 });
 
 interface Application {
-  id: string;
+  id: string; // This ID is used as student identifier across all databases
   first_name: string;
   last_name: string;
   email: string;
@@ -655,6 +655,10 @@ export default function AdminDashboardPage() {
                         </span>
                       </div>
                     )}
+                    <div>
+                      <span className="text-zinc-500">Student ID:</span>{' '}
+                      <span className="text-zinc-200 font-mono text-xs">{app.id}</span>
+                    </div>
                     {app.preferred_language && (
                       <div>
                         <span className="text-zinc-500">Language:</span>{' '}

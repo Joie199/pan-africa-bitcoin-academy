@@ -70,37 +70,13 @@ export async function POST(req: NextRequest) {
 
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .select('id, email, status, cohort_id, student_id, phone, country, city, password_hash')
+      .select('id, email, status, cohort_id, phone, country, city, password_hash')
       .eq('email', emailLower)
       .maybeSingle();
 
-    // Generate student_id if cohort exists and profile doesn't have one
-    let generatedStudentId: string | null = null;
-    if (application.preferred_cohort_id && !existingProfile?.student_id) {
-      // Get cohort info
-      const { data: cohort } = await supabaseAdmin
-        .from('cohorts')
-        .select('id, name')
-        .eq('id', application.preferred_cohort_id)
-        .maybeSingle();
-
-      if (cohort) {
-        // Count students in this cohort to get roll number
-        const { count } = await supabaseAdmin
-          .from('cohort_enrollment')
-          .select('*', { count: 'exact', head: true })
-          .eq('cohort_id', application.preferred_cohort_id);
-
-        const rollNumber = (count || 0) + 1; // Next roll number
-        const year = new Date().getFullYear();
-        
-        // Extract cohort number from name (e.g., "Cohort 1" -> 1) or use roll number
-        const cohortMatch = cohort.name.match(/\d+/);
-        const cohortNumber = cohortMatch ? cohortMatch[0] : rollNumber.toString();
-        
-        generatedStudentId = `${cohortNumber}/${rollNumber}/${year}`;
-      }
-    }
+    // Use application.id as the student identifier across all databases
+    // This ensures consistency - same ID used in applications, profiles, students, and all other tables
+    const studentIdentifier = application.id; // This is the UUID from applications table
 
     if (existingProfile) {
       // Link to existing profile (basic profile already exists)
@@ -120,26 +96,10 @@ export async function POST(req: NextRequest) {
         profileId = doubleCheckProfile.id;
         isExistingProfile = true;
       } else {
-        // Create new profile (without password - they'll set it later)
-        // Check if student_id already exists (if we're generating one)
-        if (generatedStudentId) {
-          const { data: existingStudentId } = await supabaseAdmin
-            .from('profiles')
-            .select('id, email')
-            .eq('student_id', generatedStudentId)
-            .maybeSingle();
-          
-          if (existingStudentId) {
-            console.error('Student ID already exists:', generatedStudentId, 'for profile:', existingStudentId.email);
-            // Generate a new one or use roll number + 1
-            const rollNumber = parseInt(generatedStudentId.split('/')[1]) + 1;
-            const year = new Date().getFullYear();
-            const cohortNumber = generatedStudentId.split('/')[0];
-            generatedStudentId = `${cohortNumber}/${rollNumber}/${year}`;
-          }
-        }
-
+        // Create new profile using the same ID as the application
+        // This ensures the same ID is used across all databases (applications, profiles, students, etc.)
         const profileData: any = {
+          id: studentIdentifier, // Use application.id as profile.id - ensures same ID everywhere
           name: fullName,
           email: emailLower,
           phone: application.phone || null,
@@ -147,11 +107,6 @@ export async function POST(req: NextRequest) {
           city: application.city || null,
           status: 'Pending Password Setup', // Special status until password is set
         };
-
-        // Only add student_id if it's not null
-        if (generatedStudentId) {
-          profileData.student_id = generatedStudentId;
-        }
 
         // Only add cohort_id if it exists and is valid
         if (application.preferred_cohort_id) {
@@ -191,7 +146,7 @@ export async function POST(req: NextRequest) {
             phone: application.phone,
             country: application.country,
             city: application.city,
-            student_id: generatedStudentId,
+            profile_id: studentIdentifier,
             cohort_id: application.preferred_cohort_id,
           });
           console.error('Full profileError object:', JSON.stringify(profileError, null, 2));
@@ -203,8 +158,8 @@ export async function POST(req: NextRequest) {
             // Unique constraint violation
             if (profileError?.message?.includes('email')) {
               errorMessage = 'An account with this email already exists. The profile may have been created between checks.';
-            } else if (profileError?.message?.includes('student_id')) {
-              errorMessage = 'A student with this ID already exists';
+            } else if (profileError?.message?.includes('id')) {
+              errorMessage = 'A profile with this ID already exists';
             } else {
               errorMessage = 'Duplicate entry: ' + (profileError?.message || 'Unique constraint violation');
             }
@@ -234,14 +189,15 @@ export async function POST(req: NextRequest) {
 
     // STEP 2: Create/Update Students Record (SOURCE OF TRUTH)
     // Students database is the main database - all student data goes here
+    // Use the same ID (studentIdentifier) for consistency across all tables
     const { data: existingStudent } = await supabaseAdmin
       .from('students')
       .select('id, name, email, phone, country, city, cohort_id, status, progress_percent, assignments_completed, projects_completed, live_sessions_attended')
-      .eq('profile_id', profileId)
+      .eq('profile_id', profileId) // profileId is now the same as studentIdentifier (application.id)
       .maybeSingle();
 
     const studentData: any = {
-      profile_id: profileId,
+      profile_id: profileId, // This is the same as studentIdentifier (application.id)
       name: fullName,
       email: emailLower,
       phone: application.phone || null,
@@ -255,6 +211,11 @@ export async function POST(req: NextRequest) {
       projects_completed: existingStudent?.projects_completed || 0,
       live_sessions_attended: existingStudent?.live_sessions_attended || 0,
     };
+    
+    // If creating new student record, use the same ID for consistency
+    if (!existingStudent) {
+      studentData.id = studentIdentifier; // Use application.id as students.id
+    }
 
     let studentRecord;
     if (existingStudent) {
@@ -302,11 +263,6 @@ export async function POST(req: NextRequest) {
       cohort_id: studentRecord.cohort_id,
     };
 
-    // Add student_id if generated
-    if (generatedStudentId) {
-      profileUpdateData.student_id = generatedStudentId;
-    }
-
     // Update status based on password
     if (existingProfile?.password_hash) {
       profileUpdateData.status = 'Active';
@@ -327,20 +283,21 @@ export async function POST(req: NextRequest) {
     // STEP 4: Enroll in Cohort (if cohort_id exists in students record)
     if (studentRecord.cohort_id) {
       // Check if already enrolled
+      // Use the same ID (studentIdentifier) - this is applications.id, profiles.id, and students.id
       const { data: existingEnrollment } = await supabaseAdmin
         .from('cohort_enrollment')
         .select('id')
         .eq('cohort_id', studentRecord.cohort_id)
-        .eq('student_id', profileId) // student_id in cohort_enrollment is profiles.id
+        .eq('student_id', studentIdentifier) // Use the same ID across all tables
         .maybeSingle();
 
       if (!existingEnrollment) {
-        // Create enrollment (linked by profiles.id)
+        // Create enrollment using the same ID (studentIdentifier)
         const { error: enrollmentError } = await supabaseAdmin
           .from('cohort_enrollment')
           .insert({
             cohort_id: studentRecord.cohort_id,
-            student_id: profileId, // This is profiles.id (student_id)
+            student_id: studentIdentifier, // Same ID as applications.id, profiles.id, students.id
           });
 
         if (enrollmentError) {
@@ -351,11 +308,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Unlock Chapter 1 for the student
+    // Use the same ID (studentIdentifier) for consistency
     try {
       const { error: chapterError } = await supabaseAdmin
         .from('chapter_progress')
         .insert({
-          student_id: profileId,
+          student_id: studentIdentifier, // Same ID as applications.id, profiles.id, students.id
           chapter_number: 1,
           chapter_slug: 'the-nature-of-money',
           is_unlocked: true,
@@ -372,13 +330,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Update application status to Approved
+    // profile_id is set to the same ID (studentIdentifier = application.id)
     const { error: updateError } = await supabaseAdmin
       .from('applications')
       .update({
         status: 'Approved',
         approved_by: approvedBy || null,
         approved_at: new Date().toISOString(),
-        profile_id: profileId,
+        profile_id: studentIdentifier, // Same ID - applications.id = profiles.id
       })
       .eq('id', applicationId);
 
