@@ -7,6 +7,7 @@ import { BitcoinIcon, WalletIcon, LightningIcon, BookIcon, ToolIcon, BlockchainI
 import { useAuth } from "@/hooks/useAuth";
 import { Download, FileText, BookOpen, ExternalLink } from 'lucide-react';
 import { AnimatedSection } from "@/components/AnimatedSection";
+import { AnimatedList } from "@/components/AnimatedList";
 import type { Metadata } from "next";
 
 // Note: Metadata cannot be exported from client components
