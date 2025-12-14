@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin, attachRefresh } from '@/lib/adminSession';
 
+/**
+ * APPROVAL FLOW - Transfer Data from Applications to Students & Profiles
+ * 
+ * When admin approves an application:
+ * 1. STEP 1: Create/Register Profile in profiles table (or update if exists)
+ *    - Transfers: name, email, phone, country, city, cohort_id from application
+ *    - Sets status: 'Pending Password Setup' (or 'Active' if password exists)
+ * 
+ * 2. STEP 2: Create/Update Student Record in students table
+ *    - Transfers ALL data from application to students table
+ *    - This is the main data transfer: applications → students
+ *    - Sets status: 'Enrolled'
+ * 
+ * 3. STEP 3: Update Profile from Student Record
+ *    - Syncs profile with student data (students is source of truth)
+ *    - Ensures profile has all latest data
+ * 
+ * 4. STEP 4: Enroll in Cohort
+ *    - Creates cohort_enrollment record
+ * 
+ * 5. STEP 5: Unlock Chapter 1
+ *    - Creates chapter_progress record
+ * 
+ * 6. STEP 6: Update Application Status
+ *    - Sets status to 'Approved'
+ *    - Links application to profile
+ */
 export async function POST(req: NextRequest) {
   try {
     const session = requireAdmin(req);
@@ -114,10 +141,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingProfile) {
-      // Link to existing profile (basic profile already exists)
+      // Profile already exists - we'll update it with application data
       profileId = existingProfile.id;
       isExistingProfile = true;
-      // Profile will be updated from students data after students record is created/updated
+      console.log('Existing profile found, will update with application data:', profileId);
     } else {
       // Create new profile (without password - they'll set it later)
       // Check if student_id already exists (if we're generating one)
@@ -237,28 +264,38 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // STEP 2: Create/Update Students Record (SOURCE OF TRUTH)
-    // Students database is the main database - all student data goes here
+    // STEP 2: TRANSFER DATA FROM APPLICATION TO STUDENTS TABLE
+    // This is where all application data is transferred to the students database
+    // Students table is the source of truth for student academic data
     const { data: existingStudent } = await supabaseAdmin
       .from('students')
       .select('id, name, email, phone, country, city, cohort_id, status, progress_percent, assignments_completed, projects_completed, live_sessions_attended')
       .eq('profile_id', profileId)
       .maybeSingle();
 
+    // Transfer ALL data from application to students table
     const studentData: any = {
-      profile_id: profileId,
-      name: fullName,
-      email: emailLower,
-      phone: application.phone || null,
-      country: application.country || null,
-      city: application.city || null,
-      cohort_id: application.preferred_cohort_id || null,
+      profile_id: profileId, // Link to profile
+      // Transfer all personal data from application
+      name: fullName, // From application.first_name + application.last_name
+      email: emailLower, // From application.email
+      phone: application.phone || null, // From application.phone
+      country: application.country || null, // From application.country
+      city: application.city || null, // From application.city
+      cohort_id: application.preferred_cohort_id || null, // From application.preferred_cohort_id
       status: 'Enrolled', // Student is enrolled after approval
+      // Preserve existing progress data if student record already exists
       progress_percent: existingStudent?.progress_percent || 0,
       assignments_completed: existingStudent?.assignments_completed || 0,
       projects_completed: existingStudent?.projects_completed || 0,
       live_sessions_attended: existingStudent?.live_sessions_attended || 0,
     };
+
+    console.log('Transferring application data to students table:', {
+      applicationId: application.id,
+      profileId,
+      studentData,
+    });
 
     let studentRecord;
     if (existingStudent) {
@@ -308,8 +345,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // STEP 3: Update Profile from Students Data (Profile is for display)
-    // Profile gets updated from students database (students is source of truth)
+    // STEP 3: UPDATE PROFILE WITH APPLICATION DATA
+    // Update profile (whether new or existing) with all data from application
+    // This ensures profile database is synced with the application data
     
     // Get current profile to check password_hash
     const { data: currentProfile, error: currentProfileError } = await supabaseAdmin
@@ -340,26 +378,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // STEP 3: Update Profile with ALL application data
+    // Transfer all data from application to profile (whether new or existing)
     const profileUpdateData: any = {
-      name: studentRecord.name,
-      email: studentRecord.email, // Ensure email is synced
-      phone: studentRecord.phone,
-      country: studentRecord.country,
-      city: studentRecord.city,
-      cohort_id: studentRecord.cohort_id,
+      // Transfer all data from application/student record
+      name: fullName, // From application
+      email: emailLower, // From application
+      phone: application.phone || null, // From application
+      country: application.country || null, // From application
+      city: application.city || null, // From application
+      cohort_id: application.preferred_cohort_id || null, // From application
     };
 
-    // Add student_id if generated
-    if (generatedStudentId) {
+    // Add student_id if generated (for new profiles or if existing profile doesn't have one)
+    if (generatedStudentId && (!existingProfile?.student_id || !isExistingProfile)) {
       profileUpdateData.student_id = generatedStudentId;
     }
 
-    // Update status based on password (check current profile, not existingProfile)
+    // Update status based on password
+    // If profile already has password, keep it Active, otherwise set to Pending Password Setup
     if (currentProfile?.password_hash) {
       profileUpdateData.status = 'Active';
     } else {
       profileUpdateData.status = 'Pending Password Setup';
     }
+
+    console.log('Updating profile with application data:', {
+      profileId,
+      isExistingProfile,
+      updateData: profileUpdateData,
+    });
 
     const { data: updatedProfile, error: profileUpdateError } = await supabaseAdmin
       .from('profiles')
@@ -493,7 +541,12 @@ export async function POST(req: NextRequest) {
       console.warn('Error verifying student after update:', finalStudentError);
     }
 
-    console.log('Approval completed - Verification:', {
+    console.log('✅ Approval completed - Data Transfer Summary:', {
+      application: {
+        id: application.id,
+        email: application.email,
+        name: fullName,
+      },
       profile: finalProfile ? {
         id: finalProfile.id,
         name: finalProfile.name,
@@ -501,6 +554,7 @@ export async function POST(req: NextRequest) {
         cohort_id: finalProfile.cohort_id,
         status: finalProfile.status,
         student_id: finalProfile.student_id,
+        wasExisting: isExistingProfile,
       } : 'NOT FOUND',
       student: finalStudent ? {
         id: finalStudent.id,
@@ -508,7 +562,13 @@ export async function POST(req: NextRequest) {
         email: finalStudent.email,
         cohort_id: finalStudent.cohort_id,
         status: finalStudent.status,
+        wasExisting: !!existingStudent,
       } : 'NOT FOUND',
+      dataTransferred: {
+        from: 'applications table',
+        to: ['profiles table', 'students table'],
+        fields: ['name', 'email', 'phone', 'country', 'city', 'cohort_id'],
+      },
     });
 
     const res = NextResponse.json({
