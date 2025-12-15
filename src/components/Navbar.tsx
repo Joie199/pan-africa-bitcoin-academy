@@ -22,7 +22,8 @@ export function Navbar() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
+  const tabletDropdownRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated, profile, loading, logout, showSessionExpired, setShowSessionExpired } = useAuth();
 
   // Fetch profile data when modal opens
@@ -54,29 +55,16 @@ export function Navbar() {
     }
   }, [profileModalOpen, profile?.email]);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (but keep it open when interacting inside)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      
-      // Don't close if clicking on logout button
-      if (target.closest('button') && target.closest('button')?.textContent?.includes('Logout')) {
-        return;
+      const isInDesktop = desktopDropdownRef.current?.contains(target);
+      const isInTablet = tabletDropdownRef.current?.contains(target);
+      if (isInDesktop || isInTablet) {
+        return; // clicks inside dropdown should not close it
       }
-      
-      // Don't close if clicking on Profile or Change Password buttons
-      const button = target.closest('button');
-      if (button) {
-        const buttonText = button.textContent || '';
-        if (buttonText.includes('Profile') || buttonText.includes('Change Password')) {
-          return; // Let the button's onClick handle it
-        }
-      }
-      
-      // Close dropdown if clicking outside
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setAccountDropdownOpen(false);
-      }
+      setAccountDropdownOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -165,7 +153,7 @@ export function Navbar() {
           {loading ? (
             <div className="h-9 w-20 animate-pulse rounded-full bg-zinc-800" />
           ) : isAuthenticated && profile ? (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={desktopDropdownRef}>
               <button
                 onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
                 className="flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500/20 to-cyan-500/20 px-3 py-2 text-sm font-medium text-orange-300 transition hover:from-orange-500/30 hover:to-cyan-500/30"
@@ -192,10 +180,7 @@ export function Navbar() {
                     </div>
                     <Link
                       href="/dashboard"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAccountDropdownOpen(false);
-                      }}
+                      onClick={() => setAccountDropdownOpen(false)}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
                     >
                       <LayoutDashboard className="h-4 w-4" />
@@ -291,7 +276,7 @@ export function Navbar() {
           {loading ? (
             <div className="h-9 w-20 animate-pulse rounded-full bg-zinc-800" />
           ) : isAuthenticated && profile ? (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={tabletDropdownRef}>
               <button
                 onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
                 className="flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500/20 to-cyan-500/20 px-3 py-2 text-sm font-medium text-orange-300 transition hover:from-orange-500/30 hover:to-cyan-500/30"
@@ -318,10 +303,7 @@ export function Navbar() {
                     </div>
                     <Link
                       href="/dashboard"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAccountDropdownOpen(false);
-                      }}
+                      onClick={() => setAccountDropdownOpen(false)}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
                     >
                       <LayoutDashboard className="h-4 w-4" />

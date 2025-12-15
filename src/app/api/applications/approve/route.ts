@@ -86,11 +86,11 @@ export async function POST(req: NextRequest) {
     } else {
       // Double-check if profile exists (race condition protection)
       const { data: doubleCheckProfile } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email')
+          .from('profiles')
+          .select('id, email')
         .eq('email', emailLower)
-        .maybeSingle();
-      
+          .maybeSingle();
+        
       if (doubleCheckProfile) {
         // Profile was created between checks - use it
         profileId = doubleCheckProfile.id;
@@ -98,28 +98,28 @@ export async function POST(req: NextRequest) {
       } else {
         // Create new profile using the same ID as the application
         // This ensures the same ID is used across all databases (applications, profiles, students, etc.)
-        const profileData: any = {
+      const profileData: any = {
           id: studentIdentifier, // Use application.id as profile.id - ensures same ID everywhere
-          name: fullName,
-          email: emailLower,
-          phone: application.phone || null,
-          country: application.country || null,
-          city: application.city || null,
-          status: 'Pending Password Setup', // Special status until password is set
-        };
+        name: fullName,
+        email: emailLower,
+        phone: application.phone || null,
+        country: application.country || null,
+        city: application.city || null,
+        status: 'Pending Password Setup', // Special status until password is set
+      };
 
-        // Only add cohort_id if it exists and is valid
-        if (application.preferred_cohort_id) {
-          const { data: cohortCheck } = await supabaseAdmin
-            .from('cohorts')
-            .select('id')
-            .eq('id', application.preferred_cohort_id)
-            .maybeSingle();
-          
-          if (cohortCheck) {
-            profileData.cohort_id = application.preferred_cohort_id;
-          }
+      // Only add cohort_id if it exists and is valid
+      if (application.preferred_cohort_id) {
+        const { data: cohortCheck } = await supabaseAdmin
+          .from('cohorts')
+          .select('id')
+          .eq('id', application.preferred_cohort_id)
+          .maybeSingle();
+        
+        if (cohortCheck) {
+          profileData.cohort_id = application.preferred_cohort_id;
         }
+      }
 
         // Validate required fields before insert
         if (!profileData.name || !profileData.email) {
@@ -132,23 +132,23 @@ export async function POST(req: NextRequest) {
           );
         }
 
-        const { data: newProfile, error: profileError } = await supabaseAdmin
-          .from('profiles')
-          .insert(profileData)
-          .select()
-          .single();
+      const { data: newProfile, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert(profileData)
+        .select()
+        .single();
 
-        if (profileError || !newProfile) {
-          console.error('Error creating profile:', profileError);
-          console.error('Profile creation details:', {
-            name: fullName,
-            email: emailLower,
-            phone: application.phone,
-            country: application.country,
-            city: application.city,
+      if (profileError || !newProfile) {
+        console.error('Error creating profile:', profileError);
+        console.error('Profile creation details:', {
+          name: fullName,
+          email: emailLower,
+          phone: application.phone,
+          country: application.country,
+          city: application.city,
             profile_id: studentIdentifier,
-            cohort_id: application.preferred_cohort_id,
-          });
+          cohort_id: application.preferred_cohort_id,
+        });
           console.error('Full profileError object:', JSON.stringify(profileError, null, 2));
           console.error('Profile data being inserted:', JSON.stringify(profileData, null, 2));
           
@@ -171,19 +171,19 @@ export async function POST(req: NextRequest) {
             errorMessage = 'Invalid reference: ' + (profileError?.message || 'Foreign key constraint violation');
           }
           
-          return NextResponse.json(
-            { 
-              error: 'Failed to create profile', 
+        return NextResponse.json(
+          { 
+            error: 'Failed to create profile', 
               details: errorMessage,
-              code: profileError?.code,
-              hint: profileError?.hint,
+            code: profileError?.code,
+            hint: profileError?.hint,
               fullError: process.env.NODE_ENV === 'development' ? profileError : undefined,
-            },
-            { status: 500 }
-          );
-        }
+          },
+          { status: 500 }
+        );
+      }
 
-        profileId = newProfile.id;
+      profileId = newProfile.id;
       }
     }
 

@@ -29,9 +29,21 @@ export default function DashboardPage() {
     // Check if user is authenticated and get user data
     const checkAuth = async () => {
       try {
-        const storedEmail = localStorage.getItem('profileEmail');
+        let storedEmail = localStorage.getItem('profileEmail');
+
+        // If no stored email, try to fetch the current profile (session cookie)
         if (!storedEmail) {
-          // Not authenticated, redirect to home
+          const meRes = await fetch('/api/profile/me', { credentials: 'include' });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            if (meData.profile?.email) {
+              storedEmail = meData.profile.email;
+              localStorage.setItem('profileEmail', storedEmail);
+            }
+          }
+        }
+
+        if (!storedEmail) {
           router.push('/');
           return;
         }
@@ -40,6 +52,7 @@ export default function DashboardPage() {
         const res = await fetch('/api/profile/user-data', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ email: storedEmail }),
         });
 
