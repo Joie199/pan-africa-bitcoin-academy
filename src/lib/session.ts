@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 // Unified session configuration
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes idle timeout (no max age)
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes idle timeout
+const ABSOLUTE_TIMEOUT_MS = 60 * 60 * 1000; // 60 minutes absolute lifetime
 const ADMIN_COOKIE_NAME = 'admin_session';
 const STUDENT_COOKIE_NAME = 'student_session';
 
@@ -56,8 +57,9 @@ export function verifySession(token: string | undefined): SessionPayload | null 
     const payload = JSON.parse(Buffer.from(body, 'base64url').toString()) as SessionPayload;
     const now = Date.now();
 
-    // Only check inactivity timeout (15 minutes), no max age
+    // Enforce idle timeout and absolute lifetime
     if (now - payload.lastActive > IDLE_TIMEOUT_MS) return null;
+    if (now - payload.issuedAt > ABSOLUTE_TIMEOUT_MS) return null;
 
     return payload;
   } catch (e) {
@@ -76,7 +78,7 @@ export function setSessionCookie(res: NextResponse, payload: SessionPayload) {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: Math.floor(IDLE_TIMEOUT_MS / 1000), // 15 minutes
+    maxAge: Math.floor(ABSOLUTE_TIMEOUT_MS / 1000), // expires at absolute lifetime
     path: '/',
   });
 }
