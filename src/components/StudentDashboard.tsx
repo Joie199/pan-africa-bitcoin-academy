@@ -388,8 +388,8 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
   // Get assignments completed from userData if available
   const assignmentsCompleted = userData?.student?.assignmentsCompleted ?? student.assignmentsCompleted ?? 0;
   
-  // Get sats earned - prefer userData, then student, then satsTotals
-  const satsEarned = userData?.student?.satsEarned ?? student.satsEarned ?? satsTotals.paid ?? 0;
+  // Get sats earned - use satsTotals (sats database will be added later)
+  const satsEarned = satsTotals.paid ?? 0;
   const satsPending = student.satsPending ?? satsTotals.pending ?? 0;
   
   // Certification requirements
