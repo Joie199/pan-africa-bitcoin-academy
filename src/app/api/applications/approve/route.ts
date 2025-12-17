@@ -356,34 +356,28 @@ export async function POST(req: NextRequest) {
     // Send approval email to student
     let emailSent = false;
     let emailError = null;
-    if (studentRecord.cohort_id) {
-      // Get cohort name for email
-      const { data: cohortData } = await supabaseAdmin
-        .from('cohorts')
-        .select('name')
-        .eq('id', studentRecord.cohort_id)
-        .maybeSingle();
-
-      const emailResult = await sendApprovalEmail({
-        studentName: fullName,
-        studentEmail: emailLower,
-        cohortName: cohortData?.name || undefined,
-        needsPasswordSetup: !existingProfile || existingProfile.status === 'Pending Password Setup',
-      });
-
-      emailSent = emailResult.success;
-      emailError = emailResult.error || null;
-      
-      if (!emailSent) {
-        console.warn('Failed to send approval email:', emailError);
-        // Don't fail the approval if email fails - just log it
-      }
+    
+    // Validate email before sending
+    if (!emailLower || !emailLower.includes('@')) {
+      console.warn('Invalid email address, skipping email send:', emailLower);
+      emailError = 'Invalid email address format';
     } else {
-      // Send email without cohort name if no cohort assigned
+      // Get cohort name for email (if cohort exists)
+      let cohortName: string | undefined = undefined;
+      if (studentRecord.cohort_id) {
+        const { data: cohortData } = await supabaseAdmin
+          .from('cohorts')
+          .select('name')
+          .eq('id', studentRecord.cohort_id)
+          .maybeSingle();
+        cohortName = cohortData?.name || undefined;
+      }
+
+      // Send approval email
       const emailResult = await sendApprovalEmail({
         studentName: fullName,
         studentEmail: emailLower,
-        cohortName: undefined,
+        cohortName: cohortName,
         needsPasswordSetup: !existingProfile || existingProfile.status === 'Pending Password Setup',
       });
 
@@ -391,7 +385,14 @@ export async function POST(req: NextRequest) {
       emailError = emailResult.error || null;
       
       if (!emailSent) {
-        console.warn('Failed to send approval email:', emailError);
+        console.warn('Failed to send approval email:', {
+          error: emailError,
+          studentEmail: emailLower,
+          studentName: fullName,
+        });
+        // Don't fail the approval if email fails - just log it
+      } else {
+        console.log('Approval email sent successfully to:', emailLower);
       }
     }
 

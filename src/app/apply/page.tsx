@@ -20,58 +20,63 @@ interface Cohort {
 }
 
 const africanCountries = [
-  { name: "Nigeria", code: "+234", flag: "🇳🇬" },
-  { name: "Ghana", code: "+233", flag: "🇬🇭" },
-  { name: "Kenya", code: "+254", flag: "🇰🇪" },
-  { name: "South Africa", code: "+27", flag: "🇿🇦" },
-  { name: "Egypt", code: "+20", flag: "🇪🇬" },
-  { name: "Ethiopia", code: "+251", flag: "🇪🇹" },
-  { name: "Tanzania", code: "+255", flag: "🇹🇿" },
-  { name: "Uganda", code: "+256", flag: "🇺🇬" },
   { name: "Algeria", code: "+213", flag: "🇩🇿" },
-  { name: "Morocco", code: "+212", flag: "🇲🇦" },
   { name: "Angola", code: "+244", flag: "🇦🇴" },
-  { name: "Mozambique", code: "+258", flag: "🇲🇿" },
-  { name: "Madagascar", code: "+261", flag: "🇲🇬" },
-  { name: "Cameroon", code: "+237", flag: "🇨🇲" },
-  { name: "Côte d'Ivoire", code: "+225", flag: "🇨🇮" },
-  { name: "Niger", code: "+227", flag: "🇳🇪" },
-  { name: "Burkina Faso", code: "+226", flag: "🇧🇫" },
-  { name: "Mali", code: "+223", flag: "🇲🇱" },
-  { name: "Malawi", code: "+265", flag: "🇲🇼" },
-  { name: "Zambia", code: "+260", flag: "🇿🇲" },
-  { name: "Senegal", code: "+221", flag: "🇸🇳" },
-  { name: "Chad", code: "+235", flag: "🇹🇩" },
-  { name: "Somalia", code: "+252", flag: "🇸🇴" },
-  { name: "Zimbabwe", code: "+263", flag: "🇿🇼" },
-  { name: "Guinea", code: "+224", flag: "🇬🇳" },
-  { name: "Rwanda", code: "+250", flag: "🇷🇼" },
   { name: "Benin", code: "+229", flag: "🇧🇯" },
-  { name: "Burundi", code: "+257", flag: "🇧🇮" },
-  { name: "Tunisia", code: "+216", flag: "🇹🇳" },
-  { name: "South Sudan", code: "+211", flag: "🇸🇸" },
-  { name: "Togo", code: "+228", flag: "🇹🇬" },
-  { name: "Sierra Leone", code: "+232", flag: "🇸🇱" },
-  { name: "Libya", code: "+218", flag: "🇱🇾" },
-  { name: "Liberia", code: "+231", flag: "🇱🇷" },
-  { name: "Central African Republic", code: "+236", flag: "🇨🇫" },
-  { name: "Mauritania", code: "+222", flag: "🇲🇷" },
-  { name: "Eritrea", code: "+291", flag: "🇪🇷" },
-  { name: "Gambia", code: "+220", flag: "🇬🇲" },
   { name: "Botswana", code: "+267", flag: "🇧🇼" },
-  { name: "Namibia", code: "+264", flag: "🇳🇦" },
-  { name: "Gabon", code: "+241", flag: "🇬🇦" },
-  { name: "Lesotho", code: "+266", flag: "🇱🇸" },
-  { name: "Guinea-Bissau", code: "+245", flag: "🇬🇼" },
-  { name: "Equatorial Guinea", code: "+240", flag: "🇬🇶" },
-  { name: "Mauritius", code: "+230", flag: "🇲🇺" },
-  { name: "Eswatini", code: "+268", flag: "🇸🇿" },
-  { name: "Djibouti", code: "+253", flag: "🇩🇯" },
-  { name: "Comoros", code: "+269", flag: "🇰🇲" },
+  { name: "Burkina Faso", code: "+226", flag: "🇧🇫" },
+  { name: "Burundi", code: "+257", flag: "🇧🇮" },
   { name: "Cabo Verde", code: "+238", flag: "🇨🇻" },
+  { name: "Cameroon", code: "+237", flag: "🇨🇲" },
+  { name: "Central African Republic", code: "+236", flag: "🇨🇫" },
+  { name: "Chad", code: "+235", flag: "🇹🇩" },
+  { name: "Comoros", code: "+269", flag: "🇰🇲" },
+  { name: "Côte d'Ivoire", code: "+225", flag: "🇨🇮" },
+  { name: "Djibouti", code: "+253", flag: "🇩🇯" },
+  { name: "Egypt", code: "+20", flag: "🇪🇬" },
+  { name: "Equatorial Guinea", code: "+240", flag: "🇬🇶" },
+  { name: "Eritrea", code: "+291", flag: "🇪🇷" },
+  { name: "Eswatini", code: "+268", flag: "🇸🇿" },
+  { name: "Ethiopia", code: "+251", flag: "🇪🇹" },
+  { name: "Gabon", code: "+241", flag: "🇬🇦" },
+  { name: "Gambia", code: "+220", flag: "🇬🇲" },
+  { name: "Ghana", code: "+233", flag: "🇬🇭" },
+  { name: "Guinea", code: "+224", flag: "🇬🇳" },
+  { name: "Guinea-Bissau", code: "+245", flag: "🇬🇼" },
+  { name: "Kenya", code: "+254", flag: "🇰🇪" },
+  { name: "Lesotho", code: "+266", flag: "🇱🇸" },
+  { name: "Liberia", code: "+231", flag: "🇱🇷" },
+  { name: "Libya", code: "+218", flag: "🇱🇾" },
+  { name: "Madagascar", code: "+261", flag: "🇲🇬" },
+  { name: "Malawi", code: "+265", flag: "🇲🇼" },
+  { name: "Mali", code: "+223", flag: "🇲🇱" },
+  { name: "Mauritania", code: "+222", flag: "🇲🇷" },
+  { name: "Mauritius", code: "+230", flag: "🇲🇺" },
+  { name: "Morocco", code: "+212", flag: "🇲🇦" },
+  { name: "Mozambique", code: "+258", flag: "🇲🇿" },
+  { name: "Namibia", code: "+264", flag: "🇳🇦" },
+  { name: "Niger", code: "+227", flag: "🇳🇪" },
+  { name: "Nigeria", code: "+234", flag: "🇳🇬" },
+  { name: "Rwanda", code: "+250", flag: "🇷🇼" },
   { name: "São Tomé and Príncipe", code: "+239", flag: "🇸🇹" },
+  { name: "Senegal", code: "+221", flag: "🇸🇳" },
   { name: "Seychelles", code: "+248", flag: "🇸🇨" },
+  { name: "Sierra Leone", code: "+232", flag: "🇸🇱" },
+  { name: "Somalia", code: "+252", flag: "🇸🇴" },
+  { name: "South Africa", code: "+27", flag: "🇿🇦" },
+  { name: "South Sudan", code: "+211", flag: "🇸🇸" },
+  { name: "Tanzania", code: "+255", flag: "🇹🇿" },
+  { name: "Togo", code: "+228", flag: "🇹🇬" },
+  { name: "Tunisia", code: "+216", flag: "🇹🇳" },
+  { name: "Uganda", code: "+256", flag: "🇺🇬" },
+  { name: "Zambia", code: "+260", flag: "🇿🇲" },
+  { name: "Zimbabwe", code: "+263", flag: "🇿🇼" },
 ];
+
+// Sort countries alphabetically by name for consistent display
+const sortedAfricanCountries = [...africanCountries].sort((a, b) => 
+  a.name.localeCompare(b.name)
+);
 
 const phoneRules: Record<string, { min: number; max: number }> = {
   Nigeria: { min: 10, max: 10 },
@@ -810,10 +815,10 @@ export default function ApplyPage() {
                     aria-label="Country code"
                     className="flex-shrink-0 rounded-lg border border-cyan-400/30 bg-zinc-950 px-2 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
                     style={{ minWidth: '90px' }}
-                    title={selectedCountryCode ? africanCountries.find(c => c.code === selectedCountryCode)?.name : "Select country code"}
+                    title={selectedCountryCode ? sortedAfricanCountries.find(c => c.code === selectedCountryCode)?.name : "Select country code"}
                   >
                     <option value="" className="bg-zinc-950 text-zinc-400">Code</option>
-                    {africanCountries.map((country) => (
+                    {sortedAfricanCountries.map((country) => (
                       <option key={country.code} value={country.code} className="bg-zinc-950 text-zinc-50">
                         {country.flag} {country.code}
                       </option>
@@ -888,7 +893,7 @@ export default function ApplyPage() {
                   className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
                 >
                   <option value="" className="bg-zinc-950 text-zinc-400">Select your country</option>
-                  {africanCountries.map((country) => (
+                  {sortedAfricanCountries.map((country) => (
                     <option key={country.name} value={country.name} className="bg-zinc-950 text-zinc-50">
                       {country.flag} {country.name}
                     </option>
