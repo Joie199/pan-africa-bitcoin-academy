@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { isValidEmail, validateAndNormalizeEmail } from './validation';
 
 // Email configuration
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'PanAfrican Bitcoin Academy <onboarding@resend.dev>';
@@ -34,6 +35,28 @@ export async function sendApprovalEmail(data: ApprovalEmailData): Promise<{ succ
     }
 
     const { studentName, studentEmail, cohortName, needsPasswordSetup } = data;
+
+    // Validate and normalize email address
+    const emailValidation = validateAndNormalizeEmail(studentEmail);
+    if (!emailValidation.valid || !emailValidation.normalized) {
+      const errorMsg = emailValidation.error || 'Invalid email address';
+      console.error('Invalid student email:', studentEmail, errorMsg);
+      return { success: false, error: errorMsg };
+    }
+
+    const normalizedEmail = emailValidation.normalized;
+
+    // Validate student name
+    if (!studentName || typeof studentName !== 'string' || studentName.trim().length === 0) {
+      console.error('Invalid student name:', studentName);
+      return { success: false, error: 'Student name is required' };
+    }
+
+    // Validate FROM_EMAIL format
+    if (!FROM_EMAIL || !FROM_EMAIL.includes('@')) {
+      console.error('Invalid FROM_EMAIL configuration:', FROM_EMAIL);
+      return { success: false, error: 'Invalid sender email configuration' };
+    }
 
     // Generate password setup URL if needed
     const passwordSetupUrl = needsPasswordSetup 
@@ -198,20 +221,38 @@ Visit: ${SITE_URL}
     `.trim();
 
     // Send email via Resend
+    console.log('Sending approval email:', {
+      to: normalizedEmail,
+      from: FROM_EMAIL,
+      studentName,
+      cohortName: cohortName || 'None',
+      needsPasswordSetup,
+    });
+
     const { data: emailResponse, error } = await resend.emails.send({
       from: FROM_EMAIL,
-      to: studentEmail,
+      to: normalizedEmail, // Use normalized email
       subject: subject,
       html: htmlContent,
       text: textContent,
     });
 
     if (error) {
-      console.error('Error sending approval email:', error);
+      console.error('Error sending approval email:', {
+        error: error.message,
+        code: error.name,
+        to: normalizedEmail,
+        from: FROM_EMAIL,
+      });
       return { success: false, error: error.message || 'Failed to send email' };
     }
 
-    console.log('Approval email sent successfully:', emailResponse);
+    console.log('Approval email sent successfully:', {
+      emailId: emailResponse?.id,
+      to: normalizedEmail,
+      from: FROM_EMAIL,
+      studentName,
+    });
     return { success: true };
   } catch (error: any) {
     console.error('Error in sendApprovalEmail:', error);
