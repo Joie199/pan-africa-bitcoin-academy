@@ -630,15 +630,6 @@ export default function DeveloperHubPage() {
                     <ExternalLink className="h-4 w-4 text-zinc-500" />
                   </a>
                   <a
-                    href="https://bitcoinmining.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/50 p-4 transition hover:border-orange-500/50 hover:bg-zinc-900"
-                  >
-                    <span className="text-zinc-300">BitcoinMining.com</span>
-                    <ExternalLink className="h-4 w-4 text-zinc-500" />
-                  </a>
-                  <a
                     href="https://bitcoinmagazine.com/guides/what-is-bitcoin-mining"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -697,24 +688,6 @@ export default function DeveloperHubPage() {
                     className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/50 p-4 transition hover:border-green-500/50 hover:bg-zinc-900"
                   >
                     <span className="text-zinc-300">Digiconomist - Bitcoin Energy Index</span>
-                    <ExternalLink className="h-4 w-4 text-zinc-500" />
-                  </a>
-                  <a
-                    href="https://www.coindesk.com/tag/bitcoin-mining-energy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/50 p-4 transition hover:border-green-500/50 hover:bg-zinc-900"
-                  >
-                    <span className="text-zinc-300">CoinDesk - Mining Energy News</span>
-                    <ExternalLink className="h-4 w-4 text-zinc-500" />
-                  </a>
-                  <a
-                    href="https://bitcoinmagazine.com/business/bitcoin-mining-renewable-energy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-lg border border-zinc-700 bg-zinc-900/50 p-4 transition hover:border-green-500/50 hover:bg-zinc-900"
-                  >
-                    <span className="text-zinc-300">Bitcoin Magazine - Renewable Energy</span>
                     <ExternalLink className="h-4 w-4 text-zinc-500" />
                   </a>
                   <a
