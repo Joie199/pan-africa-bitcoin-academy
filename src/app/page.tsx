@@ -97,7 +97,7 @@ export default function Home() {
             Scaling Bitcoin adoption
           </h1>
           <p className="text-2xl font-semibold text-orange-400 sm:text-3xl lg:text-4xl">
-            Turning the world orange
+            Turning the Africa orange
           </p>
           <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
             Join our hands-on Bitcoin academy designed for Africa. Learn by doing, earn sats, and become part of a growing community of builders.
