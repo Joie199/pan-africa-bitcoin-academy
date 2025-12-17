@@ -73,9 +73,9 @@ const africanCountries = [
   { name: "Zimbabwe", code: "+263", flag: "🇿🇼" },
 ];
 
-// Sort countries alphabetically by name for consistent display
+// Sort countries alphabetically by name for consistent display (case-insensitive)
 const sortedAfricanCountries = [...africanCountries].sort((a, b) => 
-  a.name.localeCompare(b.name)
+  a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
 );
 
 const phoneRules: Record<string, { min: number; max: number }> = {
