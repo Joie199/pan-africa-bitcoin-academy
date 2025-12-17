@@ -74,9 +74,12 @@ const africanCountries = [
 ];
 
 // Sort countries alphabetically by name for consistent display (case-insensitive)
-const sortedAfricanCountries = [...africanCountries].sort((a, b) => 
-  a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-);
+// This ensures both the Country dropdown and Phone Code dropdown are alphabetically ordered
+const sortedAfricanCountries = [...africanCountries].sort((a, b) => {
+  const nameA = a.name.toLowerCase().trim();
+  const nameB = b.name.toLowerCase().trim();
+  return nameA.localeCompare(nameB, undefined, { sensitivity: 'base', numeric: true });
+});
 
 const phoneRules: Record<string, { min: number; max: number }> = {
   Nigeria: { min: 10, max: 10 },
