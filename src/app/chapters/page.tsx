@@ -1069,7 +1069,7 @@ export default function ChaptersPage() {
                   </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm text-zinc-300">
-                  A simple, beginner-friendly introduction to Bitcoin that explains why it matters for financial freedom.
+                  A simple, beginner-friendly introduction to Bitcoin that explains why it matters for sovereignty and self-custody.
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-medium text-cyan-300">
@@ -1229,7 +1229,7 @@ export default function ChaptersPage() {
                   </div>
                 </div>
                 <p className="mb-4 flex-1 text-sm text-zinc-300">
-                  A simple, beginner-friendly introduction to Bitcoin translated into Tigrigna, explaining why it matters for financial freedom.
+                  A simple, beginner-friendly introduction to Bitcoin translated into Tigrigna, explaining why it matters for sovereignty and self-custody.
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="rounded-full bg-teal-500/20 px-3 py-1 text-xs font-medium text-teal-300">

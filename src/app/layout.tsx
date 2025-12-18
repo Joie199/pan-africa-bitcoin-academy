@@ -44,7 +44,6 @@ export const metadata: Metadata = {
     "first Eritrean Bitcoin education",
     "Asmara Bitcoin education",
     "Bitcoin education Asmara",
-    "Eritrea investment",
     "Bitcoin Nakfa",
     "convert Bitcoin to Nakfa",
     "Habesha Bitcoin",

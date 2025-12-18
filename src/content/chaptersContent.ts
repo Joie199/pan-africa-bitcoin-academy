@@ -455,7 +455,7 @@ export const chaptersContent: ChapterContent[] = [
         paragraphs: [
           "Fiat systems also leave many people out. In some countries, millions don't have access to a bank account. Without one, it's hard to save safely, receive payments, or access loans.",
           "Even for those who do, the system often favors the wealthy. Big corporations and elites get easier access to credit, lower interest rates, and rescue packages when they fail. Meanwhile, ordinary people struggle with high fees, loan rejections, and poor service.",
-          "This deepens inequality. The rich have tools to protect themselves — investing in real estate, stocks, or foreign currency. The poor often watch their money lose value year after year.",
+          "This deepens inequality. The rich have tools to protect themselves — diversifying into real estate, stocks, or foreign currency. The poor often watch their money lose value year after year.",
         ],
       },
       {

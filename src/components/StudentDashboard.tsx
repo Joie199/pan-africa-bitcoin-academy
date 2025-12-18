@@ -811,7 +811,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                     </div>
                   </div>
                   <p className="mb-3 text-sm text-zinc-300">
-                    A simple, beginner-friendly introduction to Bitcoin translated into Tigrigna, explaining why it matters for financial freedom.
+                    A simple, beginner-friendly introduction to Bitcoin translated into Tigrigna, explaining why it matters for sovereignty and self-custody.
                   </p>
                   <div className="flex items-center gap-2 text-sm font-medium text-green-300 group-hover:text-green-200">
                     <Download className="h-4 w-4" />

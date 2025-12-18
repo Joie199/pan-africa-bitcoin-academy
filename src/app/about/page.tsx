@@ -45,6 +45,20 @@ export default function AboutPage() {
             </div>
           </AnimatedSection>
 
+          {/* Core Identity */}
+          <AnimatedSection animation="slideUp">
+            <section className="mb-12 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-zinc-900 via-cyan-900/20 to-zinc-900 p-8 shadow-[0_0_40px_rgba(14,165,233,0.2)] sm:p-10">
+              <div className="mx-auto max-w-4xl text-center">
+                <div className="mb-4 inline-block rounded-full bg-cyan-500/20 px-4 py-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">Our Core Identity</p>
+                </div>
+                <p className="text-xl font-semibold leading-relaxed text-cyan-100 sm:text-2xl lg:text-3xl">
+                  Pan-African Bitcoin Academy is an open-source Bitcoin education infrastructure that teaches Bitcoin from first principles and builds long-term technical and contributor capacity in underserved communities.
+                </p>
+              </div>
+            </section>
+          </AnimatedSection>
+
           <div className="space-y-10 text-base text-zinc-100 sm:text-lg">
             {/* Mission */}
             <AnimatedSection animation="slideRight">

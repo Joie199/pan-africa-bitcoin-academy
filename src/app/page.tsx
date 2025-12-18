@@ -21,7 +21,6 @@ export const metadata: Metadata = {
     "first Eritrean Bitcoin education",
     "Asmara Bitcoin education",
     "Bitcoin education Asmara",
-    "Eritrea investment",
     "Bitcoin Nakfa",
     "convert Bitcoin to Nakfa",
     "Habesha Bitcoin",
@@ -199,14 +198,28 @@ export default function Home() {
             </section>
           </AnimatedSection>
 
-          {/* 3. About Preview */}
+          {/* 3. Core Identity */}
+          <AnimatedSection animation="slideUp">
+            <section className="mb-16 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-zinc-900 via-cyan-900/20 to-zinc-900 p-8 shadow-[0_0_40px_rgba(14,165,233,0.2)] sm:p-10">
+              <div className="mx-auto max-w-4xl text-center">
+                <div className="mb-4 inline-block rounded-full bg-cyan-500/20 px-4 py-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">Our Core Identity</p>
+                </div>
+                <p className="text-xl font-semibold leading-relaxed text-cyan-100 sm:text-2xl lg:text-3xl">
+                  Pan-African Bitcoin Academy is an open-source Bitcoin education infrastructure that teaches Bitcoin from first principles and builds long-term technical and contributor capacity in underserved communities.
+                </p>
+              </div>
+            </section>
+          </AnimatedSection>
+
+          {/* 4. About Preview */}
           <AnimatedSection animation="slideLeft">
             <section className="mb-32 rounded-xl border border-orange-500/25 bg-black/80 p-8 shadow-[0_0_40px_rgba(249,115,22,0.2)] sm:p-12">
               <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-semibold text-orange-200 sm:text-4xl">Our Mission</h2>
                   <p className="text-base leading-relaxed text-zinc-300 sm:text-lg">
-                    Bitcoin is a tool for financial freedom — especially in Africa.
+                    Bitcoin is a tool for sovereignty and economic empowerment — especially in Africa.
                   </p>
                   <p className="text-base leading-relaxed text-zinc-300 sm:text-lg">
                     Our academy helps people understand, use, and build with Bitcoin through hands-on learning and community support.
@@ -365,7 +378,7 @@ export default function Home() {
             </div>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row mt-6">
               <a
-                href="https://discord.gg/bitcoinacademy"
+                href="https://discord.gg/4G4TUAP7"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 px-8 py-4 text-base font-semibold text-white transition hover:brightness-110"
@@ -597,7 +610,7 @@ export default function Home() {
             'https://github.com/Joie199/pan-africa-bitcoin-academy',
             'https://chat.whatsapp.com/KpjlC90BGIj1EChMHsW6Ji',
             'https://nostr.com',
-            'https://discord.gg/bitcoinacademy',
+            'https://discord.gg/4G4TUAP7',
           ],
           address: {
             '@type': 'PostalAddress',

@@ -865,7 +865,7 @@ export default function DeveloperHubPage() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-between rounded border border-zinc-700 bg-zinc-900/50 p-2 text-sm text-zinc-300 transition hover:border-yellow-500/50"
                       >
-                        <span>NiceHash Profitability Calculator</span>
+                        <span>NiceHash Mining Calculator</span>
                         <ExternalLink className="h-3 w-3 text-zinc-500" />
                       </a>
                       <a
