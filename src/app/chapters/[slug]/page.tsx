@@ -634,12 +634,13 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
             </Link>
           )}
           {nextChapter ? (
-            <Link
-              href={`/chapters/${nextChapter.slug}`}
-              className="inline-flex items-center justify-center rounded-lg border border-orange-400/50 bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-100 transition hover:bg-orange-500/20"
-            >
-              Next: Chapter {nextChapter.number} →
-            </Link>
+            <NextChapterButton
+              nextChapterSlug={nextChapter.slug}
+              nextChapterNumber={nextChapter.number}
+              currentChapterNumber={chapter.number}
+              currentChapterSlug={chapter.slug}
+              variant="bottom"
+            />
           ) : (
             <Link
               href="/chapters"
