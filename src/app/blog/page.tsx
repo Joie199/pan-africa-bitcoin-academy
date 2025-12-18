@@ -5,18 +5,73 @@ import Link from "next/link";
 import { AnimatedSection } from "@/components/AnimatedSection";
 
 const categories = [
-  { id: "all", name: "All", icon: "📚" },
-  { id: "pre-education", name: "Pre-Education Ideas", icon: "💡" },
-  { id: "essays", name: "Student Essays", icon: "✍️" },
-  { id: "community", name: "Community Stories", icon: "🤝" },
-  { id: "africa", name: "Bitcoin in Africa", icon: "🌍" },
-  { id: "technical", name: "Technical Deep Dives", icon: "💻" },
-  { id: "lightning", name: "Lightning Experiments", icon: "⚡" },
-  { id: "future", name: "Ideas for the Future", icon: "🔮" },
-  { id: "beginner", name: "Beginner Lessons", icon: "📖" },
-  { id: "reflections", name: "Reflections & Opinions", icon: "💭" },
-  { id: "builders", name: "Builder Showcases", icon: "🛠️" },
-  { id: "projects", name: "Graduation Projects", icon: "🎓" },
+  { id: "all", name: "All", icon: "📚", description: "" },
+  { 
+    id: "pre-education", 
+    name: "Pre-Education Ideas", 
+    icon: "💡",
+    description: "Thoughts, questions, and ideas from people curious about Bitcoin before starting their education journey. Share what you're thinking about Bitcoin, what questions you have, or what you hope to learn."
+  },
+  { 
+    id: "essays", 
+    name: "Student Essays", 
+    icon: "✍️",
+    description: "Personal reflections and essays from students exploring how Bitcoin has changed their thinking, what sovereignty means to them, and their learning journeys."
+  },
+  { 
+    id: "community", 
+    name: "Community Stories", 
+    icon: "🤝",
+    description: "Real-world stories about using Bitcoin in daily life, teaching family and friends, building local communities, and sharing Bitcoin with others."
+  },
+  { 
+    id: "africa", 
+    name: "Bitcoin in Africa", 
+    icon: "🌍",
+    description: "Articles exploring Bitcoin's role, potential, and impact across Africa—from adoption stories to economic empowerment and sovereignty."
+  },
+  { 
+    id: "technical", 
+    name: "Technical Deep Dives", 
+    icon: "💻",
+    description: "In-depth technical articles exploring Bitcoin protocol details, cryptography, consensus mechanisms, and advanced technical concepts."
+  },
+  { 
+    id: "lightning", 
+    name: "Lightning Experiments", 
+    icon: "⚡",
+    description: "Experiments, tutorials, and experiences with Lightning Network—from first payments to building Lightning applications and exploring its potential."
+  },
+  { 
+    id: "future", 
+    name: "Ideas for the Future", 
+    icon: "🔮",
+    description: "Visionary articles about the future of Bitcoin in Africa, development ideas, community visions, and forward-thinking perspectives."
+  },
+  { 
+    id: "beginner", 
+    name: "Beginner Lessons", 
+    icon: "📖",
+    description: "Educational content designed for beginners—clear explanations of Bitcoin basics, step-by-step guides, and foundational concepts."
+  },
+  { 
+    id: "reflections", 
+    name: "Reflections & Opinions", 
+    icon: "💭",
+    description: "Personal reflections, opinions, and philosophical discussions about Bitcoin, sovereignty, economics, and the broader implications of decentralized money."
+  },
+  { 
+    id: "builders", 
+    name: "Builder Showcases", 
+    icon: "🛠️",
+    description: "Showcases of Bitcoin projects, tools, and applications built by students and community members—from wallets to educational resources."
+  },
+  { 
+    id: "projects", 
+    name: "Graduation Projects", 
+    icon: "🎓",
+    description: "Final projects from academy graduates—comprehensive work demonstrating mastery of Bitcoin concepts, technical skills, and real-world applications."
+  },
 ];
 
 const featuredPosts = [
@@ -389,9 +444,24 @@ export default function BlogPage() {
               <h2 className="mb-6 text-2xl font-semibold text-zinc-50 sm:text-3xl">
                 {selectedCategory === "all" ? "All Articles" : categories.find(c => c.id === selectedCategory)?.name}
               </h2>
+              {selectedCategory !== "all" && (
+                <div className="mb-6 rounded-xl border border-cyan-400/25 bg-cyan-400/10 p-4">
+                  <p className="text-sm text-zinc-300 leading-relaxed">
+                    {categories.find(c => c.id === selectedCategory)?.description}
+                  </p>
+                </div>
+              )}
               {filteredPosts.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-zinc-400">No posts found in this category.</p>
+                  <p className="text-zinc-400">No posts found in this category yet.</p>
+                  {selectedCategory !== "all" && (
+                    <Link
+                      href="/blog/submit"
+                      className="mt-4 inline-block rounded-lg bg-gradient-to-r from-cyan-400 to-orange-400 px-6 py-3 text-sm font-semibold text-black transition hover:brightness-110"
+                    >
+                      Be the first to write in this category →
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
