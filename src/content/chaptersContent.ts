@@ -1509,13 +1509,10 @@ export const chaptersContent: ChapterContent[] = [
     ],
     activities: [
       "Activity: Explorer Scavenger Hunt",
-      "To practice using block explorers, students can complete a scavenger hunt:",
-      "• Find a specific transaction by its txid",
-      "• Count how many confirmations it has",
-      "• Identify the fee paid (in sats/vbyte)",
-      "• Check the current mempool state (how many transactions are waiting)",
-      "• Find a recent block and list some transactions in it",
-      "This exercise builds familiarity with block explorers and helps students understand how to verify transactions independently.",
+      "Search for what this address belongs to: a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d",
+      "Use a block explorer to find this transaction and determine what historical event it is associated with.",
+      "Correct Answer: Bitcoin Pizza day",
+      "This exercise helps you practice using block explorers and understand how to verify transactions independently.",
     ],
     summary: [
       "Block explorers are useful tools for checking transaction status, but they're run by third parties.",
