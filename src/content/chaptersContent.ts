@@ -927,6 +927,7 @@ export const chaptersContent: ChapterContent[] = [
         paragraphs: [
           "A Bitcoin 'wallet' is really two things: a signer and a notebook. The signer is the part that holds your secret—your private keys—and uses them to sign transactions. The notebook is the interface that helps you see balances and create payments. Many apps bundle both into one, so we simply refer to it as a wallet.",
           "Creating a wallet feels like opening a new lockbox. The app will generate a seed phrase—usually 12 or 24 simple words. Those words are the master key to every present and future address your wallet will create. Write them carefully on paper, check the spelling, and store the paper where fire, water, and curious eyes can't reach. Don't take photos, don't put the words in cloud storage, and don't paste them into chat apps. If someone gets that phrase, they can take your coins without asking. If you lose it and your phone dies, no company can help you recover—Bitcoin is a bearer asset.",
+          "Example of a 24-word seed phrase written on paper:\n1. toe    7. little   13. globe   19. cousin\n2. miss   8. Wink    14. Thank   20. vibrant\n3. arrive 9. any     15. clump   21. hockey\n4. bonus  10. knee   16. connect 22. wave\n5. gallery 11. exhaust 17. second 23. fragile\n6. fan     12. below  18. bicycle 24. cricket",
           "Add a strong wallet PIN, and if your app supports it, learn about the optional 'passphrase' (sometimes called the 25th word). This adds a second layer of protection that safeguards you if someone discovers your written seed. It also means you must remember two things instead of one. Security is a trade-off; choose the level that fits your life. Before you receive any real value, practice a full recovery: wipe the app, restore from the seed you wrote down, and confirm that your addresses and test funds reappear. That ten-minute rehearsal is priceless.",
         ],
         callouts: [
@@ -944,6 +945,17 @@ export const chaptersContent: ChapterContent[] = [
             src: "/images/seed-phrase-example.png",
             alt: "Example of a 24-word seed phrase written on paper",
             caption: "Example seed phrase - write it down carefully on paper",
+          },
+        ],
+        examples: [
+          {
+            title: "Example of a 24-word seed phrase written on paper",
+            content: `1. toe    7. little   13. globe   19. cousin
+2. miss   8. Wink    14. Thank   20. vibrant
+3. arrive 9. any     15. clump   21. hockey
+4. bonus  10. knee   16. connect 22. wave
+5. gallery 11. exhaust 17. second 23. fragile
+6. fan     12. below  18. bicycle 24. cricket`,
           },
         ],
       },
@@ -1043,7 +1055,7 @@ export const chaptersContent: ChapterContent[] = [
         ],
         images: [
           {
-            src: "/images/utxo-model.png",
+            src: "/images/book_images/utxo.png",
             alt: "Diagram showing UTXOs as individual coins that make up your balance",
             caption: "UTXOs are like individual coins in your wallet",
           },
