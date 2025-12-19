@@ -1329,7 +1329,7 @@ export const chaptersContent: ChapterContent[] = [
         ],
         images: [
           {
-            src: "/images/lightning-channel.png",
+            src: "/images/book_images/lightning_networ.png",
             alt: "Diagram showing Lightning payment channel opening, payments, and closing",
             caption: "Lightning channels enable instant off-chain payments",
           },
@@ -1930,7 +1930,12 @@ export const chaptersContent: ChapterContent[] = [
         ],
         images: [
           {
-            src: "/images/multi-sig.png",
+            src: "/images/book_images/single_signiture.png",
+            alt: "Diagram showing single signature transaction",
+            caption: "Single signature requires one key to authorize transactions",
+          },
+          {
+            src: "/images/book_images/multi_sig.png",
             alt: "Diagram showing multi-sig requiring multiple signatures",
             caption: "Multi-sig requires multiple keys to authorize transactions",
           },
