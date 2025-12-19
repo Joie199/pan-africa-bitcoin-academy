@@ -69,6 +69,7 @@ export function SearchBar() {
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query)}`);
       setIsOpen(false);
+      setIsExpanded(false);
       setQuery('');
       setResults([]);
     }
@@ -77,42 +78,59 @@ export function SearchBar() {
   const handleResultClick = (url: string) => {
     router.push(url);
     setIsOpen(false);
+    setIsExpanded(false);
     setQuery('');
     setResults([]);
+  };
+
+  const handleIconClick = () => {
+    setIsExpanded(true);
+    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   return (
     <div ref={searchRef} className="relative">
       {/* Search Button/Input */}
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative flex items-center">
-          <Search className="absolute left-3 h-4 w-4 text-zinc-400" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setIsOpen(true);
-            }}
-            onFocus={() => setIsOpen(true)}
-            placeholder="Search all pages..."
-            className="w-64 rounded-full border border-zinc-700 bg-zinc-900/50 py-2 pl-10 pr-10 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery('');
-                setResults([]);
-                inputRef.current?.focus();
+        {!isExpanded ? (
+          <button
+            type="button"
+            onClick={handleIconClick}
+            className="rounded-full p-2 text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+        ) : (
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 h-4 w-4 text-zinc-400" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setIsOpen(true);
               }}
-              className="absolute right-3 text-zinc-400 hover:text-zinc-200"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+              onFocus={() => setIsOpen(true)}
+              placeholder="Search all pages..."
+              className="w-64 rounded-full border border-zinc-700 bg-zinc-900/50 py-2 pl-10 pr-10 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setResults([]);
+                  inputRef.current?.focus();
+                }}
+                className="absolute right-3 text-zinc-400 hover:text-zinc-200"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+        )}
       </form>
 
       {/* Search Results Dropdown */}
