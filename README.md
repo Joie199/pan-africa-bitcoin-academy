@@ -29,9 +29,6 @@
 ![Chapters](./public/images/screenshots/chapters.png)
 *Interactive learning chapters with progress indicators*
 
-![Calendar](./public/images/screenshots/calendar.png)
-*Interactive calendar with events and assignments*
-
 </div>
 
 ---
