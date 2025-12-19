@@ -911,9 +911,14 @@ export const chaptersContent: ChapterContent[] = [
         ],
         images: [
           {
-            src: "/images/exchange-flow.png",
+            src: "/images/book_images/exchange.png",
             alt: "Diagram showing exchange flow: local currency → exchange → Bitcoin → withdraw to wallet",
             caption: "Exchange flow: buy Bitcoin, then withdraw to your own wallet",
+          },
+          {
+            src: "/images/book_images/exchange2.jpg",
+            alt: "Exchange interface and wallet withdrawal process",
+            caption: "Exchange interface and withdrawal process",
           },
         ],
       },
