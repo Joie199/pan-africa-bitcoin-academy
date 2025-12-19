@@ -2090,7 +2090,7 @@ export const chaptersContent: ChapterContent[] = [
         ],
         images: [
           {
-            src: "/images/timelocks.png",
+            src: "/images/book_images/time_lock.png",
             alt: "Diagram showing CLTV and CSV timelock mechanisms",
             caption: "Timelocks enable time-based spending conditions",
           },
