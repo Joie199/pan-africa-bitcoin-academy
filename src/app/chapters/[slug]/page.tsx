@@ -274,6 +274,29 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
                       </div>
                     </div>
                   </div>
+                ) : section.heading === "7.4 Why Blockchain Matters" ? (
+                  // Special rendering for blockchain demo link
+                  <div className="mt-6">
+                    <div className="rounded-lg border border-cyan-400/30 bg-cyan-500/10 p-6">
+                      <h4 className="mb-3 text-base font-semibold text-cyan-200">Interactive Blockchain Demo</h4>
+                      <p className="mb-4 text-sm text-zinc-300">
+                        Explore how blocks, hashes, and blockchain work together in this interactive demonstration. 
+                        You can experiment with creating blocks, changing data, and seeing how the hash changes.
+                      </p>
+                      <a
+                        href="https://andersbrownworth.com/blockchain"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-orange-500 px-6 py-3 font-semibold text-black transition hover:brightness-110"
+                      >
+                        <span>🔗 Try Blockchain Demo</span>
+                        <span className="text-sm">→</span>
+                      </a>
+                      <p className="mt-3 text-xs text-zinc-400">
+                        This demo covers: Hash functions, Block structure, Blockchain linking, and Distributed consensus
+                      </p>
+                    </div>
+                  </div>
                 ) : section.heading === "14.2 Halving Schedule and Fixed Supply (Declining Inflation)" ? (
                   // Special rendering for halving periods table
                   <div className="mt-6">

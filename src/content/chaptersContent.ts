@@ -852,6 +852,7 @@ export const chaptersContent: ChapterContent[] = [
             content: "Blockchain's immutability means that once a transaction is confirmed, it becomes part of permanent history that cannot be altered.",
           },
         ],
+        images: [],
       },
     ],
     activities: [
