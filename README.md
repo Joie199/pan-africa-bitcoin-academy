@@ -39,7 +39,7 @@ A modern, comprehensive Bitcoin education platform designed specifically for Afr
 
 ### 🌟 Key Highlights
 
-- **20 Comprehensive Chapters** - From "The Nature of Money" to "Why Bitcoin? Philosophy & Adoption"
+- **21 Comprehensive Chapters** - From "The Nature of Money" to "Why Bitcoin? Philosophy & Adoption"
 - **Interactive Learning** - Progress tracking, achievements, sats rewards, and gamification
 - **Community-Driven** - Mentorship programs, cohort-based learning, and peer support
 - **Bitcoin-First** - Lightning Network donations, sats-based rewards, and Bitcoin-native features
