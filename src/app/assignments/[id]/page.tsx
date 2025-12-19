@@ -18,9 +18,27 @@ export default function AssignmentPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [returnUrl, setReturnUrl] = useState<string>('/dashboard');
 
   // Get email from profile or localStorage
   const email = profile?.email || (typeof window !== 'undefined' ? localStorage.getItem('profileEmail') : null);
+
+  // Track where user came from
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const referrer = document.referrer;
+      // Check if referrer is from dashboard or chapter page
+      if (referrer.includes('/dashboard')) {
+        setReturnUrl('/dashboard');
+      } else if (referrer.includes('/chapters/')) {
+        // Extract chapter slug from referrer
+        const chapterMatch = referrer.match(/\/chapters\/([^\/\?]+)/);
+        if (chapterMatch) {
+          setReturnUrl(`/chapters/${chapterMatch[1]}`);
+        }
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -99,10 +117,11 @@ export default function AssignmentPage() {
         // Refresh assignment data
         await fetchAssignment();
         
-        // If correct, redirect back to previous page after showing success message
+        // If correct, update assignments completed count
         if (data.submission.isCorrect) {
+          // Trigger a page refresh to update dashboard stats
           setTimeout(() => {
-            router.push(returnUrl);
+            window.location.reload();
           }, 2000);
         }
       } else {
@@ -213,6 +232,14 @@ export default function AssignmentPage() {
                 {submission.feedback && (
                   <p className="mt-2 text-sm text-zinc-300">{submission.feedback}</p>
                 )}
+                <div className="mt-4">
+                  <button
+                    onClick={() => router.push(returnUrl)}
+                    className="rounded-lg bg-gradient-to-r from-cyan-500 to-orange-500 px-4 py-2 font-semibold text-black transition hover:brightness-110"
+                  >
+                    Return to {returnUrl === '/dashboard' ? 'Dashboard' : 'Chapter'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
