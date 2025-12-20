@@ -935,7 +935,7 @@ export default function ApplyPage() {
                   ))}
                 </select>
               </div>
-            </div>
+            </FormGrid>
 
             <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-4">
               <p className="text-xs text-zinc-400">
