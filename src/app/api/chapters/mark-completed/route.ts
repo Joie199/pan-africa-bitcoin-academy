@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { checkAndUnlockAchievements } from '@/lib/achievements';
 
 export async function POST(req: NextRequest) {
   try {
@@ -130,6 +131,40 @@ export async function POST(req: NextRequest) {
           { error: 'Failed to create chapter progress' },
           { status: 500 }
         );
+      }
+    }
+
+    // Award sats reward for completing chapter (only if not already completed)
+    if (!wasAlreadyCompleted) {
+      const rewardAmount = 200; // 200 sats for completing a chapter
+      
+      // Check if sats_rewards record exists
+      const { data: existingReward } = await supabaseAdmin
+        .from('sats_rewards')
+        .select('*')
+        .eq('student_id', profile.id)
+        .maybeSingle();
+
+      if (existingReward) {
+        // Update existing record
+        await supabaseAdmin
+          .from('sats_rewards')
+          .update({
+            amount_pending: (existingReward.amount_pending || 0) + rewardAmount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingReward.id);
+      } else {
+        // Create new record
+        await supabaseAdmin.from('sats_rewards').insert({
+          student_id: profile.id,
+          amount_pending: rewardAmount,
+          reward_type: 'chapter',
+          related_entity_type: 'chapter',
+          related_entity_id: chapterNumber.toString(),
+          reason: `Chapter ${chapterNumber} completed`,
+          status: 'pending',
+        });
       }
     }
 
