@@ -23,8 +23,8 @@ export function generateCohortSessions(
   let sessionNumber = 1;
   
   // Start from the start date
-  const currentDate = new Date(startDate);
-  currentDate.setHours(0, 0, 0, 0);
+  let sessionDate = new Date(startDate);
+  sessionDate.setHours(0, 0, 0, 0);
   
   const end = new Date(endDate);
   end.setHours(23, 59, 59, 999);
@@ -33,38 +33,57 @@ export function generateCohortSessions(
   let sessionsThisWeek = 0;
   let currentWeekStart: Date | null = null;
   
-  while (currentDate <= end) {
-    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  // Helper function to get next session date (add 1 day, skip 1 day, skip Sunday if hit)
+  const getNextSessionDate = (current: Date): Date => {
+    let next = new Date(current);
+    // Add 1 day
+    next.setDate(next.getDate() + 1);
+    // Skip 1 day (so effectively +2 days total)
+    next.setDate(next.getDate() + 1);
+    // If it's Sunday, skip to Monday
+    if (next.getDay() === 0) {
+      next.setDate(next.getDate() + 1); // Move to Monday
+    }
+    return next;
+  };
+  
+  // If start date is Sunday, move to Monday
+  if (sessionDate.getDay() === 0) {
+    sessionDate.setDate(sessionDate.getDate() + 1);
+  }
+  
+  while (sessionDate <= end) {
+    // Determine the start of the current week (Monday)
+    const dayOfWeek = sessionDate.getDay();
+    const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const weekStart = new Date(sessionDate);
+    weekStart.setDate(sessionDate.getDate() - daysFromMonday);
+    weekStart.setHours(0, 0, 0, 0);
     
-    // Skip Sundays (day 0)
-    if (dayOfWeek !== 0) {
-      // Determine the start of the current week (Monday)
-      // If it's Monday (day 1), that's the week start
-      // Otherwise, go back to the previous Monday
-      const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      const weekStart = new Date(currentDate);
-      weekStart.setDate(currentDate.getDate() - daysFromMonday);
-      weekStart.setHours(0, 0, 0, 0);
-      
-      // Check if we've moved to a new week
-      if (!currentWeekStart || weekStart.getTime() !== currentWeekStart.getTime()) {
-        // New week started, reset counter
-        sessionsThisWeek = 0;
-        currentWeekStart = weekStart;
-      }
-      
-      // Add session if we haven't reached 3 sessions this week
-      if (sessionsThisWeek < 3) {
-        sessions.push({
-          date: new Date(currentDate),
-          sessionNumber: sessionNumber++,
-        });
-        sessionsThisWeek++;
-      }
+    // Check if we've moved to a new week
+    if (!currentWeekStart || weekStart.getTime() !== currentWeekStart.getTime()) {
+      // New week started, reset counter
+      sessionsThisWeek = 0;
+      currentWeekStart = weekStart;
     }
     
-    // Move to next day
-    currentDate.setDate(currentDate.getDate() + 1);
+    // Add session if we haven't reached 3 sessions this week
+    if (sessionsThisWeek < 3) {
+      sessions.push({
+        date: new Date(sessionDate),
+        sessionNumber: sessionNumber++,
+      });
+      sessionsThisWeek++;
+      
+      // Move to next session date
+      sessionDate = getNextSessionDate(sessionDate);
+    } else {
+      // We've reached 3 sessions this week, move to next week's first session
+      // Find next Monday
+      const daysUntilMonday = (8 - sessionDate.getDay()) % 7 || 7;
+      sessionDate.setDate(sessionDate.getDate() + daysUntilMonday);
+      sessionsThisWeek = 0;
+    }
   }
   
   return sessions;
