@@ -701,7 +701,7 @@ export function StudentDashboard({ userData }: StudentDashboardProps) {
                 <Suspense fallback={<div className="flex h-64 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/50"><div className="text-zinc-400">Loading calendar...</div></div>}>
                   <Calendar 
                     cohortId={userData?.cohort?.id || null} 
-                    email={userData?.profile?.email}
+                    email={userData?.profile?.email || storedProfileEmail || profileEmail || undefined}
                   />
                 </Suspense>
               </div>
