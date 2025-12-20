@@ -323,16 +323,28 @@ export default function ApplyPage() {
     fetchCohorts();
   }, []);
 
+  // Helper function to normalize cohort level to match select option values
+  const normalizeLevel = (level: string | undefined): string => {
+    if (!level) return '';
+    const normalized = level.trim().toLowerCase();
+    // Map common variations to exact select values
+    if (normalized === 'beginner') return 'beginner';
+    if (normalized === 'intermediate') return 'intermediate';
+    if (normalized === 'advanced') return 'advanced';
+    return normalized;
+  };
+
   // Auto-fill preferred cohort and experience level when a cohort is selected
   useEffect(() => {
     if (selectedCohort !== null) {
       const cohort = cohorts.find((c) => c.id === selectedCohort);
       if (cohort) {
         // Update preferredCohort and experienceLevel to match the selected cohort
+        const normalizedLevel = normalizeLevel(cohort.level);
         setFormData((prev) => ({
           ...prev,
           preferredCohort: cohort.id,
-          experienceLevel: cohort.level?.toLowerCase() || '',
+          experienceLevel: normalizedLevel,
         }));
       }
     } else {
@@ -549,10 +561,11 @@ export default function ApplyPage() {
                         e.stopPropagation();
                         console.log('Cohort selected:', cohort.id, cohort.name);
                         setSelectedCohort(cohort.id);
+                        const normalizedLevel = normalizeLevel(cohort.level);
                         setFormData((prev) => ({
                           ...prev,
                           preferredCohort: cohort.id,
-                          experienceLevel: cohort.level?.toLowerCase() || '',
+                          experienceLevel: normalizedLevel,
                         }));
                       }}
                       onMouseDown={(e) => {
@@ -883,10 +896,11 @@ export default function ApplyPage() {
                   onChange={(e) => {
                     const cohortId = e.target.value;
                     const selectedCohortObj = cohorts.find((c) => c.id === cohortId);
+                    const normalizedLevel = normalizeLevel(selectedCohortObj?.level);
                     setFormData({ 
                       ...formData, 
                       preferredCohort: cohortId,
-                      experienceLevel: selectedCohortObj?.level?.toLowerCase() || ''
+                      experienceLevel: normalizedLevel
                     });
                     setSelectedCohort(cohortId || null);
                   }}
