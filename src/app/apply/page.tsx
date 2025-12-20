@@ -885,7 +885,7 @@ export default function ApplyPage() {
 
             <div className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-4">
               <p className="text-xs text-zinc-400">
-                <span className="font-semibold text-orange-300">Note:</span> After submitting, you'll be redirected to complete your application. We'll review and get back to you within 3-5 business days.
+                <span className="font-semibold text-orange-300">Note:</span> We'll review and get back to you within 3-5 business days.
               </p>
             </div>
 
