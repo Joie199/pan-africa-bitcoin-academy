@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import { sortedCountries, getPhoneRule, type Country } from '@/lib/countries';
 
@@ -740,19 +740,35 @@ export default function ApplyPage() {
                 <label htmlFor="birthDate" className="mb-2 block text-sm font-medium text-zinc-300">
                   Birth Date <span className="text-red-400">*</span>
                 </label>
-                <input
-                  id="birthDate"
-                  name="birthDate"
-                  type="date"
-                  autoComplete="bday"
-                  required
-                  value={birthDate}
-                  onChange={(e) => {
-                    setBirthDate(e.target.value);
-                    setFormData({ ...formData, birthDate: e.target.value });
-                  }}
-                  className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
-                />
+                <div className="relative">
+                  <input
+                    id="birthDate"
+                    name="birthDate"
+                    type="date"
+                    autoComplete="bday"
+                    required
+                    value={birthDate}
+                    onChange={(e) => {
+                      setBirthDate(e.target.value);
+                      setFormData({ ...formData, birthDate: e.target.value });
+                    }}
+                    className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 pr-10 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.getElementById('birthDate') as HTMLInputElement;
+                      if (input) {
+                        input.showPicker?.() || input.focus();
+                      }
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-400 transition hover:bg-cyan-400/10 hover:text-cyan-300"
+                    aria-label="Open calendar"
+                    title="Choose date from calendar"
+                  >
+                    <CalendarIcon className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
               <div>
                 <label htmlFor="preferredLanguage" className="mb-2 block text-sm font-medium text-zinc-300">
