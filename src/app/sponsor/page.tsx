@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { AnimatedSection } from '@/components/AnimatedSection';
 import Image from 'next/image';
+import { inputStyles, labelStyles, formStyles, buttonStyles, cardStyles, alertStyles, cn } from '@/lib/styles';
+import { FormGrid } from '@/components/ui';
 
 const ONCHAIN_ADDRESS = 'bc1q4pg073ws86qdnxac3y8zhk4t8vtkg2vx529jrj';
 const ONCHAIN_QR_SRC = '/images/onchain-btc-qr.jpeg';
@@ -178,10 +180,10 @@ export default function SponsorPage() {
               <section className="space-y-6 rounded-xl border border-orange-500/25 bg-black/80 p-6 shadow-[0_0_40px_rgba(249,115,22,0.2)]">
                 <h2 className="text-xl font-semibold text-orange-200">Sponsorship Details</h2>
                 <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <FormGrid>
                     <div>
-                      <label htmlFor="sponsorName" className="mb-2 block text-sm font-medium text-zinc-300">
-                        Your Name {!formData.anonymous && <span className="text-red-400">*</span>}
+                      <label htmlFor="sponsorName" className={labelStyles.base}>
+                        Your Name {!formData.anonymous && <span className={labelStyles.requiredStar}>*</span>}
                       </label>
                       <input
                         id="sponsorName"
@@ -192,13 +194,13 @@ export default function SponsorPage() {
                         disabled={formData.anonymous}
                         value={formData.sponsorName}
                         onChange={(e) => setFormData({ ...formData, sponsorName: e.target.value })}
-                        className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 disabled:opacity-50"
+                        className={cn(inputStyles.base, "py-2 text-sm", formData.anonymous && "disabled:opacity-50")}
                         placeholder="John Doe"
                       />
                     </div>
                     <div>
-                      <label htmlFor="sponsorEmail" className="mb-2 block text-sm font-medium text-zinc-300">
-                        Your Email <span className="text-red-400">*</span>
+                      <label htmlFor="sponsorEmail" className={labelStyles.required}>
+                        Your Email <span className={labelStyles.requiredStar}>*</span>
                       </label>
                       <input
                         id="sponsorEmail"
@@ -208,11 +210,11 @@ export default function SponsorPage() {
                         required
                         value={formData.sponsorEmail}
                         onChange={(e) => setFormData({ ...formData, sponsorEmail: e.target.value })}
-                        className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                        className={cn(inputStyles.base, "py-2 text-sm")}
                         placeholder="john@example.com"
                       />
                     </div>
-                  </div>
+                  </FormGrid>
 
                   <div className="flex items-center gap-2">
                     <input
@@ -229,7 +231,7 @@ export default function SponsorPage() {
                   </div>
 
                   {sponsorType === 'student' && selectedStudent && (
-                    <div className="rounded-lg border border-cyan-400/20 bg-cyan-500/5 p-4">
+                    <div className={cn(cardStyles.info, "bg-cyan-500/5")}>
                       <p className="text-sm text-cyan-200">
                         <span className="font-semibold">Sponsoring:</span>{' '}
                         {students.find(s => s.id === selectedStudent)?.name}
@@ -238,7 +240,7 @@ export default function SponsorPage() {
                   )}
 
                   <div>
-                    <label htmlFor="message" className="mb-2 block text-sm font-medium text-zinc-300">
+                    <label htmlFor="message" className={labelStyles.base}>
                       Message (Optional)
                     </label>
                     <textarea
@@ -247,25 +249,26 @@ export default function SponsorPage() {
                       rows={3}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-2 text-sm text-zinc-50 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                      className={cn(inputStyles.optional, "py-2 text-sm")}
                       placeholder="Optional message for the student or academy..."
                     />
                   </div>
 
                   {/* Payment Method Selection */}
                   <div>
-                    <label className="mb-3 block text-sm font-medium text-zinc-300">
-                      Payment Method <span className="text-red-400">*</span>
+                    <label className={cn(labelStyles.base, "mb-3")}>
+                      Payment Method <span className={labelStyles.requiredStar}>*</span>
                     </label>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, paymentMethod: 'lightning' })}
-                        className={`rounded-lg border p-4 text-left transition ${
+                        className={cn(
+                          "rounded-lg border p-4 text-left transition",
                           formData.paymentMethod === 'lightning'
                             ? 'border-cyan-400/50 bg-cyan-500/10'
                             : 'border-zinc-700 bg-zinc-900/50 hover:border-zinc-600'
-                        }`}
+                        )}
                       >
                         <h3 className="mb-1 text-sm font-semibold text-cyan-200">Lightning Network</h3>
                         <p className="text-xs text-zinc-400">Fast, low-fee payments</p>
@@ -273,11 +276,12 @@ export default function SponsorPage() {
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, paymentMethod: 'onchain' })}
-                        className={`rounded-lg border p-4 text-left transition ${
+                        className={cn(
+                          "rounded-lg border p-4 text-left transition",
                           formData.paymentMethod === 'onchain'
                             ? 'border-orange-400/50 bg-orange-500/10'
                             : 'border-zinc-700 bg-zinc-900/50 hover:border-zinc-600'
-                        }`}
+                        )}
                       >
                         <h3 className="mb-1 text-sm font-semibold text-orange-200">On-Chain</h3>
                         <p className="text-xs text-zinc-400">Traditional Bitcoin transaction</p>
