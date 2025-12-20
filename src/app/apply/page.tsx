@@ -225,10 +225,6 @@ export default function ApplyPage() {
     });
   }, [authLoading, isAuthenticated, profile]); // Only depend on auth state, not form state
 
-  const getPhoneRule = (country: string): { min: number; max: number; startsWith?: string } => {
-    return phoneRules[country] || { min: 7, max: 12, startsWith: undefined };
-  };
-
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const country = e.target.value;
     setSelectedCountry(country);
