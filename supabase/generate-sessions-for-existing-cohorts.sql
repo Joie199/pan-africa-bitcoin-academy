@@ -27,7 +27,6 @@ DECLARE
   session_num INTEGER := 1;
   sessions_this_week INTEGER := 0;
   week_start DATE;
-  current_week_start DATE;
   day_of_week INTEGER;
   days_from_monday INTEGER;
   sessions_created INTEGER := 0;
@@ -46,51 +45,64 @@ BEGIN
   
   -- Start from cohort start date
   session_date_var := cohort_start;
+  
+  -- If start date is Sunday, move to Monday
+  IF EXTRACT(DOW FROM session_date_var) = 0 THEN
+    session_date_var := session_date_var + INTERVAL '1 day';
+  END IF;
+  
   week_start := NULL;
   
   WHILE session_date_var <= cohort_end LOOP
     day_of_week := EXTRACT(DOW FROM session_date_var); -- 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     
-    -- Skip Sundays (day 0)
-    IF day_of_week != 0 THEN
-      -- Calculate Monday of current week
-      days_from_monday := day_of_week - 1; -- Monday = 0, Tuesday = 1, etc.
-      
-      -- Get the Monday of this week
-      DECLARE
-        current_week_start DATE;
-      BEGIN
-        current_week_start := session_date_var - (days_from_monday || ' days')::INTERVAL;
-        
-        -- Check if we've moved to a new week
-        IF week_start IS NULL OR current_week_start != week_start THEN
-          sessions_this_week := 0;
-          week_start := current_week_start;
-        END IF;
-        
-        -- Add session if we haven't reached 3 sessions this week
-        IF sessions_this_week < 3 THEN
-          INSERT INTO cohort_sessions (
-            cohort_id,
-            session_date,
-            session_number,
-            status
-          ) VALUES (
-            cohort_uuid,
-            session_date_var,
-            session_num,
-            'scheduled'
-          );
-          
-          session_num := session_num + 1;
-          sessions_this_week := sessions_this_week + 1;
-          sessions_created := sessions_created + 1;
-        END IF;
-      END;
+    -- Calculate Monday of current week
+    days_from_monday := CASE 
+      WHEN day_of_week = 0 THEN 6  -- Sunday
+      ELSE day_of_week - 1          -- Monday = 0, Tuesday = 1, etc.
+    END;
+    
+    -- Get the Monday of this week
+    current_week_start := session_date_var - (days_from_monday || ' days')::INTERVAL;
+    
+    -- Check if we've moved to a new week
+    IF week_start IS NULL OR current_week_start != week_start THEN
+      sessions_this_week := 0;
+      week_start := current_week_start;
     END IF;
     
-    -- Move to next day
-    session_date_var := session_date_var + INTERVAL '1 day';
+    -- Add session if we haven't reached 3 sessions this week
+    IF sessions_this_week < 3 THEN
+      INSERT INTO cohort_sessions (
+        cohort_id,
+        session_date,
+        session_number,
+        status
+      ) VALUES (
+        cohort_uuid,
+        session_date_var,
+        session_num,
+        'scheduled'
+      );
+      
+      session_num := session_num + 1;
+      sessions_this_week := sessions_this_week + 1;
+      sessions_created := sessions_created + 1;
+      
+      -- Move to next session date: add 2 days, but skip Sunday if hit
+      session_date_var := session_date_var + INTERVAL '2 days';
+      IF EXTRACT(DOW FROM session_date_var) = 0 THEN
+        session_date_var := session_date_var + INTERVAL '1 day'; -- Skip to Monday
+      END IF;
+    ELSE
+      -- We've reached 3 sessions this week, move to next week's first session (Monday)
+      days_until_monday := CASE 
+        WHEN day_of_week = 0 THEN 1  -- If Sunday, next day is Monday
+        ELSE 8 - day_of_week          -- Days until next Monday
+      END;
+      session_date_var := session_date_var + (days_until_monday || ' days')::INTERVAL;
+      sessions_this_week := 0;
+    END IF;
   END LOOP;
   
   -- Update cohort sessions count
