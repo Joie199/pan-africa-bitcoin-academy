@@ -852,9 +852,8 @@ export default function ApplyPage() {
                 </label>
                 <select
                   id="experienceLevel"
-                  key={`experience-level-${formData.experienceLevel}`}
                   required
-                  value={formData.experienceLevel || ''}
+                  value={formData.experienceLevel}
                   onChange={(e) => setFormData({ ...formData, experienceLevel: e.target.value })}
                   className={`w-full rounded-lg border border-cyan-400/30 bg-zinc-950 px-3 py-1.5 text-sm focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 appearance-none cursor-pointer ${
                     formData.experienceLevel ? 'text-green-400' : 'text-zinc-50'

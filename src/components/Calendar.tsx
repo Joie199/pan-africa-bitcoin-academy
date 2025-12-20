@@ -62,10 +62,11 @@ const eventTypeLabels = {
 
 interface CalendarProps {
   cohortId?: string | null;
-  showCohorts?: boolean; // Show cohort start/end dates as events
+  showCohorts?: boolean; // Show cohort start/end dates as events (admin mode)
+  email?: string; // Student email for fetching their sessions
 }
 
-export function Calendar({ cohortId, showCohorts = false }: CalendarProps) {
+export function Calendar({ cohortId, showCohorts = false, email }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [view, setView] = useState<'month' | 'list'>('month');
@@ -130,6 +131,48 @@ export function Calendar({ cohortId, showCohorts = false }: CalendarProps) {
             }));
         }
         
+        // Fetch cohort sessions
+        try {
+          const sessionsUrl = showCohorts
+            ? '/api/sessions?admin=true'
+            : email
+            ? `/api/sessions?email=${encodeURIComponent(email)}`
+            : null;
+
+          if (sessionsUrl) {
+            const sessionsResponse = await fetch(sessionsUrl);
+            if (sessionsResponse.ok) {
+              const sessionsData = await sessionsResponse.json();
+              if (sessionsData.sessions && Array.isArray(sessionsData.sessions)) {
+                const sessionEvents: CalendarEvent[] = sessionsData.sessions
+                  .filter((session: any) => {
+                    if (!session.session_date) return false;
+                    const sessionDate = new Date(session.session_date);
+                    return !isNaN(sessionDate.getTime());
+                  })
+                  .map((session: any) => {
+                    const cohortName = session.cohorts?.name || 'Cohort';
+                    const sessionDate = new Date(session.session_date);
+                    return {
+                      id: `session-${session.id}`,
+                      title: `${cohortName} - Session ${session.session_number}${session.topic ? `: ${session.topic}` : ''}`,
+                      date: sessionDate,
+                      type: 'live-class' as const,
+                      time: session.duration_minutes ? `${session.duration_minutes} min` : '',
+                      link: session.link || '#',
+                      description: session.topic || `Cohort session ${session.session_number}`,
+                    };
+                  });
+                
+                transformedEvents = [...transformedEvents, ...sessionEvents];
+              }
+            }
+          }
+        } catch (sessionsErr) {
+          console.warn('⚠️ Calendar: Error fetching sessions:', sessionsErr);
+          // Continue without session events
+        }
+
         // If showCohorts is true, fetch and add cohort dates
         if (showCohorts) {
           try {
@@ -202,7 +245,7 @@ export function Calendar({ cohortId, showCohorts = false }: CalendarProps) {
     }
 
     fetchEvents();
-  }, [cohortId, showCohorts]);
+  }, [cohortId, showCohorts, email]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();

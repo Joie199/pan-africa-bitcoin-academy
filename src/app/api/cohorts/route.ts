@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase, supabaseAdmin } from '@/lib/supabase';
 import { requireAdmin, attachRefresh } from '@/lib/adminSession';
+import { generateCohortSessions, validateCohortDates } from '@/lib/sessionGenerator';
 
 export async function GET() {
   try {
@@ -93,6 +94,44 @@ export async function POST(req: NextRequest) {
         },
         { status: 500 }
       );
+    }
+
+    // Auto-generate sessions if start_date and end_date are provided
+    if (data && start_date && end_date) {
+      const validation = validateCohortDates(start_date, end_date);
+      if (validation.valid) {
+        try {
+          const sessionDates = generateCohortSessions(
+            new Date(start_date),
+            new Date(end_date)
+          );
+
+          if (sessionDates.length > 0) {
+            const sessionsToInsert = sessionDates.map(({ date, sessionNumber }) => ({
+              cohort_id: data.id,
+              session_date: date.toISOString().split('T')[0],
+              session_number: sessionNumber,
+              status: 'scheduled',
+            }));
+
+            await supabaseAdmin
+              .from('cohort_sessions')
+              .insert(sessionsToInsert);
+
+            // Update sessions count
+            await supabaseAdmin
+              .from('cohorts')
+              .update({ sessions: sessionDates.length })
+              .eq('id', data.id);
+
+            // Update data object with session count
+            data.sessions = sessionDates.length;
+          }
+        } catch (sessionError: any) {
+          console.error('Error generating sessions:', sessionError);
+          // Don't fail cohort creation if session generation fails
+        }
+      }
     }
 
     const res = NextResponse.json({ success: true, cohort: data }, { status: 200 });
