@@ -196,7 +196,7 @@ export default function ApplyPage() {
         countryCodeToSet = code;
         phoneNumberToSet = number;
         // Try to find country from code
-        const country = africanCountries.find(c => c.code === code);
+        const country = sortedCountries.find(c => c.code === code);
         if (country) {
           countryToSet = country.name;
         }
