@@ -130,8 +130,6 @@ export default function AdminDashboardPage() {
   const [uploadingAttendance, setUploadingAttendance] = useState(false);
   const [regeneratingSessions, setRegeneratingSessions] = useState<string | null>(null);
   const [selectedEventForUpload, setSelectedEventForUpload] = useState<string>('');
-  const [sendingEmails, setSendingEmails] = useState(false);
-  const [emailResults, setEmailResults] = useState<{ sent: number; failed: number; total: number; results: any[] } | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'students' | 'events' | 'mentorships' | 'attendance' | 'exam'>('overview');
   const [examAccessList, setExamAccessList] = useState<any[]>([]);
   const [loadingExamAccess, setLoadingExamAccess] = useState(false);
@@ -167,6 +165,16 @@ export default function AdminDashboardPage() {
       loadData();
     }
   }, [isAuthenticated, admin]);
+
+  // Auto-hide notification after 5 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const fetchWithAuth = async (url: string, options?: RequestInit) => {
     const res = await fetch(url, options);
@@ -388,8 +396,12 @@ export default function AdminDashboardPage() {
   };
 
   const handleApprove = async (applicationId: string, email: string) => {
+    // Defer confirm to next tick to prevent blocking click handler
     if (!confirm(`Approve application for ${email}?`)) return;
+    
+    // Set processing state immediately for responsive UI
     setProcessing(applicationId);
+    
     try {
       const res = await fetchWithAuth('/api/applications/approve', {
         method: 'POST',
@@ -397,6 +409,7 @@ export default function AdminDashboardPage() {
         body: JSON.stringify({ applicationId }),
       });
       const data = await res.json();
+      
       if (res.ok && data.success) {
         let message = `Application for ${email} approved successfully!`;
         if (data.emailSent) {
@@ -410,24 +423,45 @@ export default function AdminDashboardPage() {
             message += `\n\n⚠️ Email status unknown - check server console for details.`;
           }
         }
-        alert(message);
+        
+        // Use startTransition for non-urgent state updates
+        startTransition(() => {
+          setNotification({ type: 'success', message: `Application for ${email} approved successfully!` });
+        });
+        
         if (process.env.NODE_ENV === 'development') {
           console.log('Approval response:', data);
         }
-        await fetchApplications();
-        await fetchOverview();
+        
+        // Fetch data in parallel for better performance
+        Promise.all([
+          fetchApplications(),
+          fetchOverview()
+        ]).catch(err => console.error('Error refreshing data:', err));
+        
+        // Show alert after a short delay to not block UI
+        setTimeout(() => alert(message), 50);
       } else {
         // Show detailed error message
         const errorMsg = data.error || 'Failed to approve application';
         const details = data.details ? `\n\nDetails: ${data.details}` : '';
         const hint = data.hint ? `\n\nHint: ${data.hint}` : '';
         const code = data.code ? `\n\nError Code: ${data.code}` : '';
-        alert(`Error: ${errorMsg}${details}${hint}${code}`);
+        
+        startTransition(() => {
+          setNotification({ type: 'error', message: errorMsg });
+        });
+        
+        setTimeout(() => alert(`Error: ${errorMsg}${details}${hint}${code}`), 50);
         console.error('Approval error:', data);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to approve application');
+      startTransition(() => {
+        setNotification({ type: 'error', message: err.message || 'Failed to approve application' });
+      });
+      setTimeout(() => alert(err.message || 'Failed to approve application'), 50);
     } finally {
+      // Clear processing state immediately
       setProcessing(null);
     }
   };
@@ -463,86 +497,37 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleSendEmailsToApproved = async () => {
-    const approvedCount = applications.filter((a) => a.status === 'Approved').length;
-    if (approvedCount === 0) {
-      alert('No approved applications found.');
-      return;
-    }
-
-    // First check email configuration
-    try {
-      const configRes = await fetchWithAuth('/api/test-email');
-      const configData = await configRes.json();
-      if (!configData.emailConfigured) {
-        let errorMsg = `⚠️ Email service not configured!\n\nPlease set RESEND_API_KEY in your environment variables.\n\n`;
-        errorMsg += `Current status: ${configData.message || 'Email service unavailable'}\n\n`;
-        
-        // Add diagnostic info if available
-        if (configData.diagnostics) {
-          errorMsg += `Diagnostics:\n`;
-          errorMsg += `- API Key Present: ${configData.diagnostics.apiKeyPresent ? 'Yes' : 'No'}\n`;
-          errorMsg += `- API Key Length: ${configData.diagnostics.apiKeyLength}\n`;
-          errorMsg += `- Environment Keys Found: ${configData.diagnostics.allEnvKeys || 'None'}\n\n`;
-        }
-        
-        errorMsg += `Setup Instructions:\n`;
-        errorMsg += `1. Create/update .env.local file in project root\n`;
-        errorMsg += `2. Add: RESEND_API_KEY=re_your_api_key_here\n`;
-        errorMsg += `3. Get API key from: https://resend.com/api-keys\n`;
-        errorMsg += `4. Restart your development server (npm run dev)`;
-        
-        alert(errorMsg);
-        return;
-      }
-    } catch (err: any) {
-      alert(`❌ Error checking email config: ${err.message || 'Unknown error'}\n\nPlease ensure RESEND_API_KEY is set in .env.local and restart the server.`);
-      return;
-    }
-
-    if (!confirm(`Send approval emails to ${approvedCount} approved student(s)?`)) {
-      return;
-    }
-
-    setSendingEmails(true);
-    setEmailResults(null);
-    try {
-      const res = await fetchWithAuth('/api/admin/email/send-approved', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setEmailResults({
-          sent: data.sent || 0,
-          failed: data.failed || 0,
-          total: data.total || 0,
-          results: data.results || [],
-        });
-        if (data.failed > 0) {
-          alert(`Email sending completed!\n✅ Sent: ${data.sent}\n❌ Failed: ${data.failed}\n\nCheck the results section below for details.`);
-        } else {
-          alert(`✅ Successfully sent ${data.sent} email(s)!`);
-        }
-      } else {
-        alert(`Error: ${data.error || 'Failed to send emails'}`);
-      }
-    } catch (err: any) {
-      alert(`Error: ${err.message || 'Failed to send emails'}`);
-    } finally {
-      setSendingEmails(false);
-    }
-  };
 
   const filteredApplications = useMemo(
-    () =>
-      applications.filter((app) => {
+    () => {
+      const filtered = applications.filter((app) => {
         // Filter by status
         const statusMatch = filter === 'all' || app.status?.toLowerCase() === filter;
         // Filter by cohort
         const cohortMatch = !cohortFilter || app.preferred_cohort_id === cohortFilter;
         return statusMatch && cohortMatch;
-      }),
+      });
+      
+      // Sort pending applications by created_at (oldest first - first registered to last)
+      if (filter === 'pending' || filter === 'all') {
+        return [...filtered].sort((a, b) => {
+          // For pending applications, sort by created_at ascending (oldest first)
+          if (a.status?.toLowerCase() === 'pending' && b.status?.toLowerCase() === 'pending') {
+            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          }
+          // Keep pending applications first, then others
+          if (a.status?.toLowerCase() === 'pending') return -1;
+          if (b.status?.toLowerCase() === 'pending') return 1;
+          // For non-pending, sort by created_at descending (newest first)
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+      }
+      
+      // For other filters (approved/rejected), sort by created_at descending (newest first)
+      return [...filtered].sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    },
     [applications, filter, cohortFilter],
   );
 
@@ -826,73 +811,8 @@ export default function AdminDashboardPage() {
                   </option>
                 ))}
               </select>
-              <div className="ml-auto flex gap-2">
-                <button
-                  onClick={async () => {
-                    const testEmail = prompt('Enter test email address:');
-                    if (!testEmail) return;
-                    const testName = prompt('Enter test name (optional):') || 'Test Student';
-                    try {
-                      const res = await fetchWithAuth('/api/test-email', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          studentEmail: testEmail,
-                          studentName: testName,
-                          cohortName: 'Test Cohort',
-                          needsPasswordSetup: true,
-                        }),
-                      });
-                      const data = await res.json();
-                      if (res.ok && data.success) {
-                        alert(`✅ Test email sent successfully to ${testEmail}!`);
-                      } else {
-                        alert(`❌ Error: ${data.error || 'Failed to send test email'}`);
-                      }
-                    } catch (err: any) {
-                      alert(`❌ Error: ${err.message || 'Failed to send test email'}`);
-                    }
-                  }}
-                  className="rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs font-medium text-cyan-300 transition hover:bg-cyan-500/20"
-                  title="Send a test email to verify email configuration"
-                >
-                  🧪 Test Email
-                </button>
-                <button
-                  onClick={handleSendEmailsToApproved}
-                  disabled={sendingEmails || applications.filter((a) => a.status === 'Approved').length === 0}
-                  className="rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-1.5 text-xs font-medium text-white transition hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title={`Send approval emails to ${applications.filter((a) => a.status === 'Approved').length} approved student(s)`}
-                >
-                  {sendingEmails ? 'Sending...' : '📧 Send Emails to Approved'}
-                </button>
-              </div>
             </div>
 
-            {emailResults && (
-              <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-4">
-                <h3 className="mb-2 text-sm font-semibold text-cyan-200">Email Sending Results</h3>
-                <div className="mb-2 text-xs text-zinc-300">
-                  ✅ Sent: {emailResults.sent} | ❌ Failed: {emailResults.failed} | Total: {emailResults.total}
-                </div>
-                {emailResults.failed > 0 && emailResults.results.filter((r: any) => !r.success).length > 0 && (
-                  <details className="mt-2">
-                    <summary className="cursor-pointer text-xs text-red-300 hover:text-red-200">
-                      Show failed emails ({emailResults.failed})
-                    </summary>
-                    <div className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs">
-                      {emailResults.results
-                        .filter((r: any) => !r.success)
-                        .map((r: any, idx: number) => (
-                          <div key={idx} className="text-red-300">
-                            {r.name} ({r.email}): {r.error || 'Unknown error'}
-                          </div>
-                        ))}
-                    </div>
-                  </details>
-                )}
-              </div>
-            )}
 
             {filteredApplications.length === 0 && (
               <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 text-center text-zinc-400">
