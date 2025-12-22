@@ -200,7 +200,7 @@ export default async function Home() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
       {/* Full-page Hero Section */}
-      <section className="relative flex min-h-screen flex-col items-start justify-center pl-24 sm:pl-28 lg:pl-32 xl:pl-36 2xl:pl-40 text-left">
+      <section className="relative flex min-h-screen flex-col items-start justify-center pl-8 sm:pl-12 lg:pl-16 xl:pl-20 2xl:pl-24 text-left">
         {/* Background effects */}
         <div className="absolute inset-0 bitcoin-network-lines" />
         <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
