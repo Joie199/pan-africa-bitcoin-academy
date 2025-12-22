@@ -200,24 +200,24 @@ export default async function Home() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden">
       {/* Full-page Hero Section */}
-      <section className="relative flex min-h-screen flex-col items-start justify-center pl-16 sm:pl-20 lg:pl-24 xl:pl-28 2xl:pl-32 text-left">
+      <section className="relative flex min-h-screen flex-col items-center justify-center px-4 text-center">
         {/* Background effects */}
         <div className="absolute inset-0 bitcoin-network-lines" />
         <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="pointer-events-none absolute -right-40 top-32 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl" />
         
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl space-y-8">
+        <div className="relative z-10 mx-auto max-w-5xl space-y-8">
           <h1 className="text-5xl font-bold tracking-tight text-zinc-50 sm:text-6xl lg:text-7xl">
             Scaling Bitcoin adoption
           </h1>
           <p className="text-2xl font-semibold text-orange-400 sm:text-3xl lg:text-4xl">
             Turning the Africa orange
           </p>
-          <p className="max-w-2xl text-base text-zinc-400 sm:text-lg">
+          <p className="mx-auto max-w-2xl text-base text-zinc-400 sm:text-lg">
             Join our hands-on Bitcoin academy designed for Africa. Learn by doing, earn sats, and become part of a growing community of builders.
           </p>
-          <div className="flex flex-col items-start justify-start gap-4 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/apply"
               className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-cyan-400 via-orange-400 to-purple-500 px-8 py-4 text-base font-semibold text-black shadow-[0_0_40px_rgba(249,115,22,0.8)] transition hover:brightness-110"
@@ -348,7 +348,7 @@ export default async function Home() {
                   </Link>
                 </div>
                 <div className="flex items-center justify-start">
-                  <div className="relative flex h-64 w-64 items-center justify-center -ml-16 sm:-ml-20 lg:-ml-24 xl:-ml-28 2xl:-ml-32">
+                  <div className="relative flex h-64 w-64 items-center justify-center ml-12 sm:ml-16 lg:ml-20 xl:ml-24">
                     {/* Logo image with SEO optimization - positioned further left */}
                     <Image
                       src="/images/logo_3.png"
