@@ -133,7 +133,7 @@ export default function RootLayout({
         <ResourceHints />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-50 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} text-zinc-50 antialiased`}
         suppressHydrationWarning
       >
         {/* Structured Data for SEO */}
