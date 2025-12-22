@@ -285,7 +285,7 @@ export default async function Home() {
       </section>
 
       {/* Content Sections - Full Width */}
-      <div className="relative z-10 w-full bg-black/95">
+      <div className="relative z-10 w-full bg-black/60 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           {/* 2. How It Started Section */}
           <AnimatedSection animation="slideUp">
