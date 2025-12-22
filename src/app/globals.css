@@ -16,12 +16,21 @@
   --color-bitcoin-purple: #a855f7;
 }
 
+html {
+  background: 
+    url('/images/bitcoin-bg.jpg') center center / cover no-repeat fixed,
+    radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
+  background-color: #020617;
+  min-height: 100vh;
+}
+
 body {
   background: 
     /* Bitcoin-themed background image */
     url('/images/bitcoin-bg.jpg') center center / cover no-repeat fixed,
     /* Fallback gradient */
     radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
+  background-color: #020617; /* Fallback color */
   color: var(--foreground);
   position: relative;
   overflow-x: hidden;
