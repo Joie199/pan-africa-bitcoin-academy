@@ -185,21 +185,58 @@ export default function EmailComposer({
       return;
     }
 
-    // Get body content from contentEditable div if state is empty
-    let emailBody = body;
+    // Get body content from contentEditable div - always prefer the div content
+    let emailBody = '';
     if (bodyRef.current) {
-      const htmlContent = bodyRef.current.innerHTML;
-      // Check if there's actual text content (not just empty HTML tags)
+      const htmlContent = bodyRef.current.innerHTML || '';
       const textContent = bodyRef.current.innerText || bodyRef.current.textContent || '';
-      if (!textContent.trim() && !htmlContent.trim()) {
-        setError('Please enter email body content');
-        return;
+      
+      // Use HTML if it has meaningful content, otherwise use plain text
+      if (htmlContent.trim().length > 0) {
+        // Check if HTML has actual text (not just empty tags)
+        const textOnly = htmlContent
+          .replace(/<br\s*\/?>/gi, '')
+          .replace(/<div><\/div>/g, '')
+          .replace(/<p><\/p>/g, '')
+          .replace(/<[^>]*>/g, '')
+          .trim();
+        if (textOnly.length > 0) {
+          emailBody = htmlContent.trim();
+        } else if (textContent.trim().length > 0) {
+          emailBody = textContent.trim();
+        }
+      } else if (textContent.trim().length > 0) {
+        emailBody = textContent.trim();
       }
-      // Use HTML content if available, otherwise use text
-      emailBody = htmlContent.trim() || textContent.trim();
+    }
+    
+    // Fallback to state if div is empty
+    if (!emailBody && body && body.trim().length > 0) {
+      const textOnly = body
+        .replace(/<br\s*\/?>/gi, '')
+        .replace(/<div><\/div>/g, '')
+        .replace(/<p><\/p>/g, '')
+        .replace(/<[^>]*>/g, '')
+        .trim();
+      if (textOnly.length > 0) {
+        emailBody = body.trim();
+      }
     }
 
+    // Final validation
     if (!emailBody || emailBody.trim().length === 0) {
+      setError('Please enter email body content');
+      return;
+    }
+    
+    // Additional check - make sure it's not just whitespace or empty tags
+    const finalTextCheck = emailBody
+      .replace(/<br\s*\/?>/gi, '')
+      .replace(/<div><\/div>/g, '')
+      .replace(/<p><\/p>/g, '')
+      .replace(/<[^>]*>/g, '')
+      .trim();
+    if (finalTextCheck.length === 0) {
       setError('Please enter email body content');
       return;
     }
@@ -275,41 +312,56 @@ export default function EmailComposer({
   // Track body content for canSend check - update on every input
   const [hasBodyText, setHasBodyText] = useState(false);
 
+  // Helper function to check if body has content
+  const checkBodyHasContent = (): boolean => {
+    // First check the contentEditable div directly (most reliable)
+    if (bodyRef.current) {
+      // Try multiple methods to get text content
+      const textContent = bodyRef.current.innerText || bodyRef.current.textContent || '';
+      if (textContent.trim().length > 0) {
+        return true;
+      }
+      
+      // Check HTML content - strip tags and check for text
+      const htmlContent = bodyRef.current.innerHTML || '';
+      if (htmlContent.trim().length > 0) {
+        // Remove common empty HTML patterns
+        const cleaned = htmlContent
+          .replace(/<br\s*\/?>/gi, '')
+          .replace(/<div><\/div>/g, '')
+          .replace(/<p><\/p>/g, '')
+          .replace(/<[^>]*>/g, '')
+          .trim();
+        if (cleaned.length > 0) {
+          return true;
+        }
+      }
+    }
+    
+    // Fallback to state
+    if (body && body.trim().length > 0) {
+      const textOnly = body
+        .replace(/<br\s*\/?>/gi, '')
+        .replace(/<div><\/div>/g, '')
+        .replace(/<p><\/p>/g, '')
+        .replace(/<[^>]*>/g, '')
+        .trim();
+      return textOnly.length > 0;
+    }
+    
+    return false;
+  };
+
   // Update hasBodyText whenever body or contentEditable changes
   useEffect(() => {
     const checkBodyContent = () => {
-      if (bodyRef.current) {
-        const textContent = bodyRef.current.innerText || bodyRef.current.textContent || '';
-        const htmlContent = bodyRef.current.innerHTML || '';
-        
-        if (textContent.trim().length > 0) {
-          setHasBodyText(true);
-          return;
-        }
-        
-        // Check HTML content
-        if (htmlContent.trim().length > 0) {
-          const textOnly = htmlContent.replace(/<[^>]*>/g, '').trim();
-          if (textOnly.length > 0) {
-            setHasBodyText(true);
-            return;
-          }
-        }
-      }
-      
-      // Check state
-      if (body && body.trim().length > 0) {
-        const textOnly = body.replace(/<[^>]*>/g, '').trim();
-        setHasBodyText(textOnly.length > 0);
-        return;
-      }
-      
-      setHasBodyText(false);
+      const hasContent = checkBodyHasContent();
+      setHasBodyText(hasContent);
     };
 
     checkBodyContent();
-    // Also check periodically in case contentEditable changes without triggering onInput
-    const interval = setInterval(checkBodyContent, 500);
+    // Check more frequently to catch all changes
+    const interval = setInterval(checkBodyContent, 300);
     return () => clearInterval(interval);
   }, [body]);
 
@@ -558,9 +610,15 @@ export default function EmailComposer({
             onInput={(e) => {
               const html = e.currentTarget.innerHTML;
               setBody(html);
-              // Immediately check if we have content
+              // Immediately check if we have content using the same logic
               const textContent = e.currentTarget.innerText || e.currentTarget.textContent || '';
-              setHasBodyText(textContent.trim().length > 0 || (html.trim().length > 0 && html.replace(/<[^>]*>/g, '').trim().length > 0));
+              const cleanedHtml = html
+                .replace(/<br\s*\/?>/gi, '')
+                .replace(/<div><\/div>/g, '')
+                .replace(/<p><\/p>/g, '')
+                .replace(/<[^>]*>/g, '')
+                .trim();
+              setHasBodyText(textContent.trim().length > 0 || cleanedHtml.length > 0);
             }}
             onBlur={(e) => {
               // Ensure body state is synced on blur
