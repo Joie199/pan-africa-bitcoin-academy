@@ -272,34 +272,48 @@ export default function EmailComposer({
     }
   };
 
-  // Check if we can send - body can be in state or contentEditable div
-  const hasBodyContent = () => {
-    // First check the contentEditable div directly (most reliable)
-    if (bodyRef.current) {
-      const textContent = bodyRef.current.innerText || bodyRef.current.textContent || '';
-      if (textContent.trim().length > 0) {
-        return true;
-      }
-      // Also check HTML content
-      const htmlContent = bodyRef.current.innerHTML || '';
-      if (htmlContent.trim().length > 0) {
-        // Check if it's not just empty tags
-        const textOnly = htmlContent.replace(/<[^>]*>/g, '').trim();
-        if (textOnly.length > 0) {
-          return true;
+  // Track body content for canSend check - update on every input
+  const [hasBodyText, setHasBodyText] = useState(false);
+
+  // Update hasBodyText whenever body or contentEditable changes
+  useEffect(() => {
+    const checkBodyContent = () => {
+      if (bodyRef.current) {
+        const textContent = bodyRef.current.innerText || bodyRef.current.textContent || '';
+        const htmlContent = bodyRef.current.innerHTML || '';
+        
+        if (textContent.trim().length > 0) {
+          setHasBodyText(true);
+          return;
+        }
+        
+        // Check HTML content
+        if (htmlContent.trim().length > 0) {
+          const textOnly = htmlContent.replace(/<[^>]*>/g, '').trim();
+          if (textOnly.length > 0) {
+            setHasBodyText(true);
+            return;
+          }
         }
       }
-    }
-    // Fallback to state
-    if (body && body.trim().length > 0) {
-      // Check if it's not just empty HTML
-      const textOnly = body.replace(/<[^>]*>/g, '').trim();
-      return textOnly.length > 0;
-    }
-    return false;
-  };
+      
+      // Check state
+      if (body && body.trim().length > 0) {
+        const textOnly = body.replace(/<[^>]*>/g, '').trim();
+        setHasBodyText(textOnly.length > 0);
+        return;
+      }
+      
+      setHasBodyText(false);
+    };
 
-  const canSend = toRecipients.length > 0 && subject.trim().length > 0 && hasBodyContent();
+    checkBodyContent();
+    // Also check periodically in case contentEditable changes without triggering onInput
+    const interval = setInterval(checkBodyContent, 500);
+    return () => clearInterval(interval);
+  }, [body]);
+
+  const canSend = toRecipients.length > 0 && subject.trim().length > 0 && hasBodyText;
 
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50' : 'relative'} bg-zinc-900 rounded-lg shadow-lg border border-zinc-700 flex flex-col`}>
@@ -544,6 +558,9 @@ export default function EmailComposer({
             onInput={(e) => {
               const html = e.currentTarget.innerHTML;
               setBody(html);
+              // Immediately check if we have content
+              const textContent = e.currentTarget.innerText || e.currentTarget.textContent || '';
+              setHasBodyText(textContent.trim().length > 0 || (html.trim().length > 0 && html.replace(/<[^>]*>/g, '').trim().length > 0));
             }}
             onBlur={(e) => {
               // Ensure body state is synced on blur
@@ -581,9 +598,18 @@ export default function EmailComposer({
       <div className="px-4 py-3 border-t border-zinc-700 bg-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button
-            onClick={handleSend}
-            disabled={!canSend || isSending}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSend();
+            }}
+            disabled={isSending}
+            className={`flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded transition ${
+              canSend && !isSending
+                ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                : 'bg-zinc-600 opacity-50 cursor-not-allowed'
+            }`}
+            title={!canSend ? 'Please fill in recipient, subject, and body' : 'Send email'}
           >
             <Send className="w-4 h-4" />
             {isSending ? 'Sending...' : 'Send'}
