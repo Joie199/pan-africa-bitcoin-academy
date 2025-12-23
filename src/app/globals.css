@@ -54,6 +54,19 @@ body {
   image-rendering: crisp-edges;
 }
 
+/* Light overlay at 10% opacity for subtle text readability */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: -1;
+}
+
 /* Blurred background image layer for body - optimized */
 body::after {
   content: '';
