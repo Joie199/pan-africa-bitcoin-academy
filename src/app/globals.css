@@ -71,7 +71,7 @@ body::after {
   transform: translateZ(0);
 }
 
-/* Gradient overlay: darker on left (text area), brighter on right (image area) */
+/* Gradient overlay: darker on left (text area), brighter on right (image area) with faded edges */
 body::before {
   content: '';
   position: fixed;
@@ -88,6 +88,17 @@ body::before {
     rgba(0, 0, 0, 0.6) 80%,
     rgba(0, 0, 0, 0.55) 100%
   );
+  /* Fade edges to borders using mask */
+  mask-image: 
+    radial-gradient(ellipse 100% 100% at center, black 60%, transparent 100%),
+    linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-image: 
+    radial-gradient(ellipse 100% 100% at center, black 60%, transparent 100%),
+    linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 5%, black 95%, transparent 100%);
+  -webkit-mask-composite: source-in;
   pointer-events: none;
   z-index: -1;
 }
