@@ -1,6 +1,35 @@
-# Genesis Course (Level I) — Foundations of Bitcoin
+# Bitcoin Foundations (Genesis) — Complete Course
 
-This folder contains the Level I (Genesis) course material for the PanAfrican Bitcoin Academy site, structured similarly to the lnbook style but kept inside this repository.
+**Open course materials (CC-BY-SA-4.0)** for the PanAfrican Bitcoin Academy, structured similarly to the lnbook style.
+
+## 📖 Quick Navigation
+
+### Level I (Genesis) — Foundations, the fiat problem, and first steps into Bitcoin
+- [Chapter 1: The Nature of Money](chapters/ch01-nature-of-money.md)
+- [Chapter 2: The Journey of Money](chapters/ch02-journey-of-money.md)
+- [Chapter 3: Problems with Traditional (Fiat) Money](chapters/ch03-fiat-problems.md)
+- [Chapter 4: From Crisis to Innovation](chapters/ch04-crisis-to-innovation.md)
+- [Chapter 5: The Birth of Bitcoin](chapters/ch05-birth-of-bitcoin.md)
+- [Chapter 6: Keys and Transactions](chapters/ch06-keys-and-transactions.md)
+- [Chapter 7: Blockchain Basics](chapters/ch07-blockchain-basics.md)
+- [Chapter 8: Exchange & Software Wallet](chapters/ch08-exchange-and-wallet.md)
+
+### Level II (Difficulty-Adjustment 1)
+- [Chapter 9: UTXOs, Fees & Coin Control](chapters/ch09-utxos-fees.md)
+- [Chapter 10: Good Bitcoin Hygiene](chapters/ch10-hygiene.md)
+- [Chapter 11: Hardware Signers](chapters/ch11-hardware-signers.md)
+- [Chapter 12: Layer 2 & Sidechains](chapters/ch12-layer2-sidechains.md)
+- [Chapter 13: Verify for Yourself — Block Explorers & Nodes](chapters/ch13-verify.md)
+- [Chapter 14: Proof of Work and Block Rewards](chapters/ch14-pow-rewards.md)
+- [Chapter 15: Mining in Practice](chapters/ch15-mining-practice.md)
+
+### Level III (Advanced Sovereignty)
+- [Chapter 16: Full Node & Opening a Lightning Channel](chapters/ch16-full-node-lightning.md)
+- [Chapter 17: Multi-Sig (Collaborative Custody)](chapters/ch17-multisig.md)
+- [Chapter 18: Intro to Bitcoin Script](chapters/ch18-bitcoin-script.md)
+- [Chapter 19: UTXO Consolidation & Privacy Risks](chapters/ch19-consolidation-privacy.md)
+- [Chapter 20: Why Bitcoin? Philosophy & Adoption](chapters/ch20-philosophy.md)
+- [Chapter 21: Wrap-Up & Resources](chapters/ch21-wrap-up.md)
 
 ## Structure
 - `toc.yaml` – ordered table of contents
