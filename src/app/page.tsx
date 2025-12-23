@@ -202,8 +202,8 @@ export default async function Home() {
       {/* Full-page Hero Section */}
       <section className="relative flex min-h-screen flex-col items-center justify-center px-4">
         {/* Background effects */}
-        <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl will-change-transform" style={{ transform: 'translate3d(0, 0, 0)' }} />
-        <div className="pointer-events-none absolute left-0 top-32 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl will-change-transform" style={{ transform: 'translate3d(0, 0, 0)' }} />
+        <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute left-0 top-32 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl" />
         
         {/* Hero Content - Positioned far right, close to edge */}
         <div className="relative z-10 ml-auto mr-2 max-w-4xl space-y-8 pr-1 text-center sm:mr-4 sm:pr-2 lg:mr-8 lg:pr-3 xl:mr-12 xl:pr-4 2xl:mr-16 2xl:pr-5">
