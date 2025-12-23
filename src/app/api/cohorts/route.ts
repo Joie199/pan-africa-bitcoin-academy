@@ -31,17 +31,8 @@ export async function GET() {
         const enrolled = count || 0;
         const available = Math.max(0, (cohort.seats_total || 0) - enrolled);
 
-        // Count sessions from cohort_sessions table
-        const { count: sessionsCount, error: sessionsError } = await supabase
-          .from('cohort_sessions')
-          .select('*', { count: 'exact', head: true })
-          .eq('cohort_id', cohort.id);
-
-        if (sessionsError) {
-          console.error(`Error counting sessions for cohort ${cohort.id}:`, sessionsError);
-        }
-
-        const sessions = sessionsCount || 0;
+        // Get sessions count from cohorts.sessions column
+        const sessions = cohort.sessions || 0;
 
         return {
           id: cohort.id,
@@ -49,7 +40,7 @@ export async function GET() {
           startDate: cohort.start_date || null,
           endDate: cohort.end_date || null,
           status: cohort.status || 'Upcoming',
-          sessions: sessions, // Dynamic count from cohort_sessions table
+          sessions: sessions, // From cohorts.sessions column
           level: cohort.level || 'Beginner',
           seats: cohort.seats_total || 0,
           available: available,
