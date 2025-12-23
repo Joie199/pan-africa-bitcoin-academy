@@ -9,7 +9,7 @@
 
 **Empowering the next generation of African Bitcoin talent through education, mentorship, and community.**
 
-[🌐 Live Website](https://panafricanbitcoin.com) • [📚 Course Materials →](content/courses/genesis/) • [📖 Documentation](./STEP_BY_STEP_GUIDE.md) • [💬 Community](#community) • [🤝 Contribute](#contributing)
+[🌐 Live Website](https://panafricanbitcoin.com) • [📚 Course Materials](content/courses/genesis/) • [📖 Documentation](./STEP_BY_STEP_GUIDE.md) • [💬 Community](#community) • [🤝 Contribute](#contributing)
 
 ---
 
