@@ -54,19 +54,6 @@ body {
   image-rendering: crisp-edges;
 }
 
-/* Light overlay at 10% opacity for subtle text readability */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.1);
-  pointer-events: none;
-  z-index: -1;
-}
-
 /* Blurred background image layer for body - optimized */
 body::after {
   content: '';
@@ -84,6 +71,26 @@ body::after {
   transform: translateZ(0);
 }
 
+/* Gradient overlay: darker on left (text area), brighter on right (image area) */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    rgba(2, 6, 23, 0.8) 0%,
+    rgba(2, 6, 23, 0.75) 20%,
+    rgba(2, 6, 23, 0.7) 40%,
+    rgba(0, 0, 0, 0.65) 60%,
+    rgba(0, 0, 0, 0.6) 80%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
 
 
 a {
