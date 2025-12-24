@@ -7,6 +7,7 @@ import { ChapterCompletionTracker } from "./ChapterCompletionTracker";
 import { NextChapterButton } from "./NextChapterButton";
 import { LiveBlockchainData } from "@/components/LiveBlockchainData";
 import { AdminModeWrapper } from "@/components/AdminModeWrapper";
+import { ChapterAssignment } from "@/components/ChapterAssignment";
 import type { Metadata } from "next";
 
 type ChapterPageProps = {
@@ -663,12 +664,21 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
           </div>
         </section>
 
-        {/* Activities */}
-        <section className="rounded-xl border border-purple-400/25 bg-zinc-950/70 p-5 sm:p-6">
-          <h2 className="text-base font-semibold text-purple-200 sm:text-lg">
-            Activities / Exercises
+        {/* Activities / Assignments */}
+        <section className="rounded-xl border border-zinc-800/50 bg-zinc-950 p-5 sm:p-6 shadow-inner">
+          <h2 className="text-base font-semibold text-zinc-100 sm:text-lg mb-4">
+            Assignment
           </h2>
-          {chapter.slug === 'verify-for-yourself-block-explorers-nodes' ? (
+          {chapter.slug === 'the-nature-of-money' ? (
+            <ChapterAssignment
+              assignmentId="11111111-1111-4111-8111-111111111111"
+              title="Assignment: &quot;What Is Money to Me?&quot;"
+              question="Write 5-7 sentences answering: What problem does money solve in my community?"
+              description="Reflect on how money functions in your daily life and community."
+              points={10}
+              rewardSats={50}
+            />
+          ) : chapter.slug === 'verify-for-yourself-block-explorers-nodes' ? (
             <div className="mt-3">
               <Link
                 href="/assignments/de36f0e1-8cb9-4386-af1a-39eb0529a0b0"

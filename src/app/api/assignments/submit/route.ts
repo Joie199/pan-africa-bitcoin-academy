@@ -47,15 +47,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Normalize answer for comparison (case-insensitive, trim whitespace)
-    const normalizedAnswer = answer.trim().toLowerCase();
-    const normalizedCorrectAnswer = assignment.correct_answer
-      .trim()
-      .toLowerCase();
+    // Check if this assignment requires instructor review
+    // If correct_answer is "INSTRUCTOR_REVIEW", it requires manual grading
+    const requiresReview = assignment.correct_answer === 'INSTRUCTOR_REVIEW' || 
+                          (assignment.answer_type === 'text' && assignment.correct_answer === 'REVIEW_REQUIRED');
 
-    // Check if answer is correct
-    const isCorrect = normalizedAnswer === normalizedCorrectAnswer;
-    const pointsEarned = isCorrect ? assignment.points : 0;
+    let isCorrect = false;
+    let pointsEarned = 0;
+
+    if (requiresReview) {
+      // For assignments requiring review, set status to 'submitted' and is_correct to false
+      // Instructor will grade it later
+      isCorrect = false;
+      pointsEarned = 0;
+    } else {
+      // Normalize answer for comparison (case-insensitive, trim whitespace)
+      const normalizedAnswer = answer.trim().toLowerCase();
+      const normalizedCorrectAnswer = assignment.correct_answer
+        .trim()
+        .toLowerCase();
+
+      // Check if answer is correct
+      isCorrect = normalizedAnswer === normalizedCorrectAnswer;
+      pointsEarned = isCorrect ? assignment.points : 0;
+    }
 
     // Check if submission already exists
     const { data: existingSubmission } = await supabaseAdmin
@@ -74,7 +89,7 @@ export async function POST(req: NextRequest) {
           answer: answer,
           is_correct: isCorrect,
           points_earned: pointsEarned,
-          status: isCorrect ? 'graded' : 'submitted',
+          status: requiresReview ? 'submitted' : (isCorrect ? 'graded' : 'submitted'),
           submitted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -100,7 +115,7 @@ export async function POST(req: NextRequest) {
           answer: answer,
           is_correct: isCorrect,
           points_earned: pointsEarned,
-          status: isCorrect ? 'graded' : 'submitted',
+          status: requiresReview ? 'submitted' : (isCorrect ? 'graded' : 'submitted'),
         })
         .select()
         .single();
