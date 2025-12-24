@@ -17,7 +17,7 @@ INSERT INTO assignments (
   created_at,
   updated_at
 ) VALUES (
-  '88888888-8888-8888-8888-888888888888', -- Deterministic UUID for Chapter 8 assignment
+  '88888888-8888-4888-8888-888888888888', -- Deterministic UUID for Chapter 8 assignment
   'Assignment: First Wallet Proof',
   'Hands-on practice with wallet creation, backup, and recovery. Create a wallet, back up seed securely, restore it (dry run). Reflection: What went wrong or surprised you?',
   8,

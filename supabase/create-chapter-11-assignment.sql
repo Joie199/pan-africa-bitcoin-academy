@@ -17,7 +17,7 @@ INSERT INTO assignments (
   created_at,
   updated_at
 ) VALUES (
-  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', -- Deterministic UUID for Chapter 11 assignment
+  'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb', -- Deterministic UUID for Chapter 11 assignment
   'Assignment: Threat Model',
   'Understand the security benefits of hardware wallets. List 3 threats a hardware wallet protects against.',
   11,

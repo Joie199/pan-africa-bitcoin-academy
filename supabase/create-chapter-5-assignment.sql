@@ -17,7 +17,7 @@ INSERT INTO assignments (
   created_at,
   updated_at
 ) VALUES (
-  '55555555-5555-5555-8555-555555555555', -- Deterministic UUID for Chapter 5 assignment
+  '55555555-5555-4555-8555-555555555555', -- Deterministic UUID for Chapter 5 assignment
   'Assignment: Whitepaper Sentence Decode',
   'Practice translating technical language into everyday terms. Rewrite this sentence in plain language: "A purely peer-to-peer version of electronic cash…"',
   5,

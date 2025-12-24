@@ -698,7 +698,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
             />
           ) : chapter.slug === 'the-birth-of-bitcoin' ? (
             <ChapterAssignment
-              assignmentId="55555555-5555-5555-8555-555555555555"
+              assignmentId="55555555-5555-4555-8555-555555555555"
               title="Assignment: Whitepaper Sentence Decode"
               question="Rewrite this sentence in plain language: &quot;A purely peer-to-peer version of electronic cash…&quot;"
               description="Practice translating technical language into everyday terms."
@@ -707,7 +707,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
             />
           ) : chapter.slug === 'exchange-software-wallet' ? (
             <ChapterAssignment
-              assignmentId="88888888-8888-8888-8888-888888888888"
+              assignmentId="88888888-8888-4888-8888-888888888888"
               title="Assignment: First Wallet Proof"
               question="Create a wallet, back up seed securely, restore it (dry run). Reflection: What went wrong or surprised you?"
               description="Hands-on practice with wallet creation, backup, and recovery."
@@ -716,7 +716,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
             />
           ) : chapter.slug === 'hardware-signers' ? (
             <ChapterAssignment
-              assignmentId="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+              assignmentId="bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb"
               title="Assignment: Threat Model"
               question="List 3 threats a hardware wallet protects against."
               description="Understand the security benefits of hardware wallets."
