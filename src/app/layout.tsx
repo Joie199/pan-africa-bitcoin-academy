@@ -15,6 +15,11 @@ const Footer = dynamic(() => import("@/components/Footer").then(mod => ({ defaul
   ssr: true,
 });
 
+// AdminModeBadge is client-side only (uses hooks) so no SSR
+const AdminModeBadge = dynamic(() => import("@/components/AdminModeBadge").then(mod => ({ default: mod.AdminModeBadge })), {
+  ssr: false,
+});
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -185,6 +190,9 @@ export default function RootLayout({
         {/* Structured Data for SEO */}
         <StructuredData data={organizationStructuredData} />
         <StructuredData data={websiteStructuredData} />
+        
+        {/* Admin Mode Badge - shows on all pages when admin is logged in */}
+        <AdminModeBadge />
         
         <div className="flex min-h-screen flex-col">
           <Navbar />
