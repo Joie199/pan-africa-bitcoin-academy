@@ -687,6 +687,42 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
               points={10}
               rewardSats={75}
             />
+          ) : chapter.slug === 'from-crisis-to-innovation' ? (
+            <ChapterAssignment
+              assignmentId="44444444-4444-4444-8444-444444444444"
+              title="Assignment: &quot;What Broke?&quot;"
+              question="Explain in your own words one reason the old system failed (inflation, debt, bailouts, control)."
+              description="Reflect on the failures of the traditional financial system."
+              points={10}
+              rewardSats={75}
+            />
+          ) : chapter.slug === 'the-birth-of-bitcoin' ? (
+            <ChapterAssignment
+              assignmentId="55555555-5555-5555-8555-555555555555"
+              title="Assignment: Whitepaper Sentence Decode"
+              question="Rewrite this sentence in plain language: &quot;A purely peer-to-peer version of electronic cash…&quot;"
+              description="Practice translating technical language into everyday terms."
+              points={10}
+              rewardSats={100}
+            />
+          ) : chapter.slug === 'exchange-software-wallet' ? (
+            <ChapterAssignment
+              assignmentId="88888888-8888-8888-8888-888888888888"
+              title="Assignment: First Wallet Proof"
+              question="Create a wallet, back up seed securely, restore it (dry run). Reflection: What went wrong or surprised you?"
+              description="Hands-on practice with wallet creation, backup, and recovery."
+              points={10}
+              rewardSats={200}
+            />
+          ) : chapter.slug === 'hardware-signers' ? (
+            <ChapterAssignment
+              assignmentId="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+              title="Assignment: Threat Model"
+              question="List 3 threats a hardware wallet protects against."
+              description="Understand the security benefits of hardware wallets."
+              points={10}
+              rewardSats={100}
+            />
           ) : chapter.slug === 'verify-for-yourself-block-explorers-nodes' ? (
             <div className="mt-3">
               <Link
