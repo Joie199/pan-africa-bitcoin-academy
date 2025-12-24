@@ -1197,6 +1197,7 @@ export default function AdminDashboardPage() {
             <table className="min-w-full text-sm">
               <thead className="bg-zinc-900 text-left text-zinc-300">
                 <tr>
+                  <th className="px-3 py-2">#</th>
                   <th className="px-3 py-2">Name</th>
                   <th className="px-3 py-2">Email</th>
                   <th 
