@@ -51,7 +51,6 @@ export default function SubmitBlogPage() {
         ...prev,
         name: profile.name || "",
         email: profile.email || "",
-        bio: profile.bio || "",
       }));
 
       // Fetch user's full profile data including cohort
