@@ -56,8 +56,8 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
         subtitle="This chapter is part of the Pan-Africa Bitcoin Academy curriculum. Full content coming soon."
       >
         <div className="space-y-8 text-sm text-zinc-100 sm:text-base">
-          <section className="rounded-xl border border-orange-500/25 bg-zinc-950/80 p-4 sm:p-5">
-            <h2 className="text-sm font-semibold text-orange-200 sm:text-base">
+          <section className="rounded-xl border border-zinc-800/50 bg-zinc-950 p-4 sm:p-5 shadow-inner">
+            <h2 className="text-sm font-semibold text-zinc-100 sm:text-base">
               Chapter Content
             </h2>
             <p className="mt-2 text-sm text-zinc-200">
@@ -86,7 +86,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
     >
       <div className="space-y-8 text-sm text-zinc-100 sm:text-base">
         {/* Hero */}
-        <section className="rounded-xl border border-orange-500/25 bg-zinc-950/80 p-5 sm:p-6">
+        <section className="rounded-xl border border-zinc-800/50 bg-zinc-950 p-5 sm:p-6 shadow-inner">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.12em] text-cyan-300/90">
@@ -100,7 +100,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
                   {chapter.duration}
                 </span>
               </div>
-              <p className="text-lg font-semibold text-orange-100 sm:text-xl">
+              <p className="text-lg font-semibold text-zinc-100 sm:text-xl">
                 {chapter.hook}
               </p>
             </div>
@@ -127,8 +127,8 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
         </section>
 
         {/* What you will learn */}
-        <section className="rounded-xl border border-cyan-400/25 bg-black/70 p-5 sm:p-6">
-          <h2 className="text-base font-semibold text-cyan-200 sm:text-lg">
+        <section className="rounded-xl border border-zinc-800/50 bg-zinc-950 p-5 sm:p-6 shadow-inner">
+          <h2 className="text-base font-semibold text-zinc-100 sm:text-lg">
             What You Will Learn
           </h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-zinc-200">
@@ -139,25 +139,25 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
         </section>
 
         {/* Main lesson content */}
-        <section className="space-y-4 rounded-xl border border-orange-400/25 bg-zinc-950/70 p-5 sm:p-6">
-          <h2 className="text-base font-semibold text-orange-200 sm:text-lg">
+        <section className="space-y-4 rounded-xl border border-zinc-800/50 bg-zinc-950 p-5 sm:p-6 shadow-inner">
+          <h2 className="text-base font-semibold text-zinc-100 sm:text-lg">
             Main Lesson Content
           </h2>
           <div className="space-y-5">
             {chapter.sections.map((section, sectionIdx) => {
               const sectionId = `section-${sectionIdx}-${section.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
               return (
-              <div key={section.heading} id={sectionId} className="scroll-mt-20 rounded-lg border-2 border-orange-400/30 bg-gradient-to-br from-black/60 to-zinc-900/40 p-5 shadow-[0_0_20px_rgba(249,115,22,0.1)] hover:border-orange-400/50 transition">
-                <h3 className="text-lg font-bold text-orange-200 sm:text-xl mb-3 pb-2 border-b border-orange-400/20">
+              <div key={section.heading} id={sectionId} className="scroll-mt-20 rounded-lg border border-zinc-800/60 bg-zinc-950 p-5 shadow-inner">
+                <h3 className="text-lg font-bold text-zinc-100 sm:text-xl mb-3 pb-2 border-b border-zinc-800/50">
                   {section.heading}
                 </h3>
                 {section.paragraphs?.map((p) => (
-                  <p key={p} className="mt-2 text-zinc-200">
+                  <p key={p} className="mt-3 text-zinc-200 leading-relaxed">
                     {p}
                   </p>
                 ))}
                 {section.bullets ? (
-                  <ul className="mt-3 list-disc space-y-2 pl-5 text-zinc-200">
+                  <ul className="mt-4 list-disc space-y-2 pl-5 text-zinc-200 leading-relaxed">
                     {section.bullets.map((b) => (
                       <li key={b}>{b}</li>
                     ))}
@@ -171,14 +171,14 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
                   return (
                   <div
                     key={idx}
-                    className={`mt-4 rounded-lg border p-3 ${
+                    className={`mt-4 rounded-lg border p-4 bg-zinc-900/80 ${
                       callout.type === "note"
-                        ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-100"
+                        ? "border-cyan-900/50 text-cyan-100"
                         : callout.type === "tip"
-                        ? "border-green-400/30 bg-green-500/10 text-green-100"
+                        ? "border-green-900/50 text-green-100"
                         : callout.type === "warning"
-                        ? "border-red-400/30 bg-red-500/10 text-red-100"
-                        : "border-orange-400/30 bg-orange-500/10 text-orange-100"
+                        ? "border-red-900/50 text-red-100"
+                        : "border-orange-900/50 text-orange-100"
                     }`}
                   >
                     <div className="flex items-start gap-2">
