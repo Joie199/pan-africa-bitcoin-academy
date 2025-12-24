@@ -19,17 +19,32 @@ export async function GET() {
       );
     }
 
-    // For each cohort, count enrolled students and sessions
+    // For each cohort, count enrolled students, applications, and sessions
     const cohortsWithSeats = await Promise.all(
       (cohorts || []).map(async (cohort: any) => {
-        // Count enrolled students
-        const { count, error: countError } = await supabase
+        // Count enrolled students from cohort_enrollment
+        const { count: enrolledCount, error: countError } = await supabase
           .from('cohort_enrollment')
           .select('*', { count: 'exact', head: true })
           .eq('cohort_id', cohort.id);
 
-        const enrolled = count || 0;
-        const available = Math.max(0, (cohort.seats_total || 0) - enrolled);
+        const enrolled = enrolledCount || 0;
+
+        // Count applications (Pending + Approved) for this cohort
+        const { count: applicationsCount, error: applicationsError } = await supabase
+          .from('applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('preferred_cohort_id', cohort.id)
+          .in('status', ['Pending', 'Approved']);
+
+        if (applicationsError) {
+          console.error(`Error counting applications for cohort ${cohort.id}:`, applicationsError);
+        }
+
+        const applications = applicationsCount || 0;
+
+        // Calculate available seats: total - enrolled - applications (pending + approved)
+        const available = Math.max(0, (cohort.seats_total || 0) - enrolled - applications);
 
         // Get sessions count from cohorts.sessions column
         const sessions = cohort.sessions || 0;
