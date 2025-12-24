@@ -666,7 +666,7 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
           </div>
         </section>
 
-        {/* Activities / Assignments */}
+        {/* Assignments */}
         <section className="rounded-xl border border-zinc-800/50 bg-zinc-950 p-5 sm:p-6 shadow-inner">
           <h2 className="text-base font-semibold text-zinc-100 sm:text-lg mb-4">
             Assignment
