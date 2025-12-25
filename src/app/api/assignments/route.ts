@@ -18,26 +18,48 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get student profile
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, cohort_id')
+    // Check if user is an admin (admins have access to all assignments)
+    const { data: admin } = await supabaseAdmin
+      .from('admins')
+      .select('id, email, role')
       .eq('email', email.toLowerCase().trim())
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
+    const isAdmin = !!admin;
+
+    // Get student profile (create a dummy profile for admins if they don't have one)
+    let profile;
+    if (!isAdmin) {
+      const { data: profileData, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('id, cohort_id')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      if (profileError || !profileData) {
+        return NextResponse.json(
+          { error: 'Profile not found' },
+          { status: 404 }
+        );
+      }
+      profile = profileData;
+    } else {
+      // For admins without profiles, use a dummy profile to fetch all assignments
+      profile = { id: null, cohort_id: null };
     }
 
-    // Fetch assignments (active assignments for student's cohort or all cohorts)
-    const { data: assignments, error: assignmentsError } = await supabaseAdmin
+    // Fetch assignments (admins see all, students see their cohort or all cohorts)
+    let assignmentsQuery = supabaseAdmin
       .from('assignments')
       .select('*')
-      .eq('status', 'active')
-      .or(`cohort_id.is.null,cohort_id.eq.${profile.cohort_id}`)
+      .eq('status', 'active');
+    
+    if (!isAdmin && profile.cohort_id) {
+      assignmentsQuery = assignmentsQuery.or(`cohort_id.is.null,cohort_id.eq.${profile.cohort_id}`);
+    }
+    // Admins see all assignments regardless of cohort
+    
+    const { data: assignments, error: assignmentsError } = await assignmentsQuery
       .order('due_date', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false });
 
@@ -49,11 +71,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch student's submissions
-    const { data: submissions, error: submissionsError } = await supabaseAdmin
-      .from('assignment_submissions')
-      .select('*')
-      .eq('student_id', profile.id);
+    // Fetch student's submissions (skip for admins without profile)
+    let submissions = [];
+    if (!isAdmin && profile.id) {
+      const { data: submissionsData, error: submissionsError } = await supabaseAdmin
+        .from('assignment_submissions')
+        .select('*')
+        .eq('student_id', profile.id);
+      
+      if (!submissionsError) {
+        submissions = submissionsData || [];
+      }
+    }
 
     if (submissionsError) {
       console.error('Error fetching submissions:', submissionsError);

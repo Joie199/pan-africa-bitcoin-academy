@@ -18,18 +18,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get student profile
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
+    // Check if user is an admin (admins can submit assignments too)
+    const { data: admin } = await supabaseAdmin
+      .from('admins')
+      .select('id, email, role')
       .eq('email', email.toLowerCase().trim())
-      .single();
+      .maybeSingle();
 
-    if (profileError || !profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
+    const isAdmin = !!admin;
+
+    // Get or create profile for admin/student
+    let profile;
+    if (!isAdmin) {
+      const { data: profileData, error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email.toLowerCase().trim())
+        .single();
+
+      if (profileError || !profileData) {
+        return NextResponse.json(
+          { error: 'Profile not found' },
+          { status: 404 }
+        );
+      }
+      profile = profileData;
+    } else {
+      // For admins, try to get their profile, or create a dummy one for submission
+      const { data: profileData } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email.toLowerCase().trim())
+        .maybeSingle();
+      
+      if (profileData) {
+        profile = profileData;
+      } else {
+        // Admin doesn't have a profile - we'll need to handle this differently
+        // For now, return an error suggesting they need a profile
+        // Alternatively, we could create a profile or use admin.id
+        return NextResponse.json(
+          { error: 'Admin profile not found. Please contact system administrator.' },
+          { status: 404 }
+        );
+      }
     }
 
     // Get assignment

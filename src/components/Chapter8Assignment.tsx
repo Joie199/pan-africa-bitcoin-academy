@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSession } from '@/hooks/useSession';
 
 interface Chapter8AssignmentProps {
   assignmentId: string;
@@ -27,6 +28,7 @@ function generateRandomSeed(): string[] {
 
 export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
   const { profile, isAuthenticated } = useAuth();
+  const { isAuthenticated: isAdminAuth, email: adminEmail, loading: adminLoading } = useSession('admin');
   const [seedPhrase, setSeedPhrase] = useState<string[]>([]);
   const [studentInputs, setStudentInputs] = useState<string[]>(Array(12).fill(''));
   const [reflection, setReflection] = useState('');
@@ -47,17 +49,20 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && profile?.email) {
+    if ((isAuthenticated && profile?.email) || (isAdminAuth && adminEmail)) {
       checkSubmissionStatus();
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated, profile]);
+  }, [isAuthenticated, profile, isAdminAuth, adminEmail]);
 
   const checkSubmissionStatus = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/assignments?email=${encodeURIComponent(profile!.email)}`);
+      const email = isAdminAuth && adminEmail ? adminEmail : profile?.email;
+      if (!email) return;
+      
+      const response = await fetch(`/api/assignments?email=${encodeURIComponent(email)}`);
       if (response.ok) {
         const data = await response.json();
         const thisAssignment = data.assignments?.find((a: any) => a.id === assignmentId);
@@ -106,7 +111,8 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated || !profile?.email) {
+    const email = isAdminAuth && adminEmail ? adminEmail : profile?.email;
+    if ((!isAuthenticated && !isAdminAuth) || !email) {
       setError('Please log in to submit your assignment.');
       return;
     }
@@ -135,7 +141,7 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: profile.email,
+          email: email,
           assignmentId,
           answer: JSON.stringify(answerData),
         }),
@@ -163,7 +169,7 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
     setShowSeed(true);
   };
 
-  if (loading) {
+  if (loading || adminLoading) {
     return (
       <div className="rounded-lg border border-zinc-800/60 bg-zinc-950 p-5">
         <div className="animate-pulse">
@@ -174,7 +180,7 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isAdminAuth) {
     return (
       <div className="rounded-lg border border-zinc-800/60 bg-zinc-900/50 p-5">
         <p className="text-zinc-400">Please log in to view and complete this assignment.</p>
