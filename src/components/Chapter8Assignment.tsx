@@ -116,13 +116,13 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
       return;
     }
 
-    if (studentInputs.some(input => !input)) {
-      setError('Please complete all 12 seed phrase words.');
+    if (!seedSaved) {
+      setError('Please click "Saved" after writing down your seed phrase before proceeding.');
       return;
     }
 
-    if (!reflection.trim()) {
-      setError('Please write your reflection.');
+    if (studentInputs.some(input => !input)) {
+      setError('Please complete all 12 seed phrase words.');
       return;
     }
 
@@ -165,7 +165,7 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
     const newSeed = generateRandomSeed();
     setSeedPhrase(newSeed);
     setStudentInputs(Array(12).fill(''));
-    setShowSeed(true);
+    setSeedSaved(false); // Reset saved state when generating new seed
   };
 
   if (loading || adminLoading) {
@@ -324,7 +324,7 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
           {/* Reflection */}
           <div>
             <label className="block text-sm font-medium text-zinc-300 mb-2">
-              Reflection: What went wrong or surprised you?
+              Reflection: What went wrong or surprised you? <span className="text-zinc-500 text-xs">(Optional)</span>
             </label>
             <textarea
               value={reflection}
