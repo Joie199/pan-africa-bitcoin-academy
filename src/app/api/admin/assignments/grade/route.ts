@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
           .eq('id', studentProfile.id);
 
         // Check for achievements
-        await checkAndUnlockAchievements(studentProfile.id);
+        await checkAndUnlockAchievements(studentProfile.id, supabaseAdmin);
       }
     }
 
