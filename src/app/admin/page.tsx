@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import { useSession } from '@/hooks/useSession';
 import EmailComposer from '@/components/EmailComposer';
+import { StudentProgressModal } from '@/components/StudentProgressModal';
 
 // Lazy load heavy admin components
 const SessionExpiredModal = dynamic(() => import('@/components/SessionExpiredModal').then(mod => ({ default: mod.SessionExpiredModal })), {
@@ -150,6 +151,7 @@ export default function AdminDashboardPage() {
   const [applicationDetails, setApplicationDetails] = useState<Record<string, any>>({});
   const [loadingDetails, setLoadingDetails] = useState<Record<string, boolean>>({});
   const [isPending, startTransition] = useTransition();
+  const [selectedStudent, setSelectedStudent] = useState<{ id: string; email: string; name: string } | null>(null);
 
   const [eventForm, setEventForm] = useState({
     name: '',
@@ -265,9 +267,36 @@ export default function AdminDashboardPage() {
   };
 
   const fetchProgress = async () => {
-    const res = await fetchWithAuth('/api/admin/students/progress');
-    const data = await res.json();
-    if (data.progress) setProgress(data.progress);
+    try {
+      const res = await fetchWithAuth('/api/admin/students/progress');
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('[Admin] Error fetching progress:', data.error || 'Unknown error');
+        setProgress([]);
+        return;
+      }
+      if (data.progress) {
+        console.log(`[Admin] Loaded ${data.progress.length} student progress records`);
+        // Debug: Log first student's chapter progress
+        if (data.progress.length > 0) {
+          const firstStudent = data.progress[0];
+          console.log(`[Admin] Sample student progress:`, {
+            name: firstStudent.name,
+            email: firstStudent.email,
+            completedChapters: firstStudent.completedChapters,
+            unlockedChapters: firstStudent.unlockedChapters,
+            totalChapters: firstStudent.totalChapters,
+          });
+        }
+        setProgress(data.progress);
+      } else {
+        console.warn('[Admin] No progress data in response');
+        setProgress([]);
+      }
+    } catch (err: any) {
+      console.error('[Admin] Error fetching student progress:', err);
+      setProgress([]);
+    }
   };
 
   const fetchMentorships = async () => {
@@ -1586,7 +1615,12 @@ export default function AdminDashboardPage() {
               <thead className="bg-zinc-900 text-left text-zinc-300">
                 <tr>
                   <th className="px-3 py-2">#</th>
-                  <th className="px-3 py-2">Name</th>
+                  <th className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      Name
+                      <span className="text-xs text-zinc-500">(Click to view details)</span>
+                    </div>
+                  </th>
                   <th className="px-3 py-2">Email</th>
                   <th 
                     className="px-3 py-2 cursor-pointer hover:bg-zinc-800 transition select-none"
@@ -1653,7 +1687,8 @@ export default function AdminDashboardPage() {
                 {filteredAndSortedProgress.map((p, index) => (
                   <tr 
                     key={p.id} 
-                    className={`border-b border-zinc-800 ${cohortFilter && p.cohortId === cohortFilter ? 'bg-zinc-800/30' : ''}`}
+                    className={`border-b border-zinc-800 cursor-pointer transition hover:bg-zinc-800/50 ${cohortFilter && p.cohortId === cohortFilter ? 'bg-zinc-800/30' : ''}`}
+                    onClick={() => setSelectedStudent({ id: p.id, email: p.email, name: p.name })}
                   >
                     <td className="px-3 py-2 text-zinc-400">{index + 1}</td>
                     <td className="px-3 py-2 text-zinc-50">{p.name}</td>
@@ -2090,6 +2125,16 @@ export default function AdminDashboardPage() {
         }}
         userType="admin"
       />
+      )}
+
+      {/* Student Progress Modal */}
+      {selectedStudent && (
+        <StudentProgressModal
+          studentId={selectedStudent.id}
+          studentEmail={selectedStudent.email}
+          studentName={selectedStudent.name}
+          onClose={() => setSelectedStudent(null)}
+        />
       )}
     </div>
   );

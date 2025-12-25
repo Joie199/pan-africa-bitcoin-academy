@@ -67,8 +67,15 @@ export async function GET(_req: NextRequest) {
           .in('student_id', profileIds);
 
         if (chapterProgressError) {
-          console.error('Error fetching chapter progress:', chapterProgressError);
+          console.error('[admin/students/progress] Error fetching chapter progress:', chapterProgressError);
           // Continue with empty chapter progress data
+        } else {
+          console.log(`[admin/students/progress] Fetched ${chapterProgressData?.length || 0} chapter progress records for ${profileIds.length} profiles`);
+          // Debug: Log sample data
+          if (chapterProgressData && chapterProgressData.length > 0) {
+            const completedCount = chapterProgressData.filter((cp: any) => cp.is_completed === true).length;
+            console.log(`[admin/students/progress] Found ${completedCount} completed chapters out of ${chapterProgressData.length} total records`);
+          }
         }
 
         // Fetch attendance data
@@ -86,10 +93,19 @@ export async function GET(_req: NextRequest) {
         // Attach related data to profiles
         profiles = profiles.map((profile: any) => {
           const profileId = profile.id;
+          const studentProgress = chapterProgressData?.filter((cp: any) => cp.student_id === profileId) || [];
+          
+          // Debug: Log if we're not finding progress for a student who should have it
+          const hasStudentRecord = studentsData?.some((s: any) => s.profile_id === profileId);
+          if (studentProgress.length === 0 && hasStudentRecord) {
+            // Only log for students (to avoid spam for non-students)
+            console.log(`[admin/students/progress] No chapter progress found for student ${profile.email} (profile_id: ${profileId})`);
+          }
+          
           return {
             ...profile,
             students: studentsData?.filter((s: any) => s.profile_id === profileId) || [],
-            chapter_progress: chapterProgressData?.filter((cp: any) => cp.student_id === profileId) || [],
+            chapter_progress: studentProgress,
             attendance: attendanceData?.filter((a: any) => a.student_id === profileId) || [],
             cohort_enrollment: enrollmentData?.filter((e: any) => e.student_id === profileId) || [],
           };
@@ -139,6 +155,11 @@ export async function GET(_req: NextRequest) {
       // Filter for completed chapters - check explicitly for true (handles null/undefined/false)
       const completed = chapterData.filter((c: any) => c.is_completed === true).length;
       const unlocked = chapterData.length;
+      
+      // Debug logging for first few students
+      if (profiles.indexOf(p) < 3) {
+        console.log(`[admin/students/progress] Student ${p.email}: ${chapterData.length} progress records, ${completed} completed`);
+      }
       
       // Calculate attendance
       const attendanceRecords = p.attendance || [];
