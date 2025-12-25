@@ -79,19 +79,29 @@ export async function GET(req: NextRequest) {
         .select('*')
         .eq('student_id', profile.id);
       
+      if (submissionsError) {
+        console.error('Error fetching submissions:', submissionsError);
+        // Continue without submissions if error
+      } else {
+        submissions = submissionsData || [];
+      }
+    }
+    
+    // For admins with profiles, also fetch their submissions
+    if (isAdmin && profile.id) {
+      const { data: submissionsData, error: submissionsError } = await supabaseAdmin
+        .from('assignment_submissions')
+        .select('*')
+        .eq('student_id', profile.id);
+      
       if (!submissionsError) {
         submissions = submissionsData || [];
       }
     }
 
-    if (submissionsError) {
-      console.error('Error fetching submissions:', submissionsError);
-      // Continue without submissions if error
-    }
-
-    // Map submissions by assignment_id for quick lookup
+    // Map submissions by assignment_id for quick lookup (skip if no profile)
     const submissionsMap = new Map(
-      (submissions || []).map((sub) => [sub.assignment_id, sub])
+      (submissions || []).map((sub: any) => [sub.assignment_id, sub])
     );
 
     // Combine assignments with submission status
