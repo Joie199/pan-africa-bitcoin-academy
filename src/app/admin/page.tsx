@@ -131,9 +131,14 @@ export default function AdminDashboardPage() {
   const [uploadingAttendance, setUploadingAttendance] = useState(false);
   const [regeneratingSessions, setRegeneratingSessions] = useState<string | null>(null);
   const [selectedEventForUpload, setSelectedEventForUpload] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'students' | 'events' | 'mentorships' | 'attendance' | 'exam'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'applications' | 'students' | 'events' | 'mentorships' | 'attendance' | 'exam' | 'assignments'>('overview');
   const [examAccessList, setExamAccessList] = useState<any[]>([]);
   const [loadingExamAccess, setLoadingExamAccess] = useState(false);
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [submissionFilter, setSubmissionFilter] = useState<'all' | 'submitted' | 'graded'>('submitted');
+  const [gradingSubmission, setGradingSubmission] = useState<string | null>(null);
+  const [gradingFeedback, setGradingFeedback] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [expandedApplicationId, setExpandedApplicationId] = useState<string | null>(null);
@@ -206,6 +211,7 @@ export default function AdminDashboardPage() {
         fetchLiveClassEvents(),
         fetchMentorships(),
         fetchExamAccess(),
+        fetchSubmissions(),
       ]);
     } catch (err: any) {
       // Silently fail - user can refresh page if needed
@@ -274,6 +280,50 @@ export default function AdminDashboardPage() {
       console.error('Error fetching exam access:', err);
     } finally {
       setLoadingExamAccess(false);
+    }
+  };
+
+  const fetchSubmissions = async () => {
+    if (!admin) return;
+    try {
+      setLoadingSubmissions(true);
+      const res = await fetchWithAuth(`/api/admin/assignments/submissions?email=${encodeURIComponent(admin.email)}&status=${submissionFilter === 'all' ? 'all' : submissionFilter}`);
+      const data = await res.json();
+      if (data.submissions) setSubmissions(data.submissions);
+    } catch (err) {
+      console.error('Error fetching submissions:', err);
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  };
+
+  const handleGradeSubmission = async (submissionId: string, isCorrect: boolean) => {
+    if (!admin) return;
+    setGradingSubmission(submissionId);
+    try {
+      const res = await fetchWithAuth('/api/admin/assignments/grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: admin.email,
+          submissionId,
+          isCorrect,
+          feedback: gradingFeedback[submissionId] || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to grade submission');
+      alert(data.message || (isCorrect ? 'Assignment approved!' : 'Assignment rejected.'));
+      await fetchSubmissions();
+      setGradingFeedback((prev) => {
+        const next = { ...prev };
+        delete next[submissionId];
+        return next;
+      });
+    } catch (err: any) {
+      alert(err.message || 'Failed to grade submission');
+    } finally {
+      setGradingSubmission(null);
     }
   };
 
@@ -1577,6 +1627,152 @@ export default function AdminDashboardPage() {
               <p className="p-3 text-sm text-zinc-400">No students found for the selected cohort filter.</p>
             )}
           </div>
+        </div>
+
+        {/* Assignment Submissions Section */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-zinc-50">Assignment Submissions</h2>
+            <div className="flex gap-2">
+              {(['all', 'submitted', 'graded'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => {
+                    setSubmissionFilter(f);
+                    setTimeout(() => fetchSubmissions(), 0);
+                  }}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    submissionFilter === f
+                      ? 'bg-cyan-400 text-black'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  }`}
+                >
+                  {f.charAt(0).toUpperCase() + f.slice(1)} (
+                  {submissions.filter((s) => {
+                    if (f === 'all') return true;
+                    return s.status === f;
+                  }).length})
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="text-sm text-zinc-400 mb-6">
+            Review and grade student assignment submissions. Approve to award sats rewards.
+          </p>
+
+          {loadingSubmissions ? (
+            <div className="text-center py-8 text-zinc-400">Loading submissions...</div>
+          ) : submissions.length === 0 ? (
+            <div className="text-center py-8 text-zinc-400">No submissions found.</div>
+          ) : (
+            <div className="space-y-4">
+              {submissions
+                .filter((s) => {
+                  if (submissionFilter === 'all') return true;
+                  return s.status === submissionFilter;
+                })
+                .map((submission) => {
+                  const assignment = submission.assignments;
+                  const student = submission.profiles;
+                  return (
+                    <div
+                      key={submission.id}
+                      className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4"
+                    >
+                      <div className="mb-3 flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-sm font-semibold text-zinc-50">
+                            {assignment?.title || 'Untitled Assignment'}
+                          </h3>
+                          <p className="text-xs text-zinc-400 mt-1">
+                            Chapter {assignment?.chapter_number || 'N/A'} • {student?.name || student?.email || 'Unknown Student'}
+                          </p>
+                          {assignment?.reward_sats && (
+                            <p className="text-xs text-cyan-400 mt-1">
+                              Reward: {assignment.reward_sats} sats
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          className={`rounded-full border px-2 py-1 text-xs ${
+                            submission.status === 'graded'
+                              ? submission.is_correct
+                                ? 'text-green-400 bg-green-500/10 border-green-500/30'
+                                : 'text-red-400 bg-red-500/10 border-red-500/30'
+                              : 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30'
+                          }`}
+                        >
+                          {submission.status === 'graded'
+                            ? submission.is_correct
+                              ? 'Approved'
+                              : 'Rejected'
+                            : 'Pending Review'}
+                        </span>
+                      </div>
+
+                      {assignment?.question && (
+                        <div className="mb-3 rounded bg-zinc-800/50 p-3">
+                          <p className="text-xs font-medium text-zinc-300 mb-1">Question:</p>
+                          <p className="text-sm text-zinc-200">{assignment.question}</p>
+                        </div>
+                      )}
+
+                      <div className="mb-3 rounded bg-zinc-800/50 p-3">
+                        <p className="text-xs font-medium text-zinc-300 mb-1">Student Answer:</p>
+                        <p className="text-sm text-zinc-200 whitespace-pre-wrap">{submission.answer}</p>
+                      </div>
+
+                      {submission.feedback && (
+                        <div className="mb-3 rounded bg-blue-500/10 border border-blue-500/30 p-3">
+                          <p className="text-xs font-medium text-blue-300 mb-1">Feedback:</p>
+                          <p className="text-sm text-blue-200">{submission.feedback}</p>
+                        </div>
+                      )}
+
+                      <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
+                        <span>Submitted: {new Date(submission.submitted_at).toLocaleString()}</span>
+                        {submission.graded_at && (
+                          <span>• Graded: {new Date(submission.graded_at).toLocaleString()}</span>
+                        )}
+                      </div>
+
+                      {submission.status === 'submitted' && (
+                        <div className="mt-4 space-y-2">
+                          <textarea
+                            placeholder="Optional feedback for student..."
+                            value={gradingFeedback[submission.id] || ''}
+                            onChange={(e) =>
+                              setGradingFeedback((prev) => ({
+                                ...prev,
+                                [submission.id]: e.target.value,
+                              }))
+                            }
+                            className="w-full rounded border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20"
+                            rows={2}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleGradeSubmission(submission.id, true)}
+                              disabled={gradingSubmission === submission.id}
+                              className="flex-1 rounded-lg bg-green-500/20 px-3 py-2 text-sm font-medium text-green-400 transition hover:bg-green-500/30 disabled:opacity-50"
+                            >
+                              {gradingSubmission === submission.id ? 'Grading...' : '✓ Approve'}
+                            </button>
+                            <button
+                              onClick={() => handleGradeSubmission(submission.id, false)}
+                              disabled={gradingSubmission === submission.id}
+                              className="flex-1 rounded-lg bg-red-500/20 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/30 disabled:opacity-50"
+                            >
+                              {gradingSubmission === submission.id ? 'Grading...' : '✗ Reject'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
 
         {/* Exam Management Section */}

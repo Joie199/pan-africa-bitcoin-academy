@@ -112,6 +112,13 @@ export async function POST(req: NextRequest) {
       .eq('student_id', profile.id)
       .maybeSingle();
 
+    const wasAlreadyCorrect = existingSubmission?.is_correct === true;
+    const isNewlyCorrect = isCorrect && !wasAlreadyCorrect;
+    const isNewSubmission = !existingSubmission;
+
+    // Get reward amount (use assignment's reward_sats, default to 200 if not set)
+    const rewardAmount = assignment.reward_sats || 200;
+
     let submission;
     if (existingSubmission) {
       // Update existing submission
@@ -160,73 +167,63 @@ export async function POST(req: NextRequest) {
         );
       }
       submission = created;
+    }
 
-        // Update student's assignments_completed count if correct
-      if (isCorrect) {
-        const { data: student } = await supabaseAdmin
-          .from('students')
-          .select('assignments_completed')
-          .eq('profile_id', profile.id)
-          .single();
+    // Always add reward amount to pending sats when answer is submitted (only for new submissions to avoid double-adding)
+    // This reserves the reward amount in pending, whether it's auto-graded or requires instructor review
+    if (isNewSubmission) {
+      const { data: existingReward } = await supabaseAdmin
+        .from('sats_rewards')
+        .select('*')
+        .eq('student_id', profile.id)
+        .maybeSingle();
 
-        if (student) {
-          await supabaseAdmin
-            .from('students')
-            .update({
-              assignments_completed: (student.assignments_completed || 0) + 1,
-            })
-            .eq('profile_id', profile.id);
-        }
-
-        // Award sats reward for completing assignment
-        const { data: existingReward } = await supabaseAdmin
+      if (existingReward) {
+        await supabaseAdmin
           .from('sats_rewards')
-          .select('*')
-          .eq('student_id', profile.id)
-          .maybeSingle();
-
-        const rewardAmount = 500; // 500 sats for completing an assignment
-
-        if (existingReward) {
-          await supabaseAdmin
-            .from('sats_rewards')
-            .update({
-              amount_pending:
-                (existingReward.amount_pending || 0) + rewardAmount,
-            })
-            .eq('id', existingReward.id);
-        } else {
-          await supabaseAdmin.from('sats_rewards').insert({
-            student_id: profile.id,
-            amount_pending: rewardAmount,
-            reward_type: 'assignment',
-            related_entity_type: 'assignment',
-            related_entity_id: assignmentId,
-            status: 'pending',
-          });
-        }
-
-        // Check and unlock achievements (e.g., "3 Assignments Done")
-        let newlyUnlockedAchievements: Array<{ id: string; title: string; icon: string; satsReward: number }> = [];
-        try {
-          newlyUnlockedAchievements = await checkAndUnlockAchievements(profile.id, supabaseAdmin);
-        } catch (achievementError) {
-          // Don't fail the request if achievement check fails
-          console.error('Error checking achievements:', achievementError);
-        }
-
-        return NextResponse.json({
-          success: true,
-          submission: {
-            id: submission.id,
-            isCorrect,
-            pointsEarned,
-            message: isCorrect
-              ? 'Correct! You earned ' + pointsEarned + ' points.'
-              : 'Incorrect answer. Please try again.',
-          },
-          newlyUnlockedAchievements: newlyUnlockedAchievements.length > 0 ? newlyUnlockedAchievements : undefined,
+          .update({
+            amount_pending: (existingReward.amount_pending || 0) + rewardAmount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingReward.id);
+      } else {
+        await supabaseAdmin.from('sats_rewards').insert({
+          student_id: profile.id,
+          amount_pending: rewardAmount,
+          reward_type: 'assignment',
+          related_entity_type: 'assignment',
+          related_entity_id: assignmentId,
+          reason: `Assignment submitted: ${assignment.title}`,
+          status: 'pending',
         });
+      }
+    }
+
+    // Update student's assignments_completed count and check achievements only if this submission is newly correct
+    let newlyUnlockedAchievements: Array<{ id: string; title: string; icon: string; satsReward: number }> = [];
+    if (isNewlyCorrect) {
+      // Update student's assignments_completed count
+      const { data: student } = await supabaseAdmin
+        .from('students')
+        .select('assignments_completed')
+        .eq('profile_id', profile.id)
+        .single();
+
+      if (student) {
+        await supabaseAdmin
+          .from('students')
+          .update({
+            assignments_completed: (student.assignments_completed || 0) + 1,
+          })
+          .eq('profile_id', profile.id);
+      }
+
+      // Check and unlock achievements (e.g., "3 Assignments Done")
+      try {
+        newlyUnlockedAchievements = await checkAndUnlockAchievements(profile.id, supabaseAdmin);
+      } catch (achievementError) {
+        // Don't fail the request if achievement check fails
+        console.error('Error checking achievements:', achievementError);
       }
     }
 
@@ -237,9 +234,14 @@ export async function POST(req: NextRequest) {
         isCorrect,
         pointsEarned,
         message: isCorrect
-          ? 'Correct! You earned ' + pointsEarned + ' points.'
+          ? (requiresReview 
+              ? 'Submission received! Your work is under instructor review.'
+              : 'Correct! You earned ' + pointsEarned + ' points.')
+          : requiresReview
+          ? 'Submission received! Your work is under instructor review.'
           : 'Incorrect answer. Please try again.',
       },
+      newlyUnlockedAchievements: newlyUnlockedAchievements.length > 0 ? newlyUnlockedAchievements : undefined,
     });
   } catch (error: any) {
     console.error('Error in submit assignment API:', error);

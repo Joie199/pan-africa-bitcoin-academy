@@ -14,6 +14,7 @@ INSERT INTO assignments (
   correct_answer,
   answer_type,
   points,
+  reward_sats,
   status,
   cohort_id,
   created_at,
@@ -29,6 +30,7 @@ INSERT INTO assignments (
   'INSTRUCTOR_REVIEW', -- Special value indicating this requires manual review
   'text',
   10,
+  50, -- 50 sats reward
   'active',
   NULL, -- Available to all cohorts
   NOW(),
@@ -37,6 +39,7 @@ INSERT INTO assignments (
   title = EXCLUDED.title,
   description = EXCLUDED.description,
   question = EXCLUDED.question,
+  reward_sats = EXCLUDED.reward_sats,
   updated_at = NOW();
 
 -- Note: When an instructor grades this assignment:

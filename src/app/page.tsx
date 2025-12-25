@@ -94,6 +94,15 @@ const fallbackMentors: Mentor[] = [
     twitter: "https://twitter.com/samiromer",
     type: null,
   },
+  {
+    name: "Ojok Emmanuel Nsubuga",
+    role: "Software Developer",
+    description: "Software developer contributing to Bitcoin wallet development and open-source projects.",
+    image: "/images/mentors/ojokne.jpg",
+    github: "https://github.com/ojokne",
+    twitter: "https://x.com/Ojokne",
+    type: null,
+  },
 ];
 
 async function getMentors(): Promise<Mentor[]> {

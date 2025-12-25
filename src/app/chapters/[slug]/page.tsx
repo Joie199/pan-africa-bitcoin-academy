@@ -681,6 +681,15 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
               points={10}
               rewardSats={50}
             />
+          ) : chapter.slug === 'the-journey-of-money' ? (
+            <ChapterAssignment
+              assignmentId="22222222-2222-4222-8222-222222222222"
+              title="Assignment: Money Under Pressure"
+              question="Write about how you saw old money fail."
+              description="Reflect on your experiences or observations of traditional money systems failing."
+              points={10}
+              rewardSats={75}
+            />
           ) : chapter.slug === 'problems-with-traditional-fiat-money' ? (
             <ChapterAssignment
               assignmentId="33333333-3333-4333-8333-333333333333"
@@ -731,6 +740,15 @@ export default async function ChapterPage({ params }: ChapterPageProps) {
               title="Assignment: Threat Model"
               question="List 3 threats a hardware wallet protects against."
               description="Understand the security benefits of hardware wallets."
+              points={10}
+              rewardSats={100}
+            />
+          ) : chapter.slug === 'good-bitcoin-hygiene' ? (
+            <ChapterAssignment
+              assignmentId="10101010-1010-4101-8101-010101010101"
+              title="Assignment: Protect Your Future Self"
+              question="Why should you use a new receive address every time?"
+              description="Reflect on why using a new receive address every time is important for privacy and security."
               points={10}
               rewardSats={100}
             />

@@ -1,6 +1,8 @@
--- Create Chapter 11 Assignment: "Threat Model"
+-- Create Chapter 10 Assignment: "Protect Your Future Self"
 -- This assignment requires instructor review (text submission)
 
+-- Insert the assignment
+-- Using a deterministic UUID based on chapter 10 assignment
 INSERT INTO assignments (
   id,
   title,
@@ -18,12 +20,12 @@ INSERT INTO assignments (
   created_at,
   updated_at
 ) VALUES (
-  'bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb', -- Deterministic UUID for Chapter 11 assignment
-  'Assignment: Threat Model',
-  'Understand the security benefits of hardware wallets. List 3 threats a hardware wallet protects against.',
-  11,
-  'hardware-signers',
-  'List 3 threats a hardware wallet protects against.',
+  '10101010-1010-4101-8101-010101010101', -- Deterministic UUID for Chapter 10 assignment
+  'Assignment: Protect Your Future Self',
+  'Reflect on why using a new receive address every time is important for privacy and security.',
+  10,
+  'good-bitcoin-hygiene',
+  'Why should you use a new receive address every time?',
   NULL,
   'INSTRUCTOR_REVIEW', -- Special value indicating this requires manual review
   'text',
