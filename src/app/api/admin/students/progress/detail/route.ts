@@ -35,15 +35,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Student not found' }, { status: 404 });
     }
 
-    // Get student record
-    const { data: student } = await supabaseAdmin
+    // Get student record, create if missing
+    let { data: student } = await supabaseAdmin
       .from('students')
       .select('id')
       .eq('profile_id', profile.id)
-      .single();
+      .maybeSingle();
 
     if (!student) {
-      return NextResponse.json({ error: 'Student record not found' }, { status: 404 });
+      // Student record doesn't exist - create it automatically
+      console.log(`[admin/students/progress/detail] Creating missing student record for profile ${profile.id}`);
+      const { data: newStudent, error: createError } = await supabaseAdmin
+        .from('students')
+        .insert({
+          profile_id: profile.id,
+          progress_percent: 0,
+          assignments_completed: 0,
+          projects_completed: 0,
+          live_sessions_attended: 0,
+        })
+        .select('id')
+        .single();
+
+      if (createError || !newStudent) {
+        console.error('[admin/students/progress/detail] Failed to create student record:', createError);
+        return NextResponse.json(
+          { error: 'Failed to create student record. Please contact support.' },
+          { status: 500 }
+        );
+      }
+
+      student = newStudent;
+      console.log(`[admin/students/progress/detail] Successfully created student record for profile ${profile.id}`);
     }
 
     // Get all chapter progress
