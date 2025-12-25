@@ -133,7 +133,7 @@ export function Chapter8Assignment({ assignmentId }: Chapter8AssignmentProps) {
       const answerData = {
         seedPhrase,
         studentInputs,
-        reflection: reflection.trim(),
+        reflection: reflection.trim() || '', // Optional reflection
       };
 
       const response = await fetch('/api/assignments/submit', {
